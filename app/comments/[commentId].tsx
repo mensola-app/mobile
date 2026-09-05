@@ -75,9 +75,52 @@ export default function CommentDetailScreen() {
         (page) => page?.data?.comments ?? [],
     );
 
-    /** Root comment id: first parentId-less item in the list */
-    const rootCommentId =
-        allComments.find((c) => c.parentId === null)?.id ?? commentId;
+    /**
+     * Root comment: the main discussion-starter comment.
+     * Detected either by matching route commentId or parentId === null.
+     */
+    const rootComment = allComments.find(
+        (c) => (c.id as string) === (commentId as string) || c.parentId === null,
+    );
+    const rootCommentId = rootComment?.id ?? commentId;
+
+    /**
+     * Filtered replies for the DynamicList:
+     * Excludes root comment so it is NOT rendered twice.
+     */
+    const replies = allComments.filter(
+        (c) =>
+            (c.id as string) !== (rootCommentId as string) &&
+            (c.id as string) !== (commentId as string) &&
+            c.parentId !== null,
+    );
+
+    /**
+     * Display interaction for HeroHeader:
+     * Prefers navigation param interactionData, but falls back to synthesized rootComment data.
+     */
+    const displayInteraction: InteractionItemResponse | null =
+        interactionData ??
+        (rootComment
+            ? {
+                  id: rootComment.id as any,
+                  rating: 0,
+                  isLiked: rootComment.isLikedByMe,
+                  likesCount: rootComment.likeCount,
+                  replyCount: replies.length,
+                  user: {
+                      id: rootComment.user.id,
+                      username: rootComment.user.username,
+                      fullname: rootComment.user.username,
+                      avatar: rootComment.user.avatar,
+                  } as any,
+                  comment: {
+                      id: rootComment.id,
+                      content: rootComment.content,
+                      date: rootComment.createdAt,
+                  },
+              }
+            : null);
 
     // ─── Toggle like mutation ─────────────────────────────────────────────────
     const { mutate: toggleLike, isPending: isLikePending } = useMutation({
@@ -127,13 +170,17 @@ export default function CommentDetailScreen() {
     );
 
     const handleHeroLike = useCallback(() => {
+        const rootId = (rootComment?.id ?? interactionData?.comment?.id) as string | undefined;
+        if (rootId) {
+            handleToggleLike(rootId);
+            return;
+        }
         if (!interactionData?.comment?.id) return;
         const cid = interactionData.comment.id as string;
         const current = heroLikeOverride ?? {
             isLikedByMe: false,
             likeCount: 0,
         };
-        // Optimistic
         setHeroLikeOverride({
             isLikedByMe: !current.isLikedByMe,
             likeCount: current.likeCount + (current.isLikedByMe ? -1 : 1),
@@ -148,7 +195,16 @@ export default function CommentDetailScreen() {
                 }
             })
             .catch(() => setHeroLikeOverride(current));
-    }, [interactionData, heroLikeOverride]);
+    }, [rootComment, interactionData, handleToggleLike, heroLikeOverride]);
+
+    const heroLike = rootComment
+        ? {
+              isLikedByMe:
+                  likeOverrides[rootComment.id as string]?.isLikedByMe ?? rootComment.isLikedByMe,
+              likeCount:
+                  likeOverrides[rootComment.id as string]?.likeCount ?? rootComment.likeCount,
+          }
+        : heroLikeOverride;
 
     // ─── Reply / Send ─────────────────────────────────────────────────────────
     const handleSend = useCallback(async () => {
@@ -237,20 +293,20 @@ export default function CommentDetailScreen() {
                 </View>
             ) : (
                 <DynamicList<CommentThreadItem>
-                    data={allComments}
+                    data={replies}
                     keyExtractor={(item) => item.id as string}
                     renderItem={renderItem}
                     variant="vertical"
                     ItemSeparatorComponent={renderSeparator}
                     ListHeaderComponent={
-                        interactionData ? (
+                        displayInteraction ? (
                             <HeroHeader
                                 mediaPoster={params.mediaPoster}
                                 mediaTitle={params.mediaTitle}
                                 mediaType={params.mediaType}
-                                interaction={interactionData}
-                                likeCount={heroLikeOverride?.likeCount}
-                                isLikedByMe={heroLikeOverride?.isLikedByMe}
+                                interaction={displayInteraction}
+                                likeCount={heroLike?.likeCount}
+                                isLikedByMe={heroLike?.isLikedByMe}
                                 onLike={handleHeroLike}
                             />
                         ) : null
