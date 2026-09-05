@@ -19,6 +19,8 @@ export interface MovieDetailViewProps {
     movie: MovieDetails | null;
     isLoading: boolean;
     error: string;
+    isRefreshing?: boolean;
+    refetch?: () => void | Promise<void>;
 }
 
 export interface MovieHeroProps {

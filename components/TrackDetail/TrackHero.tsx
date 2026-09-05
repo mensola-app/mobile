@@ -24,12 +24,13 @@ export default function TrackHero({
     onCommentPress,
     onAddPress,
     onPlayPress,
+    commentsCount: propCommentsCount,
 }: ITrackHeroProps) {
     if (!trackDetails) return null;
 
     const artistName = trackDetails.artists && trackDetails.artists.length > 0 ? trackDetails.artists[0].name : "";
     const likesCount = trackDetails.likesCount || 0;
-    const commentsCount = trackDetails.commentsCount || 0;
+    const commentsCount = propCommentsCount !== undefined ? propCommentsCount : (trackDetails.commentsCount || 0);
 
     const userRating = trackDetails?.currentUserInteraction?.rating
         ? Number(trackDetails.currentUserInteraction.rating)

@@ -19,7 +19,7 @@ export default function MoviePage() {
 
     const parsedMovieId = type === "tmdb" ? (Number(movieId) as TmdbId) : (movieId as MovieId);
 
-    const { movie, isLoading, error } = useMovie(parsedMovieId, type ?? "app");
+    const { movie, isLoading, isRefreshing, error, refetch } = useMovie(parsedMovieId, type ?? "app");
     const { addFavorite, removeFavorite, isLoading: isFavoriteLoading } = useFavoriteMovies();
 
     const [isFavorite, setIsFavorite] = useState(false);
@@ -75,7 +75,13 @@ export default function MoviePage() {
                 }
             />
             <View style={styles.container}>
-                <MovieDetailView movie={movie} isLoading={isLoading} error={error} />
+                <MovieDetailView
+                    movie={movie}
+                    isLoading={isLoading}
+                    isRefreshing={isRefreshing}
+                    error={error}
+                    refetch={refetch}
+                />
             </View>
             {movie?.id && (
                 <ReplaceFavoriteBottomSheet

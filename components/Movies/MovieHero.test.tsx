@@ -79,4 +79,23 @@ describe("MovieHero Component", () => {
 
         expect(queryByText("Interstellar")).toBeNull();
     });
+
+    it("increments comments badge directly when a new comment is submitted", async () => {
+        const { getByText, UNSAFE_getByType } = renderWithQueryClient(
+            <MovieHero movie={mockMovie as any} isInteractionSheetOpen={true} />
+        );
+
+        expect(getByText("340")).toBeTruthy();
+
+        const InteractionSheetComponent = require("../Interaction/InteractionSheet").default;
+        const sheet = UNSAFE_getByType(InteractionSheetComponent);
+
+        const { act } = require("@testing-library/react-native");
+        await act(async () => {
+            await sheet.props.onSubmit({ rating: 9, comment: "Harika bir film!", isLiked: false });
+        });
+
+        expect(getByText("341")).toBeTruthy();
+    });
 });
+

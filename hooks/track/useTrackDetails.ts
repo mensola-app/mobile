@@ -26,17 +26,18 @@ export const useTrackDetails = (trackId?: TrackId | SpotifyId, type: "app" | "sp
         updateLike: (d, isLiked, count) => ({ ...d, isLiked, likesCount: count }),
     });
 
+    const refetchAll = useCallback(async () => {
+        await Promise.all([fetchData(true)]);
+    }, [fetchData]);
+
     const dbTrackId = trackDetails?.id;
     const { submitInteraction } = useInteracion({
         targetId: dbTrackId,
         createOrUpdateInteraction: async (data) => {
             await TrackService.createOrUpdateInteraction(data);
         },
+        refreshFn: refetchAll,
     });
-
-    const refetchAll = useCallback(async () => {
-        await Promise.all([fetchData(true)]);
-    }, [fetchData]);
 
     return { trackDetails, submitInteraction, refetchAll, ...rest };
 };

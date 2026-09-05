@@ -9,6 +9,7 @@ export interface ITrackHeroProps {
     onCommentPress?: () => void;
     onAddPress?: () => void;
     onPlayPress?: () => void;
+    commentsCount?: number;
 }
 
 export interface ITrackDetailViewProps {

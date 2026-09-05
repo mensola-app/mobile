@@ -57,7 +57,16 @@ export default function MovieHero({
             "",
     );
 
-    const commentsCount = movie?.commentsCount ?? movie?.interactions?.length ?? 0;
+    const [commentsCount, setCommentsCount] = useState<number>(
+        movie?.commentsCount ?? movie?.interactions?.length ?? 0,
+    );
+
+    useEffect(() => {
+        const count = movie?.commentsCount ?? movie?.interactions?.length;
+        if (count !== undefined) {
+            setCommentsCount(count);
+        }
+    }, [movie?.commentsCount, movie?.interactions?.length]);
 
     useEffect(() => {
         if (movie?.isWatched !== undefined) {
@@ -256,6 +265,15 @@ export default function MovieHero({
                 initialIsLiked={isLiked}
                 onSubmit={async ({ rating, comment, isLiked: updatedIsLiked }) => {
                     if (!movie?.id) return;
+
+                    const hadExistingComment = typeof userComment === "string" && userComment.trim().length > 0;
+                    const hasNewComment = typeof comment === "string" && comment.trim().length > 0;
+
+                    if (hasNewComment && !hadExistingComment) {
+                        setCommentsCount((prev) => prev + 1);
+                    } else if (!hasNewComment && hadExistingComment) {
+                        setCommentsCount((prev) => Math.max(0, prev - 1));
+                    }
 
                     await MovieService.createOrUpdateInteraction({
                         targetId: movie.id,
