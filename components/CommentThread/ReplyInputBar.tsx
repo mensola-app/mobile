@@ -8,6 +8,7 @@ import {
     View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { threadStyles as styles } from "./styles";
 import { ReplyTarget } from "./types";
@@ -29,6 +30,7 @@ export default function ReplyInputBar({
     replyTarget,
     isSending,
 }: ReplyInputBarProps) {
+    const { t } = useTranslation();
     const inputRef = useRef<TextInput>(null);
 
     const canSend = value.trim().length > 0 && !isSending;
@@ -42,8 +44,7 @@ export default function ReplyInputBar({
             {replyTarget ? (
                 <View style={styles.replyingToBar}>
                     <Text style={styles.replyingToText}>
-                        <Text style={styles.replyingToName}>@{replyTarget.username}</Text>
-                        {"'a yanıt veriliyor"}
+                        {t("comments.replyingTo", { username: replyTarget.username })}
                     </Text>
                     <TouchableOpacity onPress={onCancelReply} activeOpacity={0.7} hitSlop={8}>
                         <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
@@ -58,7 +59,11 @@ export default function ReplyInputBar({
                     style={styles.textInput}
                     value={value}
                     onChangeText={onChangeText}
-                    placeholder={replyTarget ? `@${replyTarget.username}'a yanıt yaz...` : "Bir şey söyle..."}
+                    placeholder={
+                        replyTarget
+                            ? t("comments.replyPlaceholder", { username: replyTarget.username })
+                            : t("comments.inputPlaceholder", "Bir şeyler yaz...")
+                    }
                     placeholderTextColor={Colors.textMuted}
                     multiline
                     maxLength={2000}

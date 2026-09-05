@@ -388,6 +388,8 @@
         "user": "kullanıcı",
         "giveUp": "Vazgeç",
         "remove": "Kaldır",
+        "movieList": "Film Listesi",
+        "discussion": "Tartışma",
         "networkErrorTitle": "Bağlantı Hatası",
         "networkErrorMessage": "Lütfen internet bağlantınızı kontrol edin."
     },
@@ -480,5 +482,15 @@
             "no": "Hayır",
             "yes": "Evet"
         }
+    },
+    "comments": {
+        "threadTitle": "Tartışma",
+        "reply": "Yanıtla",
+        "replyingTo": "@{{username}} kullanıcısına yanıt veriliyor",
+        "inputPlaceholder": "Bir şeyler yaz...",
+        "replyPlaceholder": "@{{username}} için yanıt yaz...",
+        "emptyTitle": "Henüz yanıt yok",
+        "emptySubtitle": "Bu tartışmaya ilk katkıyı sen yap.",
+        "loadError": "Yorumlar yüklenirken bir hata oluştu."
     }
 }

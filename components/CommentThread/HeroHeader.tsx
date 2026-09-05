@@ -2,8 +2,10 @@ import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Avatar from "@/components/Avatar";
 import { Colors } from "@/constants/colors";
+import { formatRelativeTime } from "@/utils/date.utils";
 import { threadStyles as styles } from "./styles";
 import { InteractionItemResponse } from "@/types/interaction.types";
 
@@ -19,21 +21,6 @@ interface HeroHeaderProps {
     onLike?: () => void;
 }
 
-function formatDate(date: Date | string | undefined): string {
-    if (!date) return "";
-    const d = typeof date === "string" ? new Date(date) : date;
-    if (isNaN(d.getTime())) return "";
-    return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
-}
-
-const mediaTypeLabels: Record<string, string> = {
-    movie: "Film",
-    track: "Parça",
-    playlist: "Çalma Listesi",
-    album: "Albüm",
-    movieList: "Film Listesi",
-};
-
 export default function HeroHeader({
     mediaPoster,
     mediaTitle,
@@ -43,15 +30,34 @@ export default function HeroHeader({
     isLikedByMe,
     onLike,
 }: HeroHeaderProps) {
+    const { t, i18n } = useTranslation();
     const { user, comment, rating, isLiked } = interaction;
-    const typeLabel = mediaType ? (mediaTypeLabels[mediaType] ?? mediaType) : undefined;
 
+    const getMediaTypeLabel = (type?: string): string => {
+        if (!type) return "";
+        switch (type) {
+            case "movie":
+                return t("common.movie", "Film");
+            case "track":
+                return t("common.track", "Şarkı");
+            case "playlist":
+                return t("common.playlist", "Çalma Listesi");
+            case "album":
+                return t("common.album", "Albüm");
+            case "movieList":
+                return t("common.movieList", "Film Listesi");
+            default:
+                return type;
+        }
+    };
+
+    const typeLabel = getMediaTypeLabel(mediaType);
     const displayLikeCount = likeCount ?? 0;
 
     return (
         <View style={styles.heroCard}>
             {/* ── Media context row ── */}
-            {(mediaPoster || mediaTitle) ? (
+            {mediaPoster || mediaTitle ? (
                 <View style={styles.heroContextRow}>
                     {mediaPoster ? (
                         <View style={styles.heroPosterWrapper}>
@@ -74,7 +80,7 @@ export default function HeroHeader({
                 </View>
             ) : null}
 
-            {/* ── Root interaction card ── */}
+            {/* ── Root interaction card (same design as InteractionView) ── */}
             <View style={styles.heroInteractionCard}>
                 {/* User info + badges */}
                 <View style={styles.heroUserRow}>
@@ -101,12 +107,14 @@ export default function HeroHeader({
                     </View>
                 </View>
 
-                {/* Comment text */}
-                <Text style={styles.heroComment}>{comment.content}</Text>
+                {/* Comment text inside styled container matching InteractionView */}
+                <View style={styles.heroCommentContainer}>
+                    <Text style={styles.heroComment}>{comment.content}</Text>
+                </View>
 
                 {/* Date + like action */}
                 <View style={styles.heroActionsRow}>
-                    <Text style={styles.heroDate}>{formatDate(comment.date)}</Text>
+                    <Text style={styles.heroDate}>{formatRelativeTime(comment.date, i18n.language)}</Text>
                     <TouchableOpacity
                         style={[styles.heroLikeBtn, isLikedByMe && styles.heroLikeBtnActive]}
                         activeOpacity={0.8}
@@ -114,7 +122,7 @@ export default function HeroHeader({
                         <Ionicons
                             name={isLikedByMe ? "heart" : "heart-outline"}
                             size={14}
-                            color={isLikedByMe ? Colors.danger : Colors.textSecondary}
+                            color={isLikedByMe ? Colors.danger : Colors.primary}
                         />
                         {displayLikeCount > 0 ? (
                             <Text style={[styles.heroLikeText, isLikedByMe && styles.heroLikeTextActive]}>

@@ -2,8 +2,10 @@ import React, { memo, useCallback } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import Avatar from "@/components/Avatar";
 import { Colors } from "@/constants/colors";
+import { formatRelativeTime } from "@/utils/date.utils";
 import { threadStyles as styles } from "./styles";
 import { LocalCommentItem, ReplyTarget } from "./types";
 import { CommentThreadItem } from "@/types/interaction.types";
@@ -19,12 +21,6 @@ interface ThreadCommentCardProps {
     isLikeLoading?: boolean;
 }
 
-function formatDate(date: Date | string): string {
-    const d = typeof date === "string" ? new Date(date) : date;
-    if (isNaN(d.getTime())) return "";
-    return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
-}
-
 const ThreadCommentCard = memo(function ThreadCommentCard({
     item,
     allComments,
@@ -34,6 +30,7 @@ const ThreadCommentCard = memo(function ThreadCommentCard({
     isLikeLoading,
 }: ThreadCommentCardProps) {
     const router = useRouter();
+    const { t, i18n } = useTranslation();
 
     const likeCount = item._localLikeCount ?? item.likeCount;
     const isLiked = item._localIsLikedByMe ?? item.isLikedByMe;
@@ -49,7 +46,7 @@ const ThreadCommentCard = memo(function ThreadCommentCard({
 
     const handleUserPress = useCallback(() => {
         router.push({ pathname: "/users/[userId]", params: { userId: item.user.id as string } });
-    }, [item.user.id]);
+    }, [item.user.id, router]);
 
     const handleReply = useCallback(() => {
         onReply({ commentId: item.id, username: item.user.username });
@@ -64,7 +61,10 @@ const ThreadCommentCard = memo(function ThreadCommentCard({
             <View style={styles.commentHeader}>
                 {/* Avatar – tappable */}
                 <TouchableOpacity onPress={handleUserPress} activeOpacity={0.8}>
-                    <Avatar user={{ id: item.user.id, username: item.user.username, avatar: item.user.avatar ?? undefined }} size={34} />
+                    <Avatar
+                        user={{ id: item.user.id, username: item.user.username, avatar: item.user.avatar ?? undefined }}
+                        size={34}
+                    />
                 </TouchableOpacity>
 
                 <View style={styles.commentBody}>
@@ -81,12 +81,14 @@ const ThreadCommentCard = memo(function ThreadCommentCard({
                         ) : null}
                     </View>
 
-                    {/* Comment text */}
-                    <Text style={styles.commentText}>{item.content}</Text>
+                    {/* Comment text inside surface box */}
+                    <View style={styles.commentTextContainer}>
+                        <Text style={styles.commentText}>{item.content}</Text>
+                    </View>
 
                     {/* Footer: date + actions */}
                     <View style={styles.commentFooter}>
-                        <Text style={styles.commentDate}>{formatDate(item.createdAt)}</Text>
+                        <Text style={styles.commentDate}>{formatRelativeTime(item.createdAt, i18n.language)}</Text>
 
                         <View style={styles.commentActionsRow}>
                             {/* Reply button */}
@@ -95,7 +97,7 @@ const ThreadCommentCard = memo(function ThreadCommentCard({
                                 activeOpacity={0.75}
                                 onPress={handleReply}>
                                 <Ionicons name="chatbubble-outline" size={13} color={Colors.primary} />
-                                <Text style={styles.commentActionText}>Yanıtla</Text>
+                                <Text style={styles.commentActionText}>{t("comments.reply", "Yanıtla")}</Text>
                             </TouchableOpacity>
 
                             {/* Like button */}
@@ -107,10 +109,11 @@ const ThreadCommentCard = memo(function ThreadCommentCard({
                                 <Ionicons
                                     name={isLiked ? "heart" : "heart-outline"}
                                     size={13}
-                                    color={isLiked ? Colors.danger : Colors.textSecondary}
+                                    color={isLiked ? Colors.danger : Colors.primary}
                                 />
                                 {likeCount > 0 ? (
-                                    <Text style={[styles.commentActionText, isLiked && styles.commentActionTextLiked]}>
+                                    <Text
+                                        style={[styles.commentActionText, isLiked && styles.commentActionTextLiked]}>
                                         {likeCount}
                                     </Text>
                                 ) : null}

@@ -1,17 +1,12 @@
-import React, { useCallback, useRef, useState } from "react";
-import {
-    ActivityIndicator,
-    FlatList,
-    ListRenderItem,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import React, { useCallback, useState } from "react";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
+import DynamicList from "@/components/DynamicList";
 import { CommentService } from "@/services/comment.service";
 import { Colors } from "@/constants/colors";
 import { CommentId } from "@/types/common.types";
@@ -25,7 +20,7 @@ import HeroHeader from "@/components/CommentThread/HeroHeader";
 const LIMIT = 20;
 
 export default function CommentDetailScreen() {
-    const router = useRouter();
+    const { t } = useTranslation();
     const queryClient = useQueryClient();
     const params = useLocalSearchParams<CommentDetailParams>();
 
@@ -55,18 +50,26 @@ export default function CommentDetailScreen() {
     // ─── Data fetching ────────────────────────────────────────────────────────
     const queryKey = ["commentThread", commentId];
 
-    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
-        useInfiniteQuery({
-            queryKey,
-            queryFn: ({ pageParam = 1 }) =>
-                CommentService.getCommentThread(commentId, pageParam as number, LIMIT),
-            initialPageParam: 1,
-            getNextPageParam: (lastPage) => {
-                const pagination = lastPage?.data?.pagination;
-                if (pagination?.hasMore) return pagination.page + 1;
-                return undefined;
-            },
-        });
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        isError,
+        refetch,
+        isRefetching,
+    } = useInfiniteQuery({
+        queryKey,
+        queryFn: ({ pageParam = 1 }) =>
+            CommentService.getCommentThread(commentId, pageParam as number, LIMIT),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) => {
+            const pagination = lastPage?.data?.pagination;
+            if (pagination?.hasMore) return pagination.page + 1;
+            return undefined;
+        },
+    });
 
     const allComments: CommentThreadItem[] = (data?.pages ?? []).flatMap(
         (page) => page?.data?.comments ?? [],
@@ -151,7 +154,6 @@ export default function CommentDetailScreen() {
     const handleSend = useCallback(async () => {
         if (!inputText.trim()) return;
         // TODO: wire up POST /comments/:id/reply endpoint when added
-        // For now just clear input and reset reply target
         setInputText("");
         setReplyTarget(null);
         // Invalidate to refresh list
@@ -160,9 +162,15 @@ export default function CommentDetailScreen() {
 
     const handleCancelReply = useCallback(() => setReplyTarget(null), []);
 
-    // ─── Render ───────────────────────────────────────────────────────────────
-    const renderItem: ListRenderItem<CommentThreadItem> = useCallback(
-        ({ item }) => {
+    // ─── Pagination & DynamicList helpers ─────────────────────────────────────
+    const handleLoadMore = useCallback(() => {
+        if (!isFetchingNextPage && hasNextPage) {
+            fetchNextPage();
+        }
+    }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+
+    const renderItem = useCallback(
+        ({ item }: { item: CommentThreadItem }) => {
             const override = likeOverrides[item.id as string];
             const localItem: LocalCommentItem = {
                 ...item,
@@ -183,64 +191,57 @@ export default function CommentDetailScreen() {
         [likeOverrides, allComments, rootCommentId, handleToggleLike, isLikePending],
     );
 
-    const ListSeparator = useCallback(
-        () => <View style={styles.separator} />,
-        [],
-    );
+    const renderSeparator = useCallback(() => <View style={styles.separator} />, []);
 
-    const ListFooter = useCallback(
-        () =>
-            isFetchingNextPage ? (
-                <View style={styles.footerLoader}>
-                    <ActivityIndicator color={Colors.primary} />
-                </View>
-            ) : null,
-        [isFetchingNextPage],
-    );
+    const renderFooter = useCallback(() => {
+        if (!isFetchingNextPage) return null;
+        return (
+            <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color={Colors.primary} />
+            </View>
+        );
+    }, [isFetchingNextPage]);
 
-    const ListEmpty = useCallback(
+    const renderEmpty = useCallback(
         () =>
             !isLoading ? (
                 <View style={styles.emptyContainer}>
-                    <Ionicons name="chatbubbles-outline" size={40} color={Colors.textMuted} />
-                    <Text style={styles.emptyText}>Henüz yanıt yok</Text>
-                    <Text style={styles.emptySubtext}>Bu tartışmaya ilk katkıyı sen yap.</Text>
+                    <Ionicons name="chatbubbles-outline" size={44} color={Colors.textMuted} />
+                    <Text style={styles.emptyText}>{t("comments.emptyTitle", "Henüz yanıt yok")}</Text>
+                    <Text style={styles.emptySubtext}>
+                        {t("comments.emptySubtitle", "Bu tartışmaya ilk katkıyı sen yap.")}
+                    </Text>
                 </View>
             ) : null,
-        [isLoading],
+        [isLoading, t],
     );
 
     return (
-        <SafeAreaView style={styles.screen} edges={["top"]}>
-            {/* Back button */}
-            <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 10 }}>
-                <TouchableOpacity onPress={() => router.back()} activeOpacity={0.75} hitSlop={8}>
-                    <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-                </TouchableOpacity>
-                <Text
-                    style={{ marginLeft: 10, fontSize: 17, fontWeight: "700", color: Colors.textPrimary }}
-                    numberOfLines={1}>
-                    Tartışma
-                </Text>
-            </View>
+        <SafeAreaView style={styles.screen} edges={["bottom"]}>
+            <Stack.Screen options={{ title: t("comments.threadTitle", "Tartışma") }} />
 
             {/* Loading state */}
-            {isLoading ? (
-                <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                    <ActivityIndicator color={Colors.primary} size="large" />
+            {isLoading && !data ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={Colors.primary} />
                 </View>
-            ) : isError ? (
-                <View style={styles.emptyContainer}>
-                    <Ionicons name="alert-circle-outline" size={40} color={Colors.danger} />
-                    <Text style={styles.emptyText}>Yüklenemedi</Text>
-                    <Text style={styles.emptySubtext}>Lütfen tekrar deneyin.</Text>
+            ) : isError && !allComments.length ? (
+                <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle-outline" size={48} color={Colors.danger} />
+                    <Text style={styles.errorText}>
+                        {t("comments.loadError", "Yorumlar yüklenirken bir hata oluştu.")}
+                    </Text>
+                    <TouchableOpacity style={styles.retryButton} onPress={() => refetch()} activeOpacity={0.8}>
+                        <Text style={styles.retryText}>{t("common.retry", "Tekrar Deneyin")}</Text>
+                    </TouchableOpacity>
                 </View>
             ) : (
-                <FlatList<CommentThreadItem>
+                <DynamicList<CommentThreadItem>
                     data={allComments}
                     keyExtractor={(item) => item.id as string}
                     renderItem={renderItem}
-                    ItemSeparatorComponent={ListSeparator}
+                    variant="vertical"
+                    ItemSeparatorComponent={renderSeparator}
                     ListHeaderComponent={
                         interactionData ? (
                             <HeroHeader
@@ -254,13 +255,13 @@ export default function CommentDetailScreen() {
                             />
                         ) : null
                     }
-                    ListEmptyComponent={ListEmpty}
-                    ListFooterComponent={ListFooter}
+                    ListEmptyComponent={renderEmpty}
+                    ListFooterComponent={renderFooter}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.5}
+                    onRefresh={refetch}
+                    refreshing={isRefetching}
                     contentContainerStyle={styles.listContent}
-                    onEndReached={() => {
-                        if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-                    }}
-                    onEndReachedThreshold={0.3}
                     showsVerticalScrollIndicator={false}
                 />
             )}

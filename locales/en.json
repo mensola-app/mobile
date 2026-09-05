@@ -388,6 +388,8 @@
         "user": "user",
         "giveUp": "Give Up",
         "remove": "Remove",
+        "movieList": "Movie List",
+        "discussion": "Discussion",
         "networkErrorTitle": "Connection Error",
         "networkErrorMessage": "Please check your internet connection."
     },
@@ -480,5 +482,15 @@
             "no": "No",
             "yes": "Yes"
         }
+    },
+    "comments": {
+        "threadTitle": "Discussion",
+        "reply": "Reply",
+        "replyingTo": "Replying to @{{username}}",
+        "inputPlaceholder": "Write something...",
+        "replyPlaceholder": "Reply to @{{username}}...",
+        "emptyTitle": "No replies yet",
+        "emptySubtitle": "Be the first to contribute to this discussion.",
+        "loadError": "Failed to load comments."
     }
 }
