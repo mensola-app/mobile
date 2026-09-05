@@ -57,3 +57,48 @@ export type InteractionItemResponse = Pick<IInteraction, "id" | "rating" | "isLi
 };
 export type InteractionResponseData = PaginationResponse & { items: InteractionItemResponse[] };
 export type InteractionsResponse = ApiResponse<InteractionResponseData>;
+
+// ─── Comment Thread ───────────────────────────────────────────────────────────
+
+export type CommentThreadUser = {
+    id: UserId;
+    username: string;
+    avatar: string | null;
+};
+
+export type CommentThreadItem = {
+    id: CommentId;
+    interactionId: InteractionId;
+    parentId: CommentId | null;
+    content: string;
+    createdAt: Date | string;
+    user: CommentThreadUser;
+    likeCount: number;
+    isLikedByMe: boolean;
+};
+
+export type CommentThreadPagination = {
+    total: number;
+    page: number;
+    limit: number;
+    hasMore: boolean;
+};
+
+export type CommentThreadResponseData = {
+    interactionId: InteractionId;
+    comments: CommentThreadItem[];
+    pagination: CommentThreadPagination;
+};
+
+export type CommentThreadResponse = ApiResponse<CommentThreadResponseData>;
+
+// ─── Toggle Comment Like ──────────────────────────────────────────────────────
+
+export type ToggleCommentLikeResponseData = {
+    commentId: CommentId;
+    isLikedByMe: boolean;
+    likeCount: number;
+};
+
+export type ToggleCommentLikeResponse = ApiResponse<ToggleCommentLikeResponseData>;
+

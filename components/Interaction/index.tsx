@@ -1,4 +1,4 @@
-import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "./styles";
 import { IInteractionViewProps } from "./types";
 import Badge from "../Badge";
@@ -7,7 +7,7 @@ import { useRouter } from "expo-router";
 import Avatar from "../Avatar";
 import { Colors } from "@/constants/colors";
 
-export default function InteractionView({ data, disabled = true }: IInteractionViewProps) {
+export default function InteractionView({ data, disabled = false }: IInteractionViewProps) {
     const { user, comment, likesCount, replyCount, ...interaction } = data;
     const router = useRouter();
 
@@ -31,17 +31,27 @@ export default function InteractionView({ data, disabled = true }: IInteractionV
         router.push({ pathname: "/users/[userId]", params: { userId: user.id } });
     };
 
+    /** Navigate to the comment thread screen passing the interaction data as context */
     const handleInteractionPress = () => {
-        if (disabled) return;
-        router.push({ pathname: "/interactions/[interactionId]", params: { interactionId: data.id } });
-    };
-
-    const handleLikePress = () => {
-        console.log("Liked");
+        if (!comment?.id) return;
+        router.push({
+            pathname: "/comments/[commentId]",
+            params: {
+                commentId: comment.id as string,
+                interactionData: JSON.stringify(data),
+            },
+        });
     };
 
     const handleReplyPress = () => {
-        console.log("Replied");
+        if (!comment?.id) return;
+        router.push({
+            pathname: "/comments/[commentId]",
+            params: {
+                commentId: comment.id as string,
+                interactionData: JSON.stringify(data),
+            },
+        });
     };
 
     return (
@@ -85,17 +95,17 @@ export default function InteractionView({ data, disabled = true }: IInteractionV
                     <Text style={styles.comment}>{comment.content}</Text>
                 </Pressable>
 
-                {/* Temporarily hidden for beta release */}
-                {/* <View style={styles.actionButtons}>
-                    <TouchableOpacity style={styles.actionButton} activeOpacity={0.8} onPress={handleLikePress}>
+                {/* Action buttons */}
+                <View style={styles.actionButtons}>
+                    <TouchableOpacity style={styles.actionButton} activeOpacity={0.8} onPress={() => {}}>
                         <Ionicons name="heart-outline" size={14} color={Colors.primary} />
-                        <Text style={styles.actionButtonText}>{likesCount}</Text>
+                        {likesCount ? <Text style={styles.actionButtonText}>{likesCount}</Text> : null}
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.actionButton} activeOpacity={0.8} onPress={handleReplyPress}>
                         <Ionicons name="chatbubble-outline" size={14} color={Colors.primary} />
-                        <Text style={styles.actionButtonText}>{replyCount}</Text>
+                        {replyCount ? <Text style={styles.actionButtonText}>{replyCount}</Text> : null}
                     </TouchableOpacity>
-                </View> */}
+                </View>
             </Pressable>
         </View>
     );
