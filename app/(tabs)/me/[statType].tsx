@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useLocalSearchParams, Stack } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useStatDetails } from "../../../hooks/profile/useStatDetails";
 import { useGlobalUser } from "../../../context/AuthContext";
-import { STAT_TITLES } from "../../../constants/pageTitles";
+import { getStatTitle } from "../../../constants/pageTitles";
 import { StatDetailView } from "@/components/StatDetailView";
 import CreateListBottomSheet from "@/components/CreateListBottomSheet";
 import { StatType } from "@/types/stat.types";
@@ -10,8 +11,9 @@ import { UserId } from "@/types/common.types";
 import { Colors } from "@/constants/colors";
 
 export default function StatDetailPage() {
+    const { t } = useTranslation();
     const { statType } = useLocalSearchParams<{ statType: StatType }>();
-    const pageTitle = STAT_TITLES[statType] || "Detay";
+    const pageTitle = getStatTitle(statType, t);
     const [isCreateSheetVisible, setIsCreateSheetVisible] = useState(false);
 
     const { user } = useGlobalUser();

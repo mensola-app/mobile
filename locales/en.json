@@ -433,5 +433,52 @@
         "likedAlbumsCount": "Liked Albums",
         "followersCount": "Followers",
         "followingCount": "Following"
+    },
+    "statTitles": {
+        "watchlist": "Watchlist",
+        "watched": "Watched Movies",
+        "likedMovies": "Liked Movies",
+        "likedTracks": "Liked Tracks",
+        "likedPlaylists": "Liked Playlists",
+        "likedAlbums": "Liked Albums",
+        "playlists": "Playlists",
+        "followers": "Followers",
+        "following": "Following",
+        "movieLists": "Movie Lists",
+        "likedMovieLists": "Liked Movie Lists",
+        "liked-movies": "Liked Movies",
+        "liked-tracks": "Liked Tracks",
+        "liked-playlists": "Liked Playlists",
+        "liked-albums": "Liked Albums",
+        "movie-lists": "Movie Lists",
+        "liked-movie-lists": "Liked Movie Lists",
+        "default": "Detail"
+    },
+    "statDetails": {
+        "emptyMessage": "No data available to display right now",
+        "errorMessage": "An error occurred while loading data. Please try again.",
+        "retry": "Try Again",
+        "empty": {
+            "watchlist": "No movies in watchlist yet",
+            "watched": "No watched movies yet",
+            "liked-movies": "No liked movies yet",
+            "liked-tracks": "No liked tracks yet",
+            "liked-playlists": "No liked playlists yet",
+            "liked-albums": "No liked albums yet",
+            "playlists": "No playlists created yet",
+            "followers": "No followers yet",
+            "following": "Not following any users yet",
+            "movie-lists": "No movie lists created yet",
+            "liked-movie-lists": "No liked movie lists yet",
+            "default": "No data available to display right now"
+        },
+        "unfollowAlert": {
+            "cancelRequestTitle": "Cancel Request",
+            "unfollowTitle": "Unfollowing",
+            "cancelRequestBody": "Do you want to cancel the follow request sent to {{name}}?",
+            "unfollowBody": "Do you want to stop following {{name}}?",
+            "no": "No",
+            "yes": "Yes"
+        }
     }
 }

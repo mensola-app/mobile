@@ -433,5 +433,52 @@
         "likedAlbumsCount": "Beğenilen Albümler",
         "followersCount": "Takipçi",
         "followingCount": "Takip"
+    },
+    "statTitles": {
+        "watchlist": "İzleme Listesi",
+        "watched": "İzlenen Filmler",
+        "likedMovies": "Beğenilen Filmler",
+        "likedTracks": "Beğenilen Şarkılar",
+        "likedPlaylists": "Beğenilen Çalma Listeleri",
+        "likedAlbums": "Beğenilen Albümler",
+        "playlists": "Çalma Listeleri",
+        "followers": "Takipçiler",
+        "following": "Takip Edilenler",
+        "movieLists": "Film Listeleri",
+        "likedMovieLists": "Beğenilen Film Listeleri",
+        "liked-movies": "Beğenilen Filmler",
+        "liked-tracks": "Beğenilen Şarkılar",
+        "liked-playlists": "Beğenilen Çalma Listeleri",
+        "liked-albums": "Beğenilen Albümler",
+        "movie-lists": "Film Listeleri",
+        "liked-movie-lists": "Beğenilen Film Listeleri",
+        "default": "Detay"
+    },
+    "statDetails": {
+        "emptyMessage": "Şu anda burada gösterilebilecek bir veri bulunamadı",
+        "errorMessage": "Veriler çekilirken bir hata oluştu. Lütfen tekrar deneyiniz.",
+        "retry": "Tekrar Deneyin",
+        "empty": {
+            "watchlist": "İzleme listenizde henüz film bulunmuyor",
+            "watched": "İzlenen filmler listeniz henüz boş",
+            "liked-movies": "Henüz beğenilen bir film yok",
+            "liked-tracks": "Henüz beğenilen bir şarkı yok",
+            "liked-playlists": "Henüz beğenilen bir çalma listesi yok",
+            "liked-albums": "Henüz beğenilen bir albüm yok",
+            "playlists": "Henüz bir çalma listesi oluşturulmamış",
+            "followers": "Henüz takipçi yok",
+            "following": "Henüz takip edilen kullanıcı yok",
+            "movie-lists": "Henüz bir film listesi oluşturulmamış",
+            "liked-movie-lists": "Henüz beğenilen bir film listesi yok",
+            "default": "Şu anda burada gösterilebilecek bir veri bulunamadı"
+        },
+        "unfollowAlert": {
+            "cancelRequestTitle": "İsteği İptal Et",
+            "unfollowTitle": "Takipten çıkılıyor",
+            "cancelRequestBody": "{{name}} adlı kişiye gönderilen takip isteğini iptal etmek istiyor musunuz?",
+            "unfollowBody": "{{name}} adlı kişiyi takip etmeyi bırakmak istiyor musunuz?",
+            "no": "Hayır",
+            "yes": "Evet"
+        }
     }
 }

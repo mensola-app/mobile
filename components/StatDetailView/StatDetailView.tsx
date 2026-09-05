@@ -2,13 +2,15 @@ import { StatDetailProps } from "./types";
 import { styles } from "./styles";
 import DynamicList from "../DynamicList";
 import StatDetailItem from "./StatDetailItem";
-import { View, Text, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, ScrollView, RefreshControl } from "react-native";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useFollow } from "@/hooks/user/useFollow";
 import { useRouter } from "expo-router";
 import { UserId } from "@/types/common.types";
 import { StatDetailsItemMap, StatType } from "@/types/stat.types";
 import { FollowUsersResponseDataItem } from "@/types/user.types";
+import { Colors } from "@/constants/colors";
 
 export default function StatDetailView<T extends StatType = StatType>({
     currentUserId,
@@ -24,18 +26,27 @@ export default function StatDetailView<T extends StatType = StatType>({
     isOwnProfile = false,
 }: StatDetailProps<T>) {
     const router = useRouter();
+    const { t } = useTranslation();
     const { followHandler, unfollowHandler } = useFollow();
     const [statDetailItems, setStatDetailItems] = useState(items);
 
     useEffect(() => setStatDetailItems(items), [items]);
 
-    if (isError && !statType) {
+    if (isError) {
         return (
             <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>Veriler çekilirken bir hata oluştu. Lütfen tekrar deneyiniz.</Text>
-                <TouchableOpacity style={styles.retryButton} onPress={refetch}>
-                    <Text style={styles.retryText}>Tekrar Deneyin</Text>
-                </TouchableOpacity>
+                <Text style={styles.errorText}>
+                    {t("statDetails.errorMessage", {
+                        defaultValue: "Veriler çekilirken bir hata oluştu. Lütfen tekrar deneyiniz.",
+                    })}
+                </Text>
+                {refetch && (
+                    <TouchableOpacity style={styles.retryButton} onPress={refetch} activeOpacity={0.7}>
+                        <Text style={styles.retryText}>
+                            {t("statDetails.retry", { defaultValue: "Tekrar Deneyin" })}
+                        </Text>
+                    </TouchableOpacity>
+                )}
             </View>
         );
     }
@@ -43,16 +54,35 @@ export default function StatDetailView<T extends StatType = StatType>({
     if (isLoading) {
         return (
             <View style={styles.container}>
-                <ActivityIndicator size="large" color="#1DB954" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
 
     if (!statDetailItems || statDetailItems.length <= 0) {
+        const emptyMessage =
+            (statType && t(`statDetails.empty.${statType}`, { defaultValue: "" })) ||
+            t("statDetails.emptyMessage", {
+                defaultValue: "Şu anda burada gösterilebilecek bir veri bulunamadı",
+            });
+
         return (
-            <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Şu anda burada gösterilebilecek bir veri bulunamadı</Text>
-            </View>
+            <ScrollView
+                contentContainerStyle={styles.emptyContainer}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    refetch ? (
+                        <RefreshControl
+                            refreshing={isRefetching ?? false}
+                            onRefresh={refetch}
+                            tintColor={Colors.primary}
+                            colors={[Colors.primary]}
+                        />
+                    ) : undefined
+                }
+            >
+                <Text style={styles.emptyText}>{emptyMessage}</Text>
+            </ScrollView>
         );
     }
 
@@ -146,16 +176,29 @@ export default function StatDetailView<T extends StatType = StatType>({
                 };
 
                 const handleFollowPress = (targetId: UserId, isFollowing: boolean, isPending?: boolean) => {
+                    const targetName = item.fullname || item.username || "";
                     if (isFollowing || isPending) {
                         Alert.alert(
-                            isPending ? "İsteği İptal Et" : "Takipten çıkılıyor",
                             isPending
-                                ? `${item.fullname || item.username} adlı kişiye gönderilen takip isteğini iptal etmek istiyor musunuz?`
-                                : `${item.fullname || item.username} adlı kişiyi takip etmeyi bırakmak istiyor musunuz?`,
+                                ? t("statDetails.unfollowAlert.cancelRequestTitle", { defaultValue: "İsteği İptal Et" })
+                                : t("statDetails.unfollowAlert.unfollowTitle", { defaultValue: "Takipten çıkılıyor" }),
+                            isPending
+                                ? t("statDetails.unfollowAlert.cancelRequestBody", {
+                                      name: targetName,
+                                      defaultValue: `${targetName} adlı kişiye gönderilen takip isteğini iptal etmek istiyor musunuz?`,
+                                  })
+                                : t("statDetails.unfollowAlert.unfollowBody", {
+                                      name: targetName,
+                                      defaultValue: `${targetName} adlı kişiyi takip etmeyi bırakmak istiyor musunuz?`,
+                                  }),
                             [
-                                { text: "Hayır", onPress: () => {}, style: "cancel" },
                                 {
-                                    text: "Evet",
+                                    text: t("statDetails.unfollowAlert.no", { defaultValue: "Hayır" }),
+                                    onPress: () => {},
+                                    style: "cancel",
+                                },
+                                {
+                                    text: t("statDetails.unfollowAlert.yes", { defaultValue: "Evet" }),
                                     onPress: () =>
                                         unfollowHandler(targetId, () => {
                                             setStatDetailItems((prev) => {
@@ -205,10 +248,10 @@ export default function StatDetailView<T extends StatType = StatType>({
     };
 
     const renderFooter = () => {
-        if (!isFetchingNextPage || !isLoading) return null;
+        if (!isFetchingNextPage) return null;
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color="#1DB954" />
+                <ActivityIndicator size="small" color={Colors.primary} />
             </View>
         );
     };
