@@ -1,6 +1,11 @@
 import { SpotifyId, TrackId } from "@/types/common.types";
 import { client } from "../api/client";
-import { UpsertInteractionRequest, UpsertInteractionResponse } from "@/types/interaction.types";
+import {
+    InteractionsRequest,
+    InteractionsResponse,
+    UpsertInteractionRequest,
+    UpsertInteractionResponse,
+} from "@/types/interaction.types";
 import { TrackDetailsResponse, TrackLikeActionsResponse, FavoriteTracksResponse } from "@/types/track.types";
 import { ApiResponse } from "@/types/api";
 
@@ -33,6 +38,14 @@ const TrackService = {
 
     removeFromFavorites: async (trackId: TrackId): Promise<ApiResponse> => {
         return await client.delete<ApiResponse>(`/v1/tracks/${trackId}/favorites`, { auth: true });
+    },
+
+    getTrackInteractions: async (data: InteractionsRequest): Promise<InteractionsResponse> => {
+        const { targetId, page = 1, limit = 18 } = data;
+        return await client.get<InteractionsResponse>(`/v1/tracks/${targetId}/interactions`, {
+            auth: true,
+            params: { page, limit },
+        });
     },
 
     createOrUpdateInteraction: async (data: UpsertInteractionRequest): Promise<UpsertInteractionResponse> => {

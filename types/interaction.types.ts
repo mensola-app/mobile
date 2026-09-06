@@ -54,7 +54,6 @@ export type InteractionsRequest = PaginationQueries & { targetId: InteractionTar
 export type InteractionItemResponse = Pick<IInteraction, "id" | "rating" | "isLiked" | "likesCount" | "replyCount"> & {
     user: IUser;
     comment: CommentSummary;
-    likeCount?: number;
     isLikedByMe?: boolean;
 };
 export type InteractionResponseData = PaginationResponse & { items: InteractionItemResponse[] };

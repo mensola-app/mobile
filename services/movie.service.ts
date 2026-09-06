@@ -79,9 +79,17 @@ const MovieService = {
         return await client.get<GetListsResponse>(`/v1/movies/lists`, { auth: true, params: { movieId, page, limit } });
     },
 
+    getMovieInteractions: async (data: InteractionsRequest): Promise<InteractionsResponse> => {
+        const { targetId, page = 1, limit = 18 } = data;
+        return await client.get<InteractionsResponse>(`/v1/movies/${targetId}/interactions`, {
+            auth: true,
+            params: { page, limit },
+        });
+    },
+
     createOrUpdateInteraction: async (data: UpsertInteractionRequest): Promise<UpsertInteractionResponse> => {
         return await client.post<UpsertInteractionResponse>(
-            `/v1/movies/${data.targetId}/interaction`,
+            `/v1/movies/${data.targetId}/interactions`,
             data.interaction,
             {
                 auth: true,
