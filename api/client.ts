@@ -90,7 +90,7 @@ export const isNetworkFailure = (error: any): boolean => {
     );
 };
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://api.mensola.app";
 
 let isRefreshing = false;
 let failedQueue: RefreshQueueItem[] = [];

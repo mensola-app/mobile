@@ -5,7 +5,7 @@ import * as SecureStore from "expo-secure-store";
 import { uploadAsync, FileSystemUploadType } from "expo-file-system/legacy";
 import { ApiResponse } from "@/types/api";
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://api.mensola.app";
 
 const ProfileService = {
     getProfile: async (data: GetProfileRequest): Promise<GetProfileResponse> => {
