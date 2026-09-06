@@ -8,14 +8,24 @@ import { Colors } from "@/constants/colors";
 import { LatestCommentsProps } from "./types";
 import { styles } from "./styles";
 
-export default function LatestComments({ interactions, commentsCount, onRateReviewPress }: LatestCommentsProps) {
+export default function LatestComments({
+    targetId,
+    trackTitle,
+    interactions,
+    commentsCount,
+    onRateReviewPress,
+}: LatestCommentsProps) {
     const { t } = useTranslation();
     const router = useRouter();
     const { trackId } = useLocalSearchParams<{ trackId?: string }>();
 
     const handleSeeAllPress = () => {
-        if (trackId) {
-            router.push({ pathname: "/comments/[type]/[id]", params: { type: "track", id: trackId } } as any);
+        const effectiveId = targetId || trackId;
+        if (effectiveId) {
+            router.push({
+                pathname: "/comments/[type]/[id]",
+                params: { type: "track", id: effectiveId, title: trackTitle },
+            } as any);
         }
     };
 

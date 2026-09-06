@@ -52,6 +52,8 @@ export default function MovieDetailView({
             />
             <MovieOverview movie={movie} />
             <LatestComments
+                targetId={movie?.id}
+                movieTitle={movie?.title}
                 interactions={movie?.interactions ?? []}
                 onRateReviewPress={() => setIsInteractionSheetOpen(true)}
             />

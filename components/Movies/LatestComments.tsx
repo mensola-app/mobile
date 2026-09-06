@@ -7,18 +7,24 @@ import { Colors } from "@/constants/colors";
 import { useTranslation } from "react-i18next";
 
 interface LatestCommentsProps {
+    targetId?: string;
+    movieTitle?: string;
     interactions: InteractionItemResponse[];
     onRateReviewPress?: () => void;
 }
 
-export default function LatestComments({ interactions, onRateReviewPress }: LatestCommentsProps) {
+export default function LatestComments({ targetId, movieTitle, interactions, onRateReviewPress }: LatestCommentsProps) {
     const { t } = useTranslation();
     const router = useRouter();
     const { movieId } = useLocalSearchParams<{ movieId?: string }>();
 
     const handleSeeAllPress = () => {
-        if (movieId) {
-            router.push({ pathname: "/comments/[type]/[id]", params: { type: "movie", id: movieId } } as any);
+        const effectiveId = targetId || movieId;
+        if (effectiveId) {
+            router.push({
+                pathname: "/comments/[type]/[id]",
+                params: { type: "movie", id: effectiveId, title: movieTitle },
+            } as any);
         }
     };
 

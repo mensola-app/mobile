@@ -16,7 +16,7 @@ export interface ITrackDetailViewProps {
     trackDetails: TrackDetails | null;
     isLoading: boolean;
     error: string;
-    refetchAll: () => void;
+    refetchAll?: () => void;
     toggleLike: () => void;
     submitInteraction: (data: UpsertInteractionSummary) => Promise<void>;
 }
@@ -34,6 +34,8 @@ export interface AddToPlaylistSheetItemProps {
 }
 
 export interface LatestCommentsProps {
+    targetId?: string;
+    trackTitle?: string;
     interactions: InteractionItemResponse[];
     commentsCount?: number;
     onRateReviewPress?: () => void;

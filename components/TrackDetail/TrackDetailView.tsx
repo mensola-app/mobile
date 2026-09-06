@@ -96,6 +96,8 @@ export default function TrackDetailView({
                 />
 
                 <LatestComments
+                    targetId={trackDetails?.id}
+                    trackTitle={trackDetails?.title}
                     interactions={trackDetails?.interactions ?? []}
                     commentsCount={commentsCount}
                     onRateReviewPress={() => setIsInteractionSheetOpen(true)}
