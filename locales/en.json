@@ -495,6 +495,13 @@
         "replyPlaceholder": "Reply to @{{username}}...",
         "emptyTitle": "No replies yet",
         "emptySubtitle": "Be the first to contribute to this discussion.",
-        "loadError": "Failed to load comments."
+        "loadError": "Failed to load comments.",
+        "interactionsTitle": "Reviews & Ratings",
+        "movieInteractionsTitle": "Movie Reviews",
+        "trackInteractionsTitle": "Track Reviews",
+        "albumInteractionsTitle": "Album Reviews",
+        "playlistInteractionsTitle": "Playlist Reviews",
+        "emptyInteractionsTitle": "No reviews yet",
+        "emptyInteractionsSubtitle": "Be the first to share your thoughts!"
     }
 }

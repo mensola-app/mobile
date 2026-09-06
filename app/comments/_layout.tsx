@@ -14,6 +14,7 @@ export default function CommentsLayout() {
                 contentStyle: { backgroundColor: Colors.background },
                 animation: "slide_from_right",
             }}>
+            <Stack.Screen name="[type]/[id]" />
             <Stack.Screen
                 name="[commentId]"
                 options={{

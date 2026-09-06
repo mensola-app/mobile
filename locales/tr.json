@@ -495,6 +495,13 @@
         "replyPlaceholder": "@{{username}} için yanıt yaz...",
         "emptyTitle": "Henüz yanıt yok",
         "emptySubtitle": "Bu tartışmaya ilk katkıyı sen yap.",
-        "loadError": "Yorumlar yüklenirken bir hata oluştu."
+        "loadError": "Yorumlar yüklenirken bir hata oluştu.",
+        "interactionsTitle": "Yorumlar & Değerlendirmeler",
+        "movieInteractionsTitle": "Film Yorumları",
+        "trackInteractionsTitle": "Şarkı Yorumları",
+        "albumInteractionsTitle": "Albüm Yorumları",
+        "playlistInteractionsTitle": "Çalma Listesi Yorumları",
+        "emptyInteractionsTitle": "Henüz yorum yapılmamış",
+        "emptyInteractionsSubtitle": "İlk yorumu ve değerlendirmeyi sen yap!"
     }
 }
