@@ -1,5 +1,9 @@
 import { CommentId } from "@/types/common.types";
-import { CommentThreadResponse, ToggleCommentLikeResponse } from "@/types/interaction.types";
+import {
+    CommentThreadResponse,
+    CreateReplyResponse,
+    ToggleCommentLikeResponse,
+} from "@/types/interaction.types";
 import { client } from "../api/client";
 
 const CommentService = {
@@ -21,12 +25,38 @@ const CommentService = {
 
     /**
      * Toggles the like state of a comment for the authenticated user.
-     * Returns the fresh isLikedByMe flag and likeCount.
+     * Returns the fresh isLiked flag and likeCount.
      */
     toggleCommentLike: async (commentId: CommentId): Promise<ToggleCommentLikeResponse> => {
-        return await client.post<ToggleCommentLikeResponse>(
-            `/v1/comments/${commentId}/like`,
-            {},
+        const url = `/v1/comments/${commentId}/like`;
+        try {
+            return await client.post<ToggleCommentLikeResponse>(
+                url,
+                {},
+                { auth: true },
+            );
+        } catch (error: any) {
+            console.error("[CommentService.toggleCommentLike] Request failed:", {
+                url,
+                commentId,
+                status: error?.status ?? error?.statusCode,
+                response: error?.data ?? error?.response ?? error,
+                message: error?.message,
+            });
+            throw error;
+        }
+    },
+
+    /**
+     * Adds a reply to the specified comment within the same thread.
+     */
+    createReply: async (
+        commentId: CommentId,
+        content: string,
+    ): Promise<CreateReplyResponse> => {
+        return await client.post<CreateReplyResponse>(
+            `/v1/comments/${commentId}/replies`,
+            { content },
             { auth: true },
         );
     },

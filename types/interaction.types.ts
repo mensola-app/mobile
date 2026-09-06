@@ -54,6 +54,8 @@ export type InteractionsRequest = PaginationQueries & { targetId: InteractionTar
 export type InteractionItemResponse = Pick<IInteraction, "id" | "rating" | "isLiked" | "likesCount" | "replyCount"> & {
     user: IUser;
     comment: CommentSummary;
+    likeCount?: number;
+    isLikedByMe?: boolean;
 };
 export type InteractionResponseData = PaginationResponse & { items: InteractionItemResponse[] };
 export type InteractionsResponse = ApiResponse<InteractionResponseData>;
@@ -74,7 +76,7 @@ export type CommentThreadItem = {
     createdAt: Date | string;
     user: CommentThreadUser;
     likeCount: number;
-    isLikedByMe: boolean;
+    isLiked: boolean;
 };
 
 export type CommentThreadPagination = {
@@ -96,9 +98,12 @@ export type CommentThreadResponse = ApiResponse<CommentThreadResponseData>;
 
 export type ToggleCommentLikeResponseData = {
     commentId: CommentId;
-    isLikedByMe: boolean;
+    isLiked: boolean;
     likeCount: number;
 };
 
 export type ToggleCommentLikeResponse = ApiResponse<ToggleCommentLikeResponseData>;
+
+export type CreateReplyResponse = ApiResponse<CommentThreadItem>;
+
 

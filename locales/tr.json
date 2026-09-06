@@ -391,7 +391,11 @@
         "movieList": "Film Listesi",
         "discussion": "Tartışma",
         "networkErrorTitle": "Bağlantı Hatası",
-        "networkErrorMessage": "Lütfen internet bağlantınızı kontrol edin."
+        "networkErrorMessage": "Lütfen internet bağlantınızı kontrol edin.",
+        "loginRequired": "Giriş Yapmalısınız",
+        "loginRequiredMessage": "Beğeni yapmak için lütfen giriş yapın.",
+        "login": "Giriş Yap",
+        "genericError": "Bir hata oluştu. Lütfen tekrar deneyin."
     },
     "home": {
         "nowPlaying": "Vizyondakiler",

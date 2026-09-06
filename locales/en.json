@@ -391,7 +391,11 @@
         "movieList": "Movie List",
         "discussion": "Discussion",
         "networkErrorTitle": "Connection Error",
-        "networkErrorMessage": "Please check your internet connection."
+        "networkErrorMessage": "Please check your internet connection.",
+        "loginRequired": "Login Required",
+        "loginRequiredMessage": "Please sign in to like this comment.",
+        "login": "Sign In",
+        "genericError": "An error occurred. Please try again."
     },
     "home": {
         "nowPlaying": "Now Playing",
