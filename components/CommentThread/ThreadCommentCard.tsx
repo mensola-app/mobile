@@ -33,7 +33,7 @@ const ThreadCommentCard = memo(function ThreadCommentCard({
     const { t, i18n } = useTranslation();
 
     const likeCount = item._localLikeCount ?? item.likeCount;
-    const isLiked = item._localIsLikedByMe ?? item.isLikedByMe;
+    const isLiked = item._localIsLiked ?? item.isLiked ?? false;
 
     /** Resolve parent's username for the → @mention indicator */
     const replyToUsername: string | null = (() => {

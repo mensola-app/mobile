@@ -17,7 +17,7 @@ interface HeroHeaderProps {
     /** The root interaction (top-level review/comment) */
     interaction: InteractionItemResponse;
     likeCount?: number;
-    isLikedByMe?: boolean;
+    isLiked?: boolean;
     onLike?: () => void;
 }
 
@@ -27,11 +27,12 @@ export default function HeroHeader({
     mediaType,
     interaction,
     likeCount,
-    isLikedByMe,
+    isLiked,
     onLike,
 }: HeroHeaderProps) {
     const { t, i18n } = useTranslation();
-    const { user, comment, rating, isLiked } = interaction;
+    const { user, comment, rating, isLiked: interactionIsLiked } = interaction;
+    const activeIsLiked = isLiked ?? interactionIsLiked ?? false;
 
     const getMediaTypeLabel = (type?: string): string => {
         if (!type) return "";
@@ -99,7 +100,7 @@ export default function HeroHeader({
                                 <Text style={styles.heroBadgeText}>{rating}</Text>
                             </View>
                         ) : null}
-                        {isLiked ? (
+                        {interaction.isLiked ? (
                             <View style={styles.heroBadge}>
                                 <Ionicons name="heart" size={12} color="#FF8000" />
                             </View>
@@ -112,24 +113,36 @@ export default function HeroHeader({
                     <Text style={styles.heroComment}>{comment.content}</Text>
                 </View>
 
-                {/* Date + like action */}
+                {/* Date + like & reply actions */}
                 <View style={styles.heroActionsRow}>
                     <Text style={styles.heroDate}>{formatRelativeTime(comment.date, i18n.language)}</Text>
-                    <TouchableOpacity
-                        style={[styles.heroLikeBtn, isLikedByMe && styles.heroLikeBtnActive]}
-                        activeOpacity={0.8}
-                        onPress={onLike}>
-                        <Ionicons
-                            name={isLikedByMe ? "heart" : "heart-outline"}
-                            size={14}
-                            color={isLikedByMe ? Colors.danger : Colors.primary}
-                        />
-                        {displayLikeCount > 0 ? (
-                            <Text style={[styles.heroLikeText, isLikedByMe && styles.heroLikeTextActive]}>
+                    <View style={styles.heroActionButtons}>
+                        <TouchableOpacity
+                            style={[styles.heroLikeBtn, activeIsLiked && styles.heroLikeBtnActive]}
+                            activeOpacity={0.8}
+                            onPress={onLike}>
+                            <Ionicons
+                                name={activeIsLiked ? "heart" : "heart-outline"}
+                                size={14}
+                                color={activeIsLiked ? Colors.danger : Colors.primary}
+                            />
+                            <Text style={[styles.heroLikeText, activeIsLiked && styles.heroLikeTextActive]}>
                                 {displayLikeCount}
                             </Text>
+                        </TouchableOpacity>
+                        {typeof interaction.replyCount === "number" ? (
+                            <View style={styles.heroReplyBtn}>
+                                <Ionicons
+                                    name="chatbubble-outline"
+                                    size={14}
+                                    color={Colors.primary}
+                                />
+                                <Text style={styles.heroReplyText}>
+                                    {interaction.replyCount}
+                                </Text>
+                            </View>
                         ) : null}
-                    </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </View>
