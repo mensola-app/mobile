@@ -29,7 +29,7 @@ describe("TrackDetail LatestComments Component", () => {
         expect(onRateReviewPress).toHaveBeenCalledTimes(1);
     });
 
-    it("should render comments and have See All button hidden for beta release", () => {
+    it("should render comments, show See All button, and navigate on press", () => {
         const mockInteractions = [
             {
                 id: "int-1",
@@ -40,13 +40,18 @@ describe("TrackDetail LatestComments Component", () => {
             },
         ];
 
-        const { getByText, queryByText } = render(
+        const { getByText, getByTestId } = render(
             <LatestComments interactions={mockInteractions as any} commentsCount={1} />
         );
 
         expect(getByText("tracks.detail.latestComments")).toBeTruthy();
         expect(getByText("Harika bir parça!")).toBeTruthy();
-        expect(queryByText("tracks.detail.seeAll")).toBeNull();
-        expect(mockRouterPush).not.toHaveBeenCalled();
+        expect(getByText("tracks.detail.seeAll")).toBeTruthy();
+
+        fireEvent.press(getByTestId("tracks-see-all-button"));
+        expect(mockRouterPush).toHaveBeenCalledWith({
+            pathname: "/comments/[type]/[id]",
+            params: { type: "track", id: "track-123" },
+        });
     });
 });

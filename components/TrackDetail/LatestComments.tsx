@@ -15,7 +15,7 @@ export default function LatestComments({ interactions, commentsCount, onRateRevi
 
     const handleSeeAllPress = () => {
         if (trackId) {
-            router.push({ pathname: "/tracks/[trackId]/interactions", params: { trackId } } as any);
+            router.push({ pathname: "/comments/[type]/[id]", params: { type: "track", id: trackId } } as any);
         }
     };
 
@@ -46,10 +46,9 @@ export default function LatestComments({ interactions, commentsCount, onRateRevi
         <View style={styles.commentsContainer}>
             <View style={styles.commentsHeader}>
                 <Text style={styles.commentsTitle}>{t("tracks.detail.latestComments")}</Text>
-                {/* Temporarily disabled for beta release */}
-                {/* <TouchableOpacity onPress={handleSeeAllPress}>
+                <TouchableOpacity onPress={handleSeeAllPress} activeOpacity={0.7} testID="tracks-see-all-button">
                     <Text style={styles.seeAll}>{t("tracks.detail.seeAll", { count: commentsCount || 0 })}</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
             </View>
 
             {commentInteractions.map((item) => (
@@ -70,7 +69,7 @@ export default function LatestComments({ interactions, commentsCount, onRateRevi
                                 content: item.comment.content,
                                 date: item.comment.date,
                             },
-                            likesCount: item.likesCount ?? (item as any).likeCount ?? 0,
+                            likesCount: item.likesCount ?? 0,
                             replyCount: item.replyCount ?? 0,
                             isLikedByMe: item.isLikedByMe,
                         }}

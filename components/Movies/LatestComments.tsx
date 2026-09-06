@@ -18,7 +18,7 @@ export default function LatestComments({ interactions, onRateReviewPress }: Late
 
     const handleSeeAllPress = () => {
         if (movieId) {
-            router.push({ pathname: "/movies/[movieId]/interactions", params: { movieId } });
+            router.push({ pathname: "/comments/[type]/[id]", params: { type: "movie", id: movieId } } as any);
         }
     };
 
@@ -49,10 +49,9 @@ export default function LatestComments({ interactions, onRateReviewPress }: Late
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>{t("movies.detail.latestComments")}</Text>
-                {/* Temporarily disabled for beta release */}
-                {/* <TouchableOpacity onPress={handleSeeAllPress}>
+                <TouchableOpacity onPress={handleSeeAllPress} activeOpacity={0.7} testID="movies-see-all-button">
                     <Text style={styles.seeAll}>{t("movies.detail.seeAll")}</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
             </View>
 
             {commentInteractions.map((item) => (

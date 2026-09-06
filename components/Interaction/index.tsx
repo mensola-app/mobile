@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "./styles";
 import { IInteractionViewProps } from "./types";
 import Badge from "../Badge";
@@ -12,11 +12,7 @@ import { useGlobalUser } from "@/context/AuthContext";
 import { CommentService } from "@/services/comment.service";
 import { CommentId } from "@/types/common.types";
 
-export default function InteractionView({
-    data,
-    disabled = false,
-    onLike,
-}: IInteractionViewProps) {
+export default function InteractionView({ data, disabled = false, onLike }: IInteractionViewProps) {
     const { user, comment, ...interaction } = data;
     const router = useRouter();
     const { t } = useTranslation();
@@ -40,20 +36,16 @@ export default function InteractionView({
     /**
      * Local state for the comment's like status by the current logged-in user.
      */
-    const [isCommentLiked, setIsCommentLiked] = useState<boolean>(
-        Boolean(data.isLikedByMe),
-    );
-    const [commentLikesCount, setCommentLikesCount] = useState<number>(
-        data.likesCount ?? data.likeCount ?? 0,
-    );
+    const [isCommentLiked, setIsCommentLiked] = useState<boolean>(Boolean(data.isLikedByMe));
+    const [commentLikesCount, setCommentLikesCount] = useState<number>(data.likesCount ?? 0);
     const [isLikeLoading, setIsLikeLoading] = useState<boolean>(false);
 
     const replyCount = data.replyCount ?? 0;
 
     useEffect(() => {
         setIsCommentLiked(Boolean(data.isLikedByMe));
-        setCommentLikesCount(data.likesCount ?? data.likeCount ?? 0);
-    }, [data.isLikedByMe, data.likesCount, data.likeCount]);
+        setCommentLikesCount(data.likesCount ?? 0);
+    }, [data.isLikedByMe, data.likesCount]);
 
     const formatDate = (date: Date | string): string => {
         const parsedDate = typeof date === "string" ? new Date(date) : date;
@@ -69,8 +61,7 @@ export default function InteractionView({
         });
     };
 
-    const hasRating =
-        typeof interaction.rating === "number" && interaction.rating > 0;
+    const hasRating = typeof interaction.rating === "number" && interaction.rating > 0;
 
     const handleUserPress = () => {
         router.push({
@@ -107,10 +98,7 @@ export default function InteractionView({
         if (!token || !currentUser) {
             Alert.alert(
                 t("common.loginRequired", "Giriş Yapmalısınız"),
-                t(
-                    "common.loginRequiredMessage",
-                    "Beğeni yapmak için lütfen giriş yapın.",
-                ),
+                t("common.loginRequiredMessage", "Beğeni yapmak için lütfen giriş yapın."),
                 [
                     { text: t("common.cancel", "İptal"), style: "cancel" },
                     {
@@ -134,9 +122,7 @@ export default function InteractionView({
         setIsLikeLoading(true);
 
         try {
-            const res = await CommentService.toggleCommentLike(
-                targetCommentId as CommentId,
-            );
+            const res = await CommentService.toggleCommentLike(targetCommentId as CommentId);
             const freshLiked = res.data?.isLiked ?? (res as any)?.isLiked;
             const freshCount = res.data?.likeCount ?? (res as any)?.likeCount;
 
@@ -146,10 +132,7 @@ export default function InteractionView({
             console.error("[InteractionView.handleLikePress] Error:", error);
             setIsCommentLiked(previousLiked);
             setCommentLikesCount(previousCount);
-            Alert.alert(
-                t("common.error", "Hata"),
-                t("common.genericError", "Beğeni işlemi gerçekleştirilemedi."),
-            );
+            Alert.alert(t("common.error", "Hata"), t("common.genericError", "Beğeni işlemi gerçekleştirilemedi."));
         } finally {
             setIsLikeLoading(false);
         }
@@ -157,33 +140,22 @@ export default function InteractionView({
 
     return (
         <View style={styles.container}>
-            <Pressable
+            <TouchableOpacity
                 style={styles.cardContent}
                 disabled={disabled}
                 onPress={disabled ? undefined : handleInteractionPress}
-                android_ripple={
-                    disabled ? undefined : { color: "rgba(74, 158, 255, 0.2)" }
-                }
-            >
+                activeOpacity={0.7}>
                 <View style={styles.headerContainer}>
-                    <TouchableOpacity
-                        style={styles.userInfoContainer}
-                        onPress={handleUserPress}
-                        activeOpacity={0.8}
-                    >
+                    <TouchableOpacity style={styles.userInfoContainer} onPress={handleUserPress} activeOpacity={0.8}>
                         <Avatar size={38} user={user} />
                         <View style={styles.nameWrapper}>
-                            <Text style={styles.fullname}>
-                                {user.fullname || user.username}
-                            </Text>
+                            <Text style={styles.fullname}>{user.fullname || user.username}</Text>
                             <Text style={styles.username}>@{user.username}</Text>
                         </View>
                     </TouchableOpacity>
 
                     <View style={styles.interactionInfo}>
-                        <Text style={styles.date}>
-                            {comment.date && formatDate(comment.date)}
-                        </Text>
+                        <Text style={styles.date}>{comment.date && formatDate(comment.date)}</Text>
                         <View style={styles.badges}>
                             {hasRating ? (
                                 <Badge
@@ -194,67 +166,38 @@ export default function InteractionView({
                             ) : null}
                             {/* Author's like on target media */}
                             {authorLikedTarget ? (
-                                <Badge
-                                    icon={<Ionicons name="heart" color="#FF8000" />}
-                                    style={styles.badgeItem}
-                                />
+                                <Badge icon={<Ionicons name="heart" color="#FF8000" />} style={styles.badgeItem} />
                             ) : null}
                         </View>
                     </View>
                 </View>
 
-                <Pressable
-                    style={styles.commentContainer}
-                    disabled={disabled}
-                    onPress={disabled ? undefined : handleInteractionPress}
-                    android_ripple={
-                        disabled ? undefined : { color: "rgba(74, 158, 255, 0.2)" }
-                    }
-                >
+                <View style={styles.commentContainer}>
                     <Text style={styles.comment}>{comment.content}</Text>
-                </Pressable>
+                </View>
 
                 {/* Action buttons (Comment like and reply count) */}
                 <View style={styles.actionButtons}>
                     <TouchableOpacity
-                        style={[
-                            styles.actionButton,
-                            isCommentLiked && styles.actionButtonLiked,
-                        ]}
+                        style={[styles.actionButton, isCommentLiked && styles.actionButtonLiked]}
                         activeOpacity={0.8}
                         onPress={handleLikePress}
-                        disabled={isLikeLoading}
-                    >
+                        disabled={isLikeLoading}>
                         <Ionicons
                             name={isCommentLiked ? "heart" : "heart-outline"}
                             size={14}
                             color={isCommentLiked ? Colors.danger : Colors.primary}
                         />
-                        <Text
-                            style={[
-                                styles.actionButtonText,
-                                isCommentLiked && styles.actionButtonTextLiked,
-                            ]}
-                        >
+                        <Text style={[styles.actionButtonText, isCommentLiked && styles.actionButtonTextLiked]}>
                             {commentLikesCount}
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.actionButton}
-                        activeOpacity={0.8}
-                        onPress={handleReplyPress}
-                    >
-                        <Ionicons
-                            name="chatbubble-outline"
-                            size={14}
-                            color={Colors.primary}
-                        />
-                        <Text style={styles.actionButtonText}>
-                            {replyCount}
-                        </Text>
+                    <TouchableOpacity style={styles.actionButton} activeOpacity={0.8} onPress={handleReplyPress}>
+                        <Ionicons name="chatbubble-outline" size={14} color={Colors.primary} />
+                        <Text style={styles.actionButtonText}>{replyCount}</Text>
                     </TouchableOpacity>
                 </View>
-            </Pressable>
+            </TouchableOpacity>
         </View>
     );
 }

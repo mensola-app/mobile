@@ -27,10 +27,10 @@ describe("LatestComments Component", () => {
     });
 
     it("should render header and comments list when comments exist", () => {
-        const { getByText, queryByText } = render(<LatestComments interactions={mockInteractions as any} />);
+        const { getByText } = render(<LatestComments interactions={mockInteractions as any} />);
 
         expect(getByText("movies.detail.latestComments")).toBeTruthy();
-        expect(queryByText("movies.detail.seeAll")).toBeNull();
+        expect(getByText("movies.detail.seeAll")).toBeTruthy();
         expect(getByText("Muhteşem bir görsel şölen!")).toBeTruthy();
     });
 
@@ -47,10 +47,13 @@ describe("LatestComments Component", () => {
         expect(onRateReviewPress).toHaveBeenCalledTimes(1);
     });
 
-    it("should have See All button hidden for beta release", () => {
-        const { queryByText } = render(<LatestComments interactions={mockInteractions as any} />);
+    it("should navigate to /comments/[type]/[id] when See All button is pressed", () => {
+        const { getByTestId } = render(<LatestComments interactions={mockInteractions as any} />);
 
-        expect(queryByText("movies.detail.seeAll")).toBeNull();
-        expect(mockRouterPush).not.toHaveBeenCalled();
+        fireEvent.press(getByTestId("movies-see-all-button"));
+        expect(mockRouterPush).toHaveBeenCalledWith({
+            pathname: "/comments/[type]/[id]",
+            params: { type: "movie", id: "movie-123" },
+        });
     });
 });
