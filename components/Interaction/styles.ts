@@ -89,9 +89,15 @@ export const styles = StyleSheet.create({
         borderRadius: 999,
         backgroundColor: "rgba(74, 158, 255, 0.15)",
     },
+    actionButtonLiked: {
+        backgroundColor: "rgba(239, 68, 68, 0.15)",
+    },
     actionButtonText: {
         color: Colors.primary,
         fontSize: 12,
         fontWeight: "600",
+    },
+    actionButtonTextLiked: {
+        color: Colors.danger,
     },
 });

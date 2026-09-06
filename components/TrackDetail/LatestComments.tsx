@@ -70,8 +70,9 @@ export default function LatestComments({ interactions, commentsCount, onRateRevi
                                 content: item.comment.content,
                                 date: item.comment.date,
                             },
-                            likesCount: 0,
-                            replyCount: 0,
+                            likesCount: item.likesCount ?? (item as any).likeCount ?? 0,
+                            replyCount: item.replyCount ?? 0,
+                            isLikedByMe: item.isLikedByMe,
                         }}
                     />
                 </View>

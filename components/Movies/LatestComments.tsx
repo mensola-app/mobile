@@ -57,7 +57,7 @@ export default function LatestComments({ interactions, onRateReviewPress }: Late
 
             {commentInteractions.map((item) => (
                 <View key={item.id} style={styles.commentItem}>
-                    <InteractionView data={{ ...item, likesCount: 0, replyCount: 0 }} />
+                    <InteractionView data={item} />
                 </View>
             ))}
         </View>

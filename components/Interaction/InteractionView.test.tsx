@@ -1,6 +1,7 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react-native";
+import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import InteractionView from "./index";
+import { CommentService } from "@/services/comment.service";
 
 const mockRouterPush = jest.fn();
 
@@ -8,6 +9,21 @@ jest.mock("expo-router", () => ({
     useRouter: () => ({
         push: mockRouterPush,
     }),
+}));
+
+jest.mock("@/services/comment.service", () => ({
+    CommentService: {
+        toggleCommentLike: jest.fn(),
+    },
+}));
+
+const mockGlobalUser = {
+    user: { id: "user-test", username: "tester" },
+    token: "valid-token",
+};
+
+jest.mock("@/context/AuthContext", () => ({
+    useGlobalUser: () => mockGlobalUser,
 }));
 
 describe("InteractionView Component", () => {
@@ -32,16 +48,17 @@ describe("InteractionView Component", () => {
 
     beforeEach(() => {
         mockRouterPush.mockClear();
+        jest.clearAllMocks();
     });
 
     it("should render user info and comment content correctly", () => {
-        const { getByText, queryByText } = render(<InteractionView data={mockData} />);
+        const { getByText } = render(<InteractionView data={mockData} />);
 
         expect(getByText("John Doe")).toBeTruthy();
         expect(getByText("@johndoe")).toBeTruthy();
         expect(getByText("Bu gerçekten harika bir filmdi!")).toBeTruthy();
-        expect(queryByText("15")).toBeNull();
-        expect(queryByText("3")).toBeNull();
+        expect(getByText("15")).toBeTruthy();
+        expect(getByText("3")).toBeTruthy();
     });
 
     it("should navigate to user profile when user card is pressed", () => {
@@ -55,22 +72,25 @@ describe("InteractionView Component", () => {
         });
     });
 
-    it("should not navigate to interaction detail when interaction card is pressed by default (disabled for beta)", () => {
-        const { getByText } = render(<InteractionView data={mockData} />);
+    it("should not navigate to comment thread when interaction card is disabled", () => {
+        const { getByText } = render(<InteractionView data={mockData} disabled={true} />);
 
         fireEvent.press(getByText("Bu gerçekten harika bir filmdi!"));
 
         expect(mockRouterPush).not.toHaveBeenCalled();
     });
 
-    it("should navigate to interaction detail when disabled is explicitly false", () => {
-        const { getByText } = render(<InteractionView data={mockData} disabled={false} />);
+    it("should navigate to comment thread when interaction card is pressed", () => {
+        const { getByText } = render(<InteractionView data={mockData} />);
 
         fireEvent.press(getByText("Bu gerçekten harika bir filmdi!"));
 
         expect(mockRouterPush).toHaveBeenCalledWith({
-            pathname: "/interactions/[interactionId]",
-            params: { interactionId: "int-123" },
+            pathname: "/comments/[commentId]",
+            params: {
+                commentId: "comment-789",
+                interactionData: JSON.stringify(mockData),
+            },
         });
     });
 
@@ -86,5 +106,32 @@ describe("InteractionView Component", () => {
         const { getAllByText } = render(<InteractionView data={dataWithoutFullname} />);
 
         expect(getAllByText("johndoe").length).toBeGreaterThan(0);
+    });
+
+    it("should call onLike prop when like button is pressed", () => {
+        const onLikeMock = jest.fn();
+        const { getByText } = render(
+            <InteractionView data={mockData} onLike={onLikeMock} />,
+        );
+
+        fireEvent.press(getByText("15"));
+
+        expect(onLikeMock).toHaveBeenCalledWith("comment-789");
+    });
+
+    it("should toggle like with CommentService when onLike prop is not provided", async () => {
+        (CommentService.toggleCommentLike as jest.Mock).mockResolvedValueOnce({
+            success: true,
+            isLiked: false,
+            likeCount: 14,
+        });
+
+        const { getByText } = render(<InteractionView data={mockData} />);
+
+        fireEvent.press(getByText("15"));
+
+        await waitFor(() => {
+            expect(CommentService.toggleCommentLike).toHaveBeenCalledWith("comment-789");
+        });
     });
 });
