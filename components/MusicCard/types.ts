@@ -7,7 +7,7 @@ type IMusicCardProps<
     TTrack extends Omit<ITrack, "id"> = Omit<ITrack, "id">,
     TAlbum extends Omit<IAlbum, "id"> = Omit<IAlbum, "id">,
     TPlaylist extends Omit<IPlaylist, "id"> = Omit<IPlaylist, "id">,
-> = { layout?: "horizontal" | "vertical" } & (
+> = { layout?: "horizontal" | "vertical"; compact?: boolean } & (
     | {
           type: "track";
           data: TTrack;

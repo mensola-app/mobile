@@ -80,4 +80,20 @@ describe("MusicCard Component", () => {
 
         expect(getByText("Artist 1, Artist 2")).toBeTruthy();
     });
+
+    it("should render title and artist without duration in compact mode", () => {
+        const { getByText, queryByText } = render(<MusicCard type="track" data={mockSongProps} compact />);
+
+        expect(getByText("Music Title")).toBeTruthy();
+        expect(getByText("Artist 1, Artist 2")).toBeTruthy();
+        expect(queryByText("Artist 1, Artist 2 • 03:17")).toBeNull();
+    });
+
+    it("should fallback to name property if title is not provided", () => {
+        const { getByText } = render(
+            <MusicCard type="track" data={{ name: "Fallback Song", artists: [{ name: "Artist X" }] } as any} />
+        );
+
+        expect(getByText("Fallback Song")).toBeTruthy();
+    });
 });

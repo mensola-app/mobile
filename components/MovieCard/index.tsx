@@ -58,7 +58,7 @@ export default function MovieCard({
                     />
                 )}
             </View>
-            <View style={styles.infoWrapper}>
+            <View style={[styles.infoWrapper, !isHorizontal && { flex: 0, width: "100%" }]}>
                 <Text style={[styles.title, isHorizontal && styles.horizontalTitle]} numberOfLines={1}>
                     {mainTitle}
                 </Text>
