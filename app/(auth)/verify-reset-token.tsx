@@ -25,7 +25,7 @@ export default function VerifyResetTokenScreen() {
                     <Text style={styles.logoText}>mensola</Text>
                 </View>
 
-                <View style={styles.formContainer} pointerEvents={isLoading ? "none" : "auto"}>
+                <View style={styles.formContainer}>
                     <TextField
                         label={t("auth.verifyToken.codeLabel")}
                         type="number"

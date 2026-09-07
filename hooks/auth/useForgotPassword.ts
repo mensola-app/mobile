@@ -26,7 +26,7 @@ const useForgotPassword = () => {
             await AuthService.forgotPassword({ email });
 
             router.replace({
-                pathname: "/(auth)/verify-reset-token",
+                pathname: "/verify-reset-token",
                 params: { email },
             });
         } catch (error) {
@@ -36,7 +36,6 @@ const useForgotPassword = () => {
             } else {
                 setError("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.");
             }
-        } finally {
             setIsLoading(false);
         }
     };

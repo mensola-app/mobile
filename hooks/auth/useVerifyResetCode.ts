@@ -32,7 +32,7 @@ const useVerifyResetCode = () => {
             const ticket = response.data.ticket;
 
             router.replace({
-                pathname: "/(auth)/reset-password",
+                pathname: "/reset-password",
                 params: { ticket },
             });
         } catch (error) {
@@ -44,7 +44,6 @@ const useVerifyResetCode = () => {
             } else {
                 setError("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.");
             }
-        } finally {
             setIsLoading(false);
         }
     };

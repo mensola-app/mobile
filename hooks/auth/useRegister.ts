@@ -52,7 +52,7 @@ const useRegister = () => {
 
             await login({ accessToken, refreshToken }, user);
 
-            router.replace("/(tabs)/home");
+            router.replace("/home");
         } catch (error) {
             if (isApiError(error)) {
                 const apiErrorMessage = error.error?.message || error?.message;
@@ -62,7 +62,6 @@ const useRegister = () => {
             } else {
                 setError("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.");
             }
-        } finally {
             setIsLoading(false);
         }
     };

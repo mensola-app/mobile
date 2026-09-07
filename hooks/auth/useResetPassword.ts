@@ -26,7 +26,7 @@ const useResetPassword = () => {
         try {
             await AuthService.resetPassword({ newPassword, ticket });
 
-            router.replace("/(auth)/login");
+            router.replace("/login");
         } catch (error) {
             if (isApiError(error)) {
                 const apiErrorMessage = error.error?.message || error?.message;
@@ -34,7 +34,6 @@ const useResetPassword = () => {
             } else {
                 setError("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.");
             }
-        } finally {
             setIsLoading(false);
         }
     };

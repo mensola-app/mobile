@@ -41,7 +41,7 @@ const useLogin = () => {
 
             await login({ accessToken, refreshToken }, user);
 
-            router.replace("/(tabs)/home");
+            router.replace("/home");
         } catch (error) {
             console.log(error);
             if (isApiError(error)) {
@@ -62,14 +62,13 @@ const useLogin = () => {
                                         }
                                         const { user, accessToken, refreshToken } = response.data;
                                         await login({ accessToken, refreshToken }, user);
-                                        router.replace("/(tabs)/home");
+                                        router.replace("/home");
                                     } catch (reactivateError: any) {
+                                        setIsLoading(false);
                                         Alert.alert(
                                             "Hata",
                                             reactivateError?.error?.message || reactivateError?.message || "Hesap etkinleştirilemedi."
                                         );
-                                    } finally {
-                                        setIsLoading(false);
                                     }
                                 }
                             }
@@ -84,7 +83,6 @@ const useLogin = () => {
             } else {
                 setError("Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.");
             }
-        } finally {
             setIsLoading(false);
         }
     };

@@ -60,7 +60,7 @@ export default function SignupScreen() {
                         <Text style={styles.logoText}>mensola</Text>
                     </View>
 
-                    <View style={styles.formContainer} pointerEvents={isLoading ? "none" : "auto"}>
+                    <View style={styles.formContainer}>
                         <TextField
                             label={t("auth.signup.usernameLabel")}
                             type="text"

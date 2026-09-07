@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await SecureStore.deleteItemAsync("user_data");
             setToken(null);
             setUserState(undefined);
-            router.replace("/(auth)/login");
+            router.replace("/login");
         } catch (e) {
             console.error("Failed to clear auth state", e);
         }
