@@ -227,14 +227,16 @@ export default function ProfileHeader() {
                     <Text style={styles.actionButtonText}>{t("profile.header.shareButton")}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    activeOpacity={0.7}
-                    onPress={handleTasteCardPress}
-                    style={styles.actionSquareButton}
-                    testID="profile-taste-card-button"
-                    accessibilityLabel="Taste Card">
-                    <Ionicons name="sparkles" size={18} color={Colors.primary} />
-                </TouchableOpacity>
+                {headerData.isOwnProfile && (
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        onPress={handleTasteCardPress}
+                        style={styles.actionSquareButton}
+                        testID="profile-taste-card-button"
+                        accessibilityLabel="Taste Card">
+                        <Ionicons name="sparkles" size={18} color={Colors.textPrimary} />
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     );

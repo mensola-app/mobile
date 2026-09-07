@@ -216,4 +216,24 @@ describe("ProfileHeader Component", () => {
             }),
         );
     });
+
+    it("should not render taste card button when isOwnProfile is false", () => {
+        (useProfileContext as jest.Mock).mockReturnValue({
+            headerData: {
+                id: "user-456",
+                username: "otheruser",
+                isOwnProfile: false,
+                stats: {},
+            },
+            bodyData: {
+                favoriteMovies: [],
+                favoriteTracks: [],
+            },
+            handleStatPress: mockHandleStatPress,
+            refetch: mockRefetch,
+        });
+
+        const { queryByTestId } = render(<ProfileHeader />);
+        expect(queryByTestId("profile-taste-card-button")).toBeNull();
+    });
 });
