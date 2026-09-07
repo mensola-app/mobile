@@ -116,6 +116,16 @@
         "private": {
             "title": "Bu hesap gizli",
             "subtitle": "Fotoğraflarını ve listelerini görmek için bu hesabı takip et."
+        },
+        "tasteCard": {
+            "title": "Taste Card",
+            "requirementAlertTitle": "Taste Card",
+            "requirementAlertMessage": "Taste card'ı kullanmak için favorilerinizde 3 film ve 3 müzik olmalı.",
+            "shareButton": "Fotoğraf Olarak Paylaş",
+            "shareError": "Taste Card paylaşılırken bir hata oluştu.",
+            "shareDialogTitle": "Taste Card Paylaş",
+            "movies": "Favori Filmler",
+            "tracks": "Favori Şarkılar"
         }
     },
     "search": {

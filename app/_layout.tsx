@@ -28,6 +28,15 @@ export default function RootLayout() {
                     <Stack.Screen name="index" />
                     <Stack.Screen name="(auth)" />
                     <Stack.Screen name="(tabs)" />
+                    <Stack.Screen
+                        name="taste-card"
+                        options={{
+                            presentation: "transparentModal",
+                            animation: "fade",
+                            headerShown: false,
+                            contentStyle: { backgroundColor: "transparent" },
+                        }}
+                    />
                 </Stack>
             </AuthProvider>
         </QueryClientProvider>

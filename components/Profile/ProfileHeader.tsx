@@ -20,12 +20,40 @@ export default function ProfileHeader() {
     const router = useRouter();
     const { t } = useTranslation();
     const queryClient = useQueryClient();
-    const { headerData, handleStatPress, refetch } = useProfileContext();
+    const { headerData, bodyData, handleStatPress, refetch } = useProfileContext();
     const { followHandler, unfollowHandler, isLoading } = useFollow();
     const [isHandlingRequest, setIsHandlingRequest] = useState(false);
 
     const isFollowing = headerData.isFollowingByMe;
     const isPending = headerData.isPendingByMe;
+
+    const handleTasteCardPress = () => {
+        const movies = bodyData?.favoriteMovies || [];
+        const tracks = bodyData?.favoriteTracks || [];
+
+        if (movies.length >= 3 && tracks.length >= 3) {
+            router.push({
+                pathname: "/taste-card",
+                params: {
+                    user: JSON.stringify({
+                        id: headerData.id,
+                        username: headerData.username,
+                        fullname: headerData.fullname,
+                        avatar: headerData.avatar,
+                    }),
+                    favoriteMovies: JSON.stringify(movies.slice(0, 3)),
+                    favoriteTracks: JSON.stringify(tracks.slice(0, 3)),
+                },
+            });
+        } else {
+            Alert.alert(
+                t("profile.tasteCard.requirementAlertTitle", { defaultValue: "Taste Card" }),
+                t("profile.tasteCard.requirementAlertMessage", {
+                    defaultValue: "Taste card'ı kullanmak için favorilerinizde 3 film ve 3 müzik olmalı.",
+                }),
+            );
+        }
+    };
 
     const handleAcceptFollowRequest = async () => {
         try {
@@ -197,6 +225,15 @@ export default function ProfileHeader() {
                     onPress={async () => await shareUserProfile({ id: headerData.id, username: headerData.username })}
                     style={styles.actionButton}>
                     <Text style={styles.actionButtonText}>{t("profile.header.shareButton")}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={handleTasteCardPress}
+                    style={styles.actionSquareButton}
+                    testID="profile-taste-card-button"
+                    accessibilityLabel="Taste Card">
+                    <Ionicons name="sparkles" size={18} color={Colors.primary} />
                 </TouchableOpacity>
             </View>
         </View>

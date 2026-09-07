@@ -116,6 +116,16 @@
         "private": {
             "title": "This account is private",
             "subtitle": "Follow this account to see their photos and lists."
+        },
+        "tasteCard": {
+            "title": "Taste Card",
+            "requirementAlertTitle": "Taste Card",
+            "requirementAlertMessage": "You must have 3 movies and 3 tracks in your favorites to use Taste Card.",
+            "shareButton": "Share as Image",
+            "shareError": "An error occurred while sharing the Taste Card.",
+            "shareDialogTitle": "Share Taste Card",
+            "movies": "Favorite Movies",
+            "tracks": "Favorite Tracks"
         }
     },
     "search": {

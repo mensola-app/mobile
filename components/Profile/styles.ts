@@ -67,6 +67,16 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.border,
     },
+    actionSquareButton: {
+        width: 38,
+        height: 38,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 10,
+        backgroundColor: Colors.surface,
+        borderWidth: 1,
+        borderColor: Colors.border,
+    },
     actionButtonPrimary: {
         backgroundColor: Colors.primary,
         borderColor: Colors.primary,
