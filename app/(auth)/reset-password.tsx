@@ -25,15 +25,21 @@ export default function ResetPasswordScreen() {
                     <Text style={styles.logoText}>mensola</Text>
                 </View>
 
-                <View style={styles.formContainer}>
+                <View style={styles.formContainer} pointerEvents={isLoading ? "none" : "auto"}>
                     <TextField
                         label={t("auth.resetPassword.newPasswordLabel")}
                         type="password"
                         placeholder={t("auth.resetPassword.newPasswordPlaceholder")}
                         value={newPassword}
                         onChangeText={setNewPassword}
+                        editable={!isLoading}
                     />
-                    <Button label={t("auth.resetPassword.submitButton")} onPress={handleResetPassword} />
+                    <Button
+                        label={t("auth.resetPassword.submitButton")}
+                        onPress={handleResetPassword}
+                        loading={isLoading}
+                        disabled={isLoading}
+                    />
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>

@@ -5,4 +5,7 @@ export interface IButtonProps extends Partial<TouchableOpacityProps> {
     onPress: () => void;
     style?: StyleProp<ViewStyle>;
     labelStyle?: StyleProp<TextStyle>;
+    loading?: boolean;
+    isLoading?: boolean;
+    indicatorColor?: string;
 }

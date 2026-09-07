@@ -25,9 +25,20 @@ export default function VerifyResetTokenScreen() {
                     <Text style={styles.logoText}>mensola</Text>
                 </View>
 
-                <View style={styles.formContainer}>
-                    <TextField label={t("auth.verifyToken.codeLabel")} type="number" value={code} onChangeText={setCode} />
-                    <Button label={t("auth.verifyToken.submitButton")} onPress={handleVerifyToken} />
+                <View style={styles.formContainer} pointerEvents={isLoading ? "none" : "auto"}>
+                    <TextField
+                        label={t("auth.verifyToken.codeLabel")}
+                        type="number"
+                        value={code}
+                        onChangeText={setCode}
+                        editable={!isLoading}
+                    />
+                    <Button
+                        label={t("auth.verifyToken.submitButton")}
+                        onPress={handleVerifyToken}
+                        loading={isLoading}
+                        disabled={isLoading}
+                    />
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>

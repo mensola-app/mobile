@@ -60,13 +60,14 @@ export default function SignupScreen() {
                         <Text style={styles.logoText}>mensola</Text>
                     </View>
 
-                    <View style={styles.formContainer}>
+                    <View style={styles.formContainer} pointerEvents={isLoading ? "none" : "auto"}>
                         <TextField
                             label={t("auth.signup.usernameLabel")}
                             type="text"
                             placeholder={t("auth.signup.usernamePlaceholder")}
                             value={username}
                             onChangeText={setUsername}
+                            editable={!isLoading}
                         />
                         <TextField
                             label={t("auth.signup.emailLabel")}
@@ -74,6 +75,7 @@ export default function SignupScreen() {
                             placeholder={t("auth.signup.emailPlaceholder")}
                             value={email}
                             onChangeText={setEmail}
+                            editable={!isLoading}
                         />
                         <TextField
                             label={t("auth.signup.passwordLabel")}
@@ -81,6 +83,7 @@ export default function SignupScreen() {
                             placeholder={t("auth.signup.passwordPlaceholder")}
                             value={password}
                             onChangeText={setPassword}
+                            editable={!isLoading}
                         />
                         <TextField
                             label={t("auth.signup.confirmPasswordLabel")}
@@ -88,6 +91,7 @@ export default function SignupScreen() {
                             placeholder={t("auth.signup.confirmPasswordPlaceholder")}
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
+                            editable={!isLoading}
                         />
 
                         {/* Terms & Privacy Consent */}
@@ -96,6 +100,7 @@ export default function SignupScreen() {
                                 style={styles.checkboxTouch}
                                 onPress={() => setHasAcceptedTerms(!hasAcceptedTerms)}
                                 activeOpacity={0.7}
+                                disabled={isLoading}
                                 testID="signup-terms-checkbox">
                                 <Ionicons
                                     name={hasAcceptedTerms ? "checkbox" : "square-outline"}
@@ -126,15 +131,16 @@ export default function SignupScreen() {
                             label={t("auth.signup.submitButton")}
                             onPress={handleSubmit}
                             disabled={!hasAcceptedTerms || isLoading}
-                            style={!hasAcceptedTerms ? { opacity: 0.5 } : undefined}
+                            loading={isLoading}
+                            style={!hasAcceptedTerms && !isLoading ? { opacity: 0.5 } : undefined}
                             testID="signup-submit-button"
                         />
                     </View>
 
                     <View style={styles.footerContainer}>
                         <Text style={styles.footerText}>{t("auth.signup.footerText")} </Text>
-                        <TouchableOpacity onPress={() => router.push("/login")}>
-                            <Text style={styles.loginLink}>{t("auth.signup.loginLink")}</Text>
+                        <TouchableOpacity onPress={() => router.push("/login")} disabled={isLoading}>
+                            <Text style={[styles.loginLink, isLoading && { opacity: 0.5 }]}>{t("auth.signup.loginLink")}</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>

@@ -25,15 +25,21 @@ export default function ForgotPasswordScreen() {
                     <Text style={styles.logoText}>mensola</Text>
                 </View>
 
-                <View style={styles.formContainer}>
+                <View style={styles.formContainer} pointerEvents={isLoading ? "none" : "auto"}>
                     <TextField
                         label={t("auth.forgotPassword.emailLabel")}
                         type="email"
                         placeholder={t("auth.forgotPassword.emailPlaceholder")}
                         value={email}
                         onChangeText={setEmail}
+                        editable={!isLoading}
                     />
-                    <Button label={t("auth.forgotPassword.submitButton")} onPress={handleForgotPassword} />
+                    <Button
+                        label={t("auth.forgotPassword.submitButton")}
+                        onPress={handleForgotPassword}
+                        loading={isLoading}
+                        disabled={isLoading}
+                    />
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>

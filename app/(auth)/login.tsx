@@ -28,13 +28,14 @@ export default function LoginScreen() {
                     <Text style={styles.logoText}>mensola</Text>
                 </View>
 
-                <View style={styles.formContainer}>
+                <View style={styles.formContainer} pointerEvents={isLoading ? "none" : "auto"}>
                     <TextField
                         label={t("auth.login.emailLabel")}
                         type="email"
                         placeholder={t("auth.login.emailPlaceholder")}
                         value={email}
                         onChangeText={setEmail}
+                        editable={!isLoading}
                     />
                     <TextField
                         label={t("auth.login.passwordLabel")}
@@ -42,18 +43,27 @@ export default function LoginScreen() {
                         placeholder={t("auth.login.passwordPlaceholder")}
                         value={password}
                         onChangeText={setPassword}
+                        editable={!isLoading}
                     />
-                    <Button label={t("auth.login.submitButton")} onPress={handleLogin} />
+                    <Button
+                        label={t("auth.login.submitButton")}
+                        onPress={handleLogin}
+                        loading={isLoading}
+                        testID="login-submit-button"
+                    />
                     <TouchableOpacity
                         style={styles.forgotPasswordContainer}
-                        onPress={() => router.push("/forgot-password")}>
-                        <Text style={styles.forgotPasswordText}>{t("auth.login.forgotPasswordText")}</Text>
+                        onPress={() => router.push("/forgot-password")}
+                        disabled={isLoading}>
+                        <Text style={[styles.forgotPasswordText, isLoading && { opacity: 0.5 }]}>
+                            {t("auth.login.forgotPasswordText")}
+                        </Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.footerContainer}>
                     <Text style={styles.footerText}>{t("auth.login.footerText")} </Text>
-                    <TouchableOpacity onPress={() => router.push("/signup")}>
-                        <Text style={styles.registerLink}>{t("auth.login.registerLink")}</Text>
+                    <TouchableOpacity onPress={() => router.push("/signup")} disabled={isLoading}>
+                        <Text style={[styles.registerLink, isLoading && { opacity: 0.5 }]}>{t("auth.login.registerLink")}</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>

@@ -24,6 +24,7 @@ export default function TextField({ label, type = "text", error, style, ...rest 
                     styles.textField,
                     isFocused && { borderColor: Colors.primary },
                     Boolean(error) && { borderColor: Colors.danger },
+                    rest.editable === false && { opacity: 0.7 },
                     style,
                 ]}
                 placeholderTextColor={Colors.textMuted}
