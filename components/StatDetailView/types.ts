@@ -1,6 +1,6 @@
 import { LikedAlbumsResponseDataItem } from "@/types/album.types";
 import { UserId } from "@/types/common.types";
-import { IMovie, MovieSummaryViaInteraction } from "@/types/movie.types";
+import { GetListsResponseDataItem, IMovie, MovieSummaryViaInteraction } from "@/types/movie.types";
 import { GetPlaylistsResponseDataItem, PlaylistItemsResponseDataItem } from "@/types/playlist.types";
 import { StatDetailsItemMap, StatType } from "@/types/stat.types";
 import { FavoriteTracks, ITrack } from "@/types/track.types";
@@ -38,11 +38,13 @@ export type StatDetailItemProps<T extends StatType = StatType> = { viewType?: Vi
           | { cardType: "album"; data: LikedAlbumsResponseDataItem }
           | { cardType: "playlist"; data: GetPlaylistsResponseDataItem }
       ))
-    | {
+    | ({
           viewType?: "movie-card";
-          data: MovieSummaryViaInteraction;
           onPress?: () => void;
-      }
+      } & (
+          | { cardType?: "movie"; data: MovieSummaryViaInteraction }
+          | { cardType: "movie-list"; data: GetListsResponseDataItem; hideCreator?: boolean }
+      ))
     | {
           viewType?: "user-card";
           data: FollowUsersResponseDataItem;

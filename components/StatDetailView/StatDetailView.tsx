@@ -87,6 +87,8 @@ export default function StatDetailView<T extends StatType = StatType>({
     }
 
     const isGrid = [
+        "movie-lists",
+        "liked-movie-lists",
         "watchlist",
         "watched",
         "liked-movies",
@@ -102,15 +104,13 @@ export default function StatDetailView<T extends StatType = StatType>({
             case "liked-movie-lists":
                 return (
                     <StatDetailItem
-                        viewType="dynamic-list"
-                        data={item.previewMovies}
-                        listTitle={item.listTitle}
-                        onSeeAllPress={() => {
-                            router.push(`/movie-lists/${item.listId}`);
+                        viewType="movie-card"
+                        cardType="movie-list"
+                        data={item}
+                        onPress={() => {
+                            router.push(`/movie-lists/${item.listId || item.id}`);
                         }}
-                        onListItemPress={(movieId: string) => {
-                            router.push(`/movies/${movieId}`);
-                        }}
+                        hideCreator={isOwnProfile && statType === "movie-lists"}
                     />
                 );
             case "playlists":

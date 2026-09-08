@@ -32,18 +32,30 @@ export default function StatDetailItem<T extends StatType = StatType>(props: Sta
             );
         }
         case "movie-card": {
-            const { data, onPress } = props;
+            if (props.cardType === "movie-list") {
+                return (
+                    <MovieCard
+                        type="movie-list"
+                        data={props.data}
+                        onPress={props.onPress}
+                        style={{ width: "31%" }}
+                        hideCreator={props.hideCreator}
+                    />
+                );
+            }
             return (
                 <MovieCard
-                    title={data.title}
-                    poster={data.poster}
+                    type="movie"
+                    data={props.data}
+                    title={props.data.title}
+                    poster={props.data.poster}
                     interactions={{
-                        rating: data?.rating,
-                        isLiked: data.isLiked,
-                        hasReview: data.hasReview,
+                        rating: props.data?.rating,
+                        isLiked: props.data.isLiked,
+                        hasReview: props.data.hasReview,
                     }}
                     style={{ width: "31%" }}
-                    onPress={onPress}
+                    onPress={props.onPress}
                 />
             );
         }

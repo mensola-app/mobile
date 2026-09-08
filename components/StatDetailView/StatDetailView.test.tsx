@@ -73,4 +73,30 @@ describe("StatDetailView Component Unit Tests", () => {
         const spinner = UNSAFE_getByType(require("react-native").ActivityIndicator);
         expect(spinner).toBeTruthy();
     });
+
+    it("renders movie-lists as grid items using MovieCard", () => {
+        const mockLists = [
+            {
+                listId: "list-1",
+                listTitle: "My Christopher Nolan List",
+                image: "https://example.com/nolan.jpg",
+                movieCount: 7,
+                creator: { id: "u1", username: "filmfan" },
+                previewMovies: [],
+            },
+        ];
+
+        const { getByText } = render(
+            <StatDetailView
+                currentUserId="user-1"
+                statType="movie-lists"
+                items={mockLists as any}
+                isLoading={false}
+                isError={false}
+            />
+        );
+
+        expect(getByText("My Christopher Nolan List")).toBeTruthy();
+    });
 });
+

@@ -9,6 +9,13 @@ export const styles = StyleSheet.create({
     horizontalPosterContainer: { height: 105 },
     verticalPosterContainer: { width: "100%" },
     poster: { width: "100%", height: "100%" },
+    placeholderContainer: {
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.surface,
+    },
     badgeContainer: {
         position: "absolute",
         bottom: 6,
@@ -33,5 +40,8 @@ export const styles = StyleSheet.create({
     badgeText: { fontSize: 11, fontWeight: "bold", marginLeft: 3, includeFontPadding: false },
     title: { color: Colors.textPrimary, fontSize: 12, fontWeight: "600", marginTop: 6, lineHeight: 16 },
     horizontalTitle: { fontSize: 14, marginBottom: 4 },
+    compactTitle: { fontSize: 11.5, fontWeight: "600", marginTop: 4, lineHeight: 15 },
     genres: { fontSize: 12, color: Colors.textSecondary, marginBottom: 4 },
+    subTitle: { color: Colors.textSecondary, fontSize: 12, marginTop: 2 },
+    compactSubTitle: { fontSize: 10, marginTop: 1, lineHeight: 13 },
 });
