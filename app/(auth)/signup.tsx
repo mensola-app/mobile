@@ -17,8 +17,10 @@ import { Ionicons } from "@expo/vector-icons";
 
 import TextField from "../../components/TextField";
 import Button from "../../components/Button";
+import GoogleSignInButton from "../../components/GoogleSignInButton";
 
 import { useRegister } from "../../hooks/auth/useRegister";
+import { useGoogleLogin } from "../../hooks/auth/useGoogleLogin";
 import { Colors } from "@/constants/colors";
 
 export default function SignupScreen() {
@@ -37,7 +39,10 @@ export default function SignupScreen() {
         handleRegister,
     } = useRegister();
     const { t } = useTranslation();
+    const { isLoading: isGoogleLoading, handleGoogleLogin } = useGoogleLogin();
     const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+
+    const isBusy = isLoading || isGoogleLoading;
 
     useEffect(() => {
         if (isLoading) return;
@@ -130,17 +135,32 @@ export default function SignupScreen() {
                         <Button
                             label={t("auth.signup.submitButton")}
                             onPress={handleSubmit}
-                            disabled={!hasAcceptedTerms || isLoading}
+                            disabled={!hasAcceptedTerms || isBusy}
                             loading={isLoading}
-                            style={!hasAcceptedTerms && !isLoading ? { opacity: 0.5 } : undefined}
+                            style={!hasAcceptedTerms && !isBusy ? { opacity: 0.5 } : undefined}
                             testID="signup-submit-button"
+                        />
+
+                        {/* Ayraç */}
+                        <View style={styles.dividerContainer}>
+                            <View style={styles.dividerLine} />
+                            <Text style={styles.dividerText}>{t("auth.google.or")}</Text>
+                            <View style={styles.dividerLine} />
+                        </View>
+
+                        {/* Google Sign-In */}
+                        <GoogleSignInButton
+                            onPress={handleGoogleLogin}
+                            loading={isGoogleLoading}
+                            disabled={isLoading}
+                            testID="google-signin-button-signup"
                         />
                     </View>
 
                     <View style={styles.footerContainer}>
                         <Text style={styles.footerText}>{t("auth.signup.footerText")} </Text>
-                        <TouchableOpacity onPress={() => router.push("/login")} disabled={isLoading}>
-                            <Text style={[styles.loginLink, isLoading && { opacity: 0.5 }]}>{t("auth.signup.loginLink")}</Text>
+                        <TouchableOpacity onPress={() => router.push("/login")} disabled={isBusy}>
+                            <Text style={[styles.loginLink, isBusy && { opacity: 0.5 }]}>{t("auth.signup.loginLink")}</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -165,6 +185,22 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5,
     },
     formContainer: { marginBottom: 24 },
+    dividerContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: 20,
+    },
+    dividerLine: {
+        flex: 1,
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: Colors.border,
+    },
+    dividerText: {
+        color: Colors.textMuted,
+        fontSize: 13,
+        marginHorizontal: 12,
+        textTransform: "lowercase",
+    },
     consentContainer: {
         flexDirection: "row",
         alignItems: "flex-start",

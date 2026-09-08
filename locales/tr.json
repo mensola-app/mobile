@@ -42,6 +42,12 @@
         "verifyToken": {
             "codeLabel": "Doğrulama Kodu",
             "submitButton": "Kodu Doğrula"
+        },
+        "google": {
+            "buttonLabel": "Google ile Devam Et",
+            "or": "veya",
+            "playServicesError": "Google Play Hizmetleri bu cihazda mevcut değil veya güncel değil.",
+            "genericError": "Google ile giriş yapılamadı. Lütfen tekrar deneyin."
         }
     },
     "tabs": {

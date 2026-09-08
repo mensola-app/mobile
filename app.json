@@ -2,7 +2,7 @@
     "expo": {
         "name": "mensola",
         "slug": "mensola",
-        "version": "0.10.0",
+        "version": "0.11.0",
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
         "scheme": "mensola",
@@ -43,7 +43,8 @@
             "expo-status-bar",
             "expo-web-browser",
             "expo-secure-store",
-            "expo-sharing"
+            "expo-sharing",
+            "@react-native-google-signin/google-signin"
         ],
         "experiments": {
             "typedRoutes": true,

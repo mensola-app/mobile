@@ -17,3 +17,4 @@ export type AuthResponseData = AuthTokens & { user?: IUser };
 export type AuthResponse = ApiResponse<AuthResponseData>;
 export type VerifyResetCodeResponseData = { ticket: string };
 export type VerifyResetCodeResponse = ApiResponse<VerifyResetCodeResponseData>;
+export type GoogleLoginRequest = { idToken: string };

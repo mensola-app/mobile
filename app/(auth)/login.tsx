@@ -6,8 +6,10 @@ import { useTranslation } from "react-i18next";
 
 import TextField from "../../components/TextField";
 import Button from "../../components/Button";
+import GoogleSignInButton from "../../components/GoogleSignInButton";
 
 import { useLogin } from "../../hooks/auth/useLogin";
+import { useGoogleLogin } from "../../hooks/auth/useGoogleLogin";
 import { Colors } from "@/constants/colors";
 
 export default function LoginScreen() {
@@ -15,6 +17,9 @@ export default function LoginScreen() {
     const { t } = useTranslation();
 
     const { email, setEmail, password, setPassword, isLoading, error, handleLogin } = useLogin();
+    const { isLoading: isGoogleLoading, handleGoogleLogin } = useGoogleLogin();
+
+    const isBusy = isLoading || isGoogleLoading;
 
     useEffect(() => {
         if (isLoading) return;
@@ -35,7 +40,7 @@ export default function LoginScreen() {
                         placeholder={t("auth.login.emailPlaceholder")}
                         value={email}
                         onChangeText={setEmail}
-                        editable={!isLoading}
+                        editable={!isBusy}
                     />
                     <TextField
                         label={t("auth.login.passwordLabel")}
@@ -43,27 +48,43 @@ export default function LoginScreen() {
                         placeholder={t("auth.login.passwordPlaceholder")}
                         value={password}
                         onChangeText={setPassword}
-                        editable={!isLoading}
+                        editable={!isBusy}
                     />
                     <Button
                         label={t("auth.login.submitButton")}
                         onPress={handleLogin}
                         loading={isLoading}
+                        disabled={isGoogleLoading}
                         testID="login-submit-button"
                     />
                     <TouchableOpacity
                         style={styles.forgotPasswordContainer}
                         onPress={() => router.push("/forgot-password")}
-                        disabled={isLoading}>
-                        <Text style={[styles.forgotPasswordText, isLoading && { opacity: 0.5 }]}>
+                        disabled={isBusy}>
+                        <Text style={[styles.forgotPasswordText, isBusy && { opacity: 0.5 }]}>
                             {t("auth.login.forgotPasswordText")}
                         </Text>
                     </TouchableOpacity>
+
+                    {/* Ayraç */}
+                    <View style={styles.dividerContainer}>
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.dividerText}>{t("auth.google.or")}</Text>
+                        <View style={styles.dividerLine} />
+                    </View>
+
+                    {/* Google Sign-In */}
+                    <GoogleSignInButton
+                        onPress={handleGoogleLogin}
+                        loading={isGoogleLoading}
+                        disabled={isLoading}
+                        testID="google-signin-button"
+                    />
                 </View>
                 <View style={styles.footerContainer}>
                     <Text style={styles.footerText}>{t("auth.login.footerText")} </Text>
-                    <TouchableOpacity onPress={() => router.push("/signup")} disabled={isLoading}>
-                        <Text style={[styles.registerLink, isLoading && { opacity: 0.5 }]}>{t("auth.login.registerLink")}</Text>
+                    <TouchableOpacity onPress={() => router.push("/signup")} disabled={isBusy}>
+                        <Text style={[styles.registerLink, isBusy && { opacity: 0.5 }]}>{t("auth.login.registerLink")}</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -92,6 +113,22 @@ const styles = StyleSheet.create({
     forgotPasswordText: {
         color: Colors.textSecondary,
     },
+    dividerContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: 20,
+    },
+    dividerLine: {
+        flex: 1,
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: Colors.border,
+    },
+    dividerText: {
+        color: Colors.textMuted,
+        fontSize: 13,
+        marginHorizontal: 12,
+        textTransform: "lowercase",
+    },
     footerContainer: {
         flexDirection: "row",
         justifyContent: "center",
@@ -101,3 +138,4 @@ const styles = StyleSheet.create({
     footerText: { color: Colors.textSecondary, fontSize: 14 },
     registerLink: { color: Colors.primary, fontSize: 14, fontWeight: "bold" },
 });
+

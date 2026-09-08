@@ -42,6 +42,12 @@
         "verifyToken": {
             "codeLabel": "Verification Code",
             "submitButton": "Verify Code"
+        },
+        "google": {
+            "buttonLabel": "Continue with Google",
+            "or": "or",
+            "playServicesError": "Google Play Services is not available or outdated on this device.",
+            "genericError": "Could not sign in with Google. Please try again."
         }
     },
     "tabs": {

@@ -1,6 +1,7 @@
 import {
     AuthResponse,
     ForgotPasswordRequest,
+    GoogleLoginRequest,
     LoginRequest,
     LogoutRequest,
     RegisterRequest,
@@ -38,6 +39,10 @@ const AuthService = {
 
     reactivate: async (data: LoginRequest): Promise<AuthResponse> => {
         return await client.post<AuthResponse>("/v1/auth/reactivate", data, { auth: false });
+    },
+
+    googleLogin: async (data: GoogleLoginRequest): Promise<AuthResponse> => {
+        return await client.post<AuthResponse>("/v1/auth/google", data, { auth: false });
     },
 };
 
