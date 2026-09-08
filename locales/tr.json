@@ -222,7 +222,10 @@
             "privateListDesc": "Gizli listeler sadece sizin profilinizde görünür.",
             "submitButton": "Oluştur",
             "errorTitleRequired": "Lütfen bir liste başlığı girin.",
-            "errorGeneral": "Liste oluşturulurken bir hata oluştu."
+            "errorGeneral": "Liste oluşturulurken bir hata oluştu.",
+            "photoPermissionErrorTitle": "İzin Gerekli",
+            "photoPermissionErrorBody": "Kapak görseli seçebilmek için galeri erişim iznine ihtiyacımız var.",
+            "photoUploadError": "Görsel yüklenirken bir sorun oluştu."
         },
         "replaceFavorite": {
             "emptyText": "Henüz favori listeniz boş."

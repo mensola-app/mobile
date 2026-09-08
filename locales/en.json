@@ -222,7 +222,10 @@
             "privateListDesc": "Private lists are only visible on your profile.",
             "submitButton": "Create",
             "errorTitleRequired": "Please enter a list name.",
-            "errorGeneral": "An error occurred while creating the list."
+            "errorGeneral": "An error occurred while creating the list.",
+            "photoPermissionErrorTitle": "Permission Required",
+            "photoPermissionErrorBody": "We need access to your photos to select a cover image.",
+            "photoUploadError": "Failed to upload cover image."
         },
         "replaceFavorite": {
             "emptyText": "Your favorite list is currently empty."
