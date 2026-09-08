@@ -73,6 +73,22 @@ const PlaylistService = {
     }): Promise<ApiResponse> => {
         return client.post<ApiResponse>(`/v1/playlists`, data, { auth: true });
     },
+
+    updatePlaylist: async (
+        playlistId: PlaylistId,
+        data: {
+            title?: string;
+            description?: string | null;
+            image?: string | null;
+            isPrivate?: boolean;
+        },
+    ): Promise<ApiResponse> => {
+        return client.patch<ApiResponse>(`/v1/playlists/${playlistId}`, data, { auth: true });
+    },
+
+    deletePlaylist: async (playlistId: PlaylistId): Promise<ApiResponse> => {
+        return client.delete<ApiResponse>(`/v1/playlists/${playlistId}`, { auth: true });
+    },
 };
 
 export { PlaylistService };

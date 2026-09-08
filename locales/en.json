@@ -227,6 +227,17 @@
             "photoPermissionErrorBody": "We need access to your photos to select a cover image.",
             "photoUploadError": "Failed to upload cover image."
         },
+        "edit": {
+            "titleMovie": "Edit Movie List",
+            "titleTrack": "Edit Playlist",
+            "submitButton": "Save Changes",
+            "deleteButton": "Delete List",
+            "deleteConfirmTitle": "Delete List",
+            "deleteConfirmBody": "Are you sure you want to delete this list? This action cannot be undone.",
+            "delete": "Delete",
+            "errorGeneral": "An error occurred while updating the list.",
+            "errorDelete": "An error occurred while deleting the list."
+        },
         "replaceFavorite": {
             "emptyText": "Your favorite list is currently empty."
         }

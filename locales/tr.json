@@ -227,6 +227,17 @@
             "photoPermissionErrorBody": "Kapak görseli seçebilmek için galeri erişim iznine ihtiyacımız var.",
             "photoUploadError": "Görsel yüklenirken bir sorun oluştu."
         },
+        "edit": {
+            "titleMovie": "Film Listesini Düzenle",
+            "titleTrack": "Çalma Listesini Düzenle",
+            "submitButton": "Kaydet",
+            "deleteButton": "Listeyi Sil",
+            "deleteConfirmTitle": "Listeyi Sil",
+            "deleteConfirmBody": "Bu listeyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+            "delete": "Sil",
+            "errorGeneral": "Liste güncellenirken bir hata oluştu.",
+            "errorDelete": "Liste silinirken bir hata oluştu."
+        },
         "replaceFavorite": {
             "emptyText": "Henüz favori listeniz boş."
         }

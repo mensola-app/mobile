@@ -42,6 +42,7 @@ export interface IMovieList {
     items?: MovieSummaryViaInteraction;
     owners?: FollowUsersResponseDataItem[];
     listType?: MovieListType;
+    isPrivate?: boolean;
 }
 export type MovieListType = "custom" | "favorites" | "watchlist";
 export type MovieListDetails = IMovieList & {

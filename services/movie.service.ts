@@ -144,6 +144,22 @@ const MovieService = {
     }): Promise<ApiResponse> => {
         return await client.post<ApiResponse>(`/v1/movies/lists`, data, { auth: true });
     },
+
+    updateList: async (
+        listId: MovieListId,
+        data: {
+            title?: string;
+            description?: string | null;
+            image?: string | null;
+            isPrivate?: boolean;
+        },
+    ): Promise<ApiResponse> => {
+        return await client.patch<ApiResponse>(`/v1/movies/lists/${listId}`, data, { auth: true });
+    },
+
+    deleteList: async (listId: MovieListId): Promise<ApiResponse> => {
+        return await client.delete<ApiResponse>(`/v1/movies/lists/${listId}`, { auth: true });
+    },
 };
 
 export { MovieService };

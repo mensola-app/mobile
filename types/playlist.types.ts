@@ -13,6 +13,7 @@ export interface IPlaylist {
     creatorId?: UserId;
     creator?: IUser;
     songCount?: number;
+    isPrivate?: boolean;
 }
 export type PlaylistDetails = IPlaylist & {
     owners?: FollowUsersResponseDataItem[];
