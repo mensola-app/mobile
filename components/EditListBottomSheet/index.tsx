@@ -13,12 +13,13 @@ import { PlaylistService } from "@/services/playlist.service";
 import { StorageService } from "@/services/storage.service";
 import { useTranslation } from "react-i18next";
 import { styles } from "./styles";
+import { MovieListId, PlaylistId } from "@/types/common.types";
 
 interface Props {
     isVisible: boolean;
     onClose: () => void;
     type: "movie-lists" | "playlists";
-    listId: string;
+    listId: MovieListId | PlaylistId;
     initialTitle?: string;
     initialDescription?: string;
     initialImage?: string | null;
@@ -42,9 +43,9 @@ export default function EditListBottomSheet({
     const { t } = useTranslation();
     const isMovie = type === "movie-lists";
 
-    const [title, setTitle] = useState(initialTitle);
-    const [description, setDescription] = useState(initialDescription);
-    const [selectedImageUri, setSelectedImageUri] = useState<string | null>(initialImage);
+    const [title, setTitle] = useState(initialTitle || "");
+    const [description, setDescription] = useState(initialDescription || "");
+    const [selectedImageUri, setSelectedImageUri] = useState<string | null>(initialImage || null);
     const [isImageChanged, setIsImageChanged] = useState(false);
     const [isImageRemoved, setIsImageRemoved] = useState(false);
     const [isPrivate, setIsPrivate] = useState(initialIsPrivate);
@@ -52,12 +53,11 @@ export default function EditListBottomSheet({
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-
     useEffect(() => {
         if (isVisible) {
-            setTitle(initialTitle);
-            setDescription(initialDescription);
-            setSelectedImageUri(initialImage);
+            setTitle(initialTitle || "");
+            setDescription(initialDescription || "");
+            setSelectedImageUri(initialImage || null);
             setIsImageChanged(false);
             setIsImageRemoved(false);
             setIsPrivate(initialIsPrivate);
@@ -69,10 +69,7 @@ export default function EditListBottomSheet({
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (!permissionResult.granted) {
-            Alert.alert(
-                t("lists.create.photoPermissionErrorTitle"),
-                t("lists.create.photoPermissionErrorBody"),
-            );
+            Alert.alert(t("lists.create.photoPermissionErrorTitle"), t("lists.create.photoPermissionErrorBody"));
             return;
         }
 
@@ -98,7 +95,8 @@ export default function EditListBottomSheet({
     };
 
     const handleSave = async () => {
-        if (!title.trim()) {
+        const trimmedTitle = title?.trim() || "";
+        if (!trimmedTitle) {
             setError(t("lists.create.errorTitleRequired"));
             return;
         }
@@ -110,7 +108,7 @@ export default function EditListBottomSheet({
             let finalImageUrl: string | null | undefined = initialImage;
 
             if (isImageChanged) {
-                if (selectedImageUri) {
+                if (selectedImageUri && selectedImageUri !== initialImage) {
                     try {
                         const uploadRes = await StorageService.uploadCover(selectedImageUri);
                         finalImageUrl = uploadRes.data?.imageUrl;
@@ -119,22 +117,24 @@ export default function EditListBottomSheet({
                         setIsLoading(false);
                         return;
                     }
-                } else if (isImageRemoved) {
+                } else if (!selectedImageUri || isImageRemoved) {
                     finalImageUrl = null;
                 }
             }
 
+            const trimmedDescription = description?.trim() || null;
+
             if (isMovie) {
-                await MovieService.updateList(listId, {
-                    title: title.trim(),
-                    description: description.trim() || null,
+                await MovieService.updateList(listId as MovieListId, {
+                    title: trimmedTitle,
+                    description: trimmedDescription,
                     image: finalImageUrl,
                     isPrivate,
                 });
             } else {
-                await PlaylistService.updatePlaylist(listId, {
-                    title: title.trim(),
-                    description: description.trim() || null,
+                await PlaylistService.updatePlaylist(listId as PlaylistId, {
+                    title: trimmedTitle,
+                    description: trimmedDescription,
                     image: finalImageUrl,
                     isPrivate,
                 });
@@ -151,18 +151,14 @@ export default function EditListBottomSheet({
     };
 
     const handleDeleteConfirm = () => {
-        Alert.alert(
-            t("lists.edit.deleteConfirmTitle"),
-            t("lists.edit.deleteConfirmBody"),
-            [
-                { text: t("common.cancel", { defaultValue: "Vazgeç" }), style: "cancel" },
-                {
-                    text: t("lists.edit.delete"),
-                    style: "destructive",
-                    onPress: handleDelete,
-                },
-            ],
-        );
+        Alert.alert(t("lists.edit.deleteConfirmTitle"), t("lists.edit.deleteConfirmBody"), [
+            { text: t("common.cancel", { defaultValue: "Vazgeç" }), style: "cancel" },
+            {
+                text: t("lists.edit.delete"),
+                style: "destructive",
+                onPress: handleDelete,
+            },
+        ]);
     };
 
     const handleDelete = async () => {
@@ -171,9 +167,9 @@ export default function EditListBottomSheet({
 
         try {
             if (isMovie) {
-                await MovieService.deleteList(listId);
+                await MovieService.deleteList(listId as MovieListId);
             } else {
-                await PlaylistService.deletePlaylist(listId);
+                await PlaylistService.deletePlaylist(listId as PlaylistId);
             }
 
             onClose();
@@ -242,7 +238,11 @@ export default function EditListBottomSheet({
                     <View style={styles.titleWrapper}>
                         <TextField
                             label={t("lists.create.nameLabel")}
-                            placeholder={isMovie ? t("lists.create.namePlaceholderMovie") : t("lists.create.namePlaceholderTrack")}
+                            placeholder={
+                                isMovie
+                                    ? t("lists.create.namePlaceholderMovie")
+                                    : t("lists.create.namePlaceholderTrack")
+                            }
                             value={title}
                             onChangeText={(text) => {
                                 setTitle(text);
@@ -265,9 +265,7 @@ export default function EditListBottomSheet({
                 <View style={styles.switchRow}>
                     <View style={styles.switchLabelGroup}>
                         <Text style={styles.switchLabel}>{t("lists.create.privateLabel")}</Text>
-                        <Text style={styles.switchDesc}>
-                            {t("lists.create.privateListDesc")}
-                        </Text>
+                        <Text style={styles.switchDesc}>{t("lists.create.privateListDesc")}</Text>
                     </View>
                     <Switch
                         value={isPrivate}
@@ -300,4 +298,3 @@ export default function EditListBottomSheet({
         </BottomSheet>
     );
 }
-

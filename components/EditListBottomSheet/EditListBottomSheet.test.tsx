@@ -83,6 +83,48 @@ describe("EditListBottomSheet Component", () => {
         });
     });
 
+    it("allows saving with empty description", async () => {
+        (MovieService.updateList as jest.Mock).mockResolvedValue({ success: true });
+
+        const { getByDisplayValue, getByText } = render(
+            <EditListBottomSheet {...defaultProps} type="movie-lists" initialDescription="" />
+        );
+
+        const saveBtn = getByText("lists.edit.submitButton");
+        fireEvent.press(saveBtn);
+
+        await waitFor(() => {
+            expect(MovieService.updateList).toHaveBeenCalledWith("list-123", {
+                title: "Existing Movie List",
+                description: null,
+                image: "https://r2.mensola.app/covers/old.jpg",
+                isPrivate: false,
+            });
+            expect(defaultProps.onSuccess).toHaveBeenCalled();
+        });
+    });
+
+    it("allows saving without error when initialDescription is null", async () => {
+        (MovieService.updateList as jest.Mock).mockResolvedValue({ success: true });
+
+        const { getByText } = render(
+            <EditListBottomSheet {...defaultProps} type="movie-lists" initialDescription={null as any} />
+        );
+
+        const saveBtn = getByText("lists.edit.submitButton");
+        fireEvent.press(saveBtn);
+
+        await waitFor(() => {
+            expect(MovieService.updateList).toHaveBeenCalledWith("list-123", {
+                title: "Existing Movie List",
+                description: null,
+                image: "https://r2.mensola.app/covers/old.jpg",
+                isPrivate: false,
+            });
+            expect(defaultProps.onSuccess).toHaveBeenCalled();
+        });
+    });
+
     it("uploads new image and updates playlist with 1:1 aspect ratio", async () => {
         (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock).mockResolvedValue({ granted: true });
         (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({

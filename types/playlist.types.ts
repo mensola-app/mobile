@@ -13,6 +13,7 @@ export interface IPlaylist {
     creatorId?: UserId;
     creator?: IUser;
     songCount?: number;
+    previewImages?: string[];
     isPrivate?: boolean;
 }
 export type PlaylistDetails = IPlaylist & {

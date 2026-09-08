@@ -24,7 +24,7 @@ export default function MovieCard<
     const { onPress, style } = props;
 
     let displayTitle = "";
-    let posterUri: string | null = null;
+    let coverContent: React.ReactNode = null;
     let interactions: any = null;
     let subtitle: string | null = null;
     let secondaryInfo: string | null = null;
@@ -35,18 +35,54 @@ export default function MovieCard<
         const listData = (listProps.data || {}) as any;
 
         displayTitle = listData.listTitle || listData.title || listProps.title || "";
-        posterUri =
+        const rawCoverImage =
             (typeof listData.image === "string" ? listData.image : listData.image?.toString()) ||
-            listData.previewMovies?.[0]?.poster ||
             listProps.poster ||
             null;
+
+        const moviePosters: string[] = (
+            (Array.isArray(listData.previewImages) && listData.previewImages.length > 0
+                ? listData.previewImages
+                : null) ||
+            listData.previewMovies?.map((m: any) => m.poster).filter(Boolean) ||
+            listData.movies?.map((m: any) => m.poster).filter(Boolean) ||
+            []
+        ).filter(Boolean);
 
         const creatorUsername = listData.creator?.username || listData.owners?.[0]?.username;
         subtitle = listProps.hideCreator || !creatorUsername ? null : `@${creatorUsername}`;
 
-        const movieCount = listData.movieCount ?? (listData.previewMovies ? listData.previewMovies.length : undefined);
-        secondaryInfo = !compact && movieCount !== undefined ? `${movieCount} ${t("common.movie")}` : null;
+        const movieCount =
+            listData.movieCount ??
+            (listData.previewImages ? listData.previewImages.length : undefined) ??
+            (listData.previewMovies ? listData.previewMovies.length : undefined) ??
+            (listData.movies ? listData.movies.length : undefined);
+        secondaryInfo = movieCount !== undefined && movieCount !== null ? `${movieCount} ${t("common.movie")}` : null;
         interactions = listProps.interactions;
+
+        if (rawCoverImage) {
+            coverContent = (
+                <Image source={{ uri: rawCoverImage }} style={styles.poster} accessibilityLabel={displayTitle} />
+            );
+        } else if (moviePosters.length === 0) {
+            coverContent = (
+                <View style={styles.placeholderContainer}>
+                    <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
+                </View>
+            );
+        } else if (moviePosters.length < 4) {
+            coverContent = (
+                <Image source={{ uri: moviePosters[0] }} style={styles.poster} accessibilityLabel={displayTitle} />
+            );
+        } else {
+            coverContent = (
+                <View style={styles.gridContainer}>
+                    {moviePosters.slice(0, 4).map((posterUri, idx) => (
+                        <Image key={idx} source={{ uri: posterUri }} style={styles.gridImage} resizeMode="cover" />
+                    ))}
+                </View>
+            );
+        }
     } else {
         const movieProps = props as Extract<IMovieCardProps, { type?: "movie" }>;
         const movieData = (movieProps.data || {}) as any;
@@ -62,7 +98,7 @@ export default function MovieCard<
         };
 
         displayTitle = [rawTitle, formatReleaseYear(releaseDate)].filter(Boolean).join(" • ");
-        posterUri = movieData.poster || movieProps.poster || null;
+        const posterUri = movieData.poster || movieProps.poster || null;
 
         subtitle = genres?.filter(Boolean).join(", ") ?? null;
         interactions =
@@ -76,6 +112,18 @@ export default function MovieCard<
                         hasReview: movieData.hasReview,
                     }
                   : null);
+
+        if (posterUri) {
+            coverContent = (
+                <Image source={{ uri: posterUri }} style={styles.poster} accessibilityLabel={displayTitle} />
+            );
+        } else {
+            coverContent = (
+                <View style={styles.placeholderContainer}>
+                    <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
+                </View>
+            );
+        }
     }
 
     const formatRating = (rating?: number | string | null): string => {
@@ -98,13 +146,7 @@ export default function MovieCard<
                     styles.posterContainer,
                     isHorizontal ? styles.horizontalPosterContainer : styles.verticalPosterContainer,
                 ]}>
-                {posterUri ? (
-                    <Image source={{ uri: posterUri }} style={styles.poster} accessibilityLabel={displayTitle} />
-                ) : (
-                    <View style={styles.placeholderContainer}>
-                        <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
-                    </View>
-                )}
+                {coverContent}
                 {interactions && (
                     <MovieCardFooter
                         interactions={{ ...interactions, rating: Number(formatRating(interactions.rating)) }}

@@ -22,6 +22,7 @@ import { Colors } from "@/constants/colors";
 export default function PlaylistHero({
     playlistDetails,
     tracksCount,
+    tracks,
     commentsCount,
     toggleLike,
     onCommentPress,
@@ -45,6 +46,16 @@ export default function PlaylistHero({
     const userComment = playlistDetails?.currentUserInteraction?.comment?.content || "";
     const hasUserInteraction = userRating > 0 || (typeof userComment === "string" && userComment.trim().length > 0);
 
+    const trackImages: string[] = (
+        tracks?.map((t) => t.image).filter(Boolean) ||
+        playlistDetails.previewImages ||
+        []
+    ).filter(Boolean) as string[];
+
+    const bannerImageUri =
+        (playlistDetails.image ? playlistDetails.image.toString() : null) ||
+        (trackImages.length > 0 ? trackImages[0] : null);
+
     const handleTextLayout = (e: NativeSyntheticEvent<TextLayoutEventData>) => {
         if (e.nativeEvent.lines.length > 2 && !isDescriptionTruncated) {
             setIsDescriptionTruncated(true);
@@ -65,13 +76,46 @@ export default function PlaylistHero({
         });
     };
 
+    let heroCoverContent: React.ReactNode = null;
+    if (playlistDetails.image) {
+        heroCoverContent = (
+            <Image
+                source={{ uri: playlistDetails.image.toString() }}
+                style={styles.poster}
+                resizeMode="cover"
+            />
+        );
+    } else if (trackImages.length === 0) {
+        heroCoverContent = (
+            <View style={[styles.poster, styles.posterPlaceholder]}>
+                <Ionicons name="musical-notes-outline" size={36} color={Colors.textSecondary} />
+            </View>
+        );
+    } else if (trackImages.length < 4) {
+        heroCoverContent = (
+            <Image
+                source={{ uri: trackImages[0] }}
+                style={styles.poster}
+                resizeMode="cover"
+            />
+        );
+    } else {
+        heroCoverContent = (
+            <View style={[styles.poster, { flexDirection: "row", flexWrap: "wrap", overflow: "hidden" }]}>
+                {trackImages.slice(0, 4).map((imgUri, idx) => (
+                    <Image key={idx} source={{ uri: imgUri }} style={{ width: "50%", height: "50%" }} resizeMode="cover" />
+                ))}
+            </View>
+        );
+    }
+
     return (
         <>
             <View style={styles.heroBanner}>
-                {playlistDetails.image ? (
+                {bannerImageUri ? (
                     <ImageBackground
                         style={styles.bannerBackgroundImg}
-                        source={{ uri: playlistDetails.image.toString() }}>
+                        source={{ uri: bannerImageUri }}>
                         <LinearGradient
                             colors={["transparent", "rgba(8, 12, 18, 0.8)", Colors.background]}
                             style={styles.bannerGradient}
@@ -88,17 +132,7 @@ export default function PlaylistHero({
 
                 <View style={styles.bannerContent}>
                     <View style={styles.posterWrapper}>
-                        {playlistDetails.image ? (
-                            <Image
-                                source={{ uri: playlistDetails.image.toString() }}
-                                style={styles.poster}
-                                resizeMode="cover"
-                            />
-                        ) : (
-                            <View style={[styles.poster, styles.posterPlaceholder]}>
-                                <Ionicons name="musical-notes-outline" size={36} color={Colors.textSecondary} />
-                            </View>
-                        )}
+                        {heroCoverContent}
                     </View>
 
                     <View style={styles.infoContainer}>

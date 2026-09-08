@@ -44,4 +44,14 @@ export const styles = StyleSheet.create({
     genres: { fontSize: 12, color: Colors.textSecondary, marginBottom: 4 },
     subTitle: { color: Colors.textSecondary, fontSize: 12, marginTop: 2 },
     compactSubTitle: { fontSize: 10, marginTop: 1, lineHeight: 13 },
+    gridContainer: {
+        width: "100%",
+        height: "100%",
+        flexDirection: "row",
+        flexWrap: "wrap",
+    },
+    gridImage: {
+        width: "50%",
+        height: "50%",
+    },
 });

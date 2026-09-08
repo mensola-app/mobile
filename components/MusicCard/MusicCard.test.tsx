@@ -96,4 +96,79 @@ describe("MusicCard Component", () => {
 
         expect(getByText("Fallback Song")).toBeTruthy();
     });
+
+    describe("Playlist cover & mosaic tests", () => {
+        it("should render placeholder icon when playlist has no cover and 0 tracks", () => {
+            const playlistWithoutTracks = {
+                title: "Empty Playlist",
+                songCount: 0,
+                previewImages: [],
+            };
+
+            const { getByText, UNSAFE_queryByType } = render(
+                <MusicCard type="playlist" data={playlistWithoutTracks as any} />
+            );
+
+            expect(getByText("Empty Playlist")).toBeTruthy();
+            expect(getByText("0 common.track")).toBeTruthy();
+            expect(UNSAFE_queryByType("Image")).toBeNull();
+        });
+
+        it("should render first track image when playlist has no cover and 1-3 tracks", () => {
+            const playlistFewTracks = {
+                title: "Few Tracks",
+                songCount: 2,
+                previewImages: ["https://example.com/track1.jpg", "https://example.com/track2.jpg"],
+            };
+
+            const { UNSAFE_getAllByType, getByText } = render(
+                <MusicCard type="playlist" data={playlistFewTracks as any} />
+            );
+
+            expect(getByText("Few Tracks")).toBeTruthy();
+            const images = UNSAFE_getAllByType("Image");
+            expect(images.length).toBe(1);
+            expect(images[0].props.source).toEqual({ uri: "https://example.com/track1.jpg" });
+        });
+
+        it("should render 2x2 grid when playlist has no cover and 4 or more tracks", () => {
+            const playlistManyTracks = {
+                title: "Many Tracks",
+                songCount: 10,
+                previewImages: [
+                    "https://example.com/t1.jpg",
+                    "https://example.com/t2.jpg",
+                    "https://example.com/t3.jpg",
+                    "https://example.com/t4.jpg",
+                    "https://example.com/t5.jpg",
+                ],
+            };
+
+            const { UNSAFE_getAllByType, getByText } = render(
+                <MusicCard type="playlist" data={playlistManyTracks as any} />
+            );
+
+            expect(getByText("Many Tracks")).toBeTruthy();
+            const images = UNSAFE_getAllByType("Image");
+            expect(images.length).toBe(4);
+            expect(images[0].props.source).toEqual({ uri: "https://example.com/t1.jpg" });
+            expect(images[3].props.source).toEqual({ uri: "https://example.com/t4.jpg" });
+        });
+
+        it("should display only song count when hideCreator is true", () => {
+            const playlistProps = {
+                title: "My Own Playlist",
+                creator: { username: "me" },
+                songCount: 25,
+            };
+
+            const { getByText, queryByText } = render(
+                <MusicCard type="playlist" data={playlistProps as any} hideCreator />
+            );
+
+            expect(getByText("My Own Playlist")).toBeTruthy();
+            expect(getByText("25 common.track")).toBeTruthy();
+            expect(queryByText("@me")).toBeNull();
+        });
+    });
 });

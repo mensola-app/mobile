@@ -23,6 +23,7 @@ import { Colors } from "@/constants/colors";
 export default function MovieListHero({
     listDetails,
     moviesCount,
+    movies,
     commentsCount,
     toggleLike,
     toggleSave,
@@ -47,6 +48,12 @@ export default function MovieListHero({
     const userComment = listDetails?.currentUserInteraction?.comment?.content || "";
     const hasUserInteraction = userRating > 0 || (typeof userComment === "string" && userComment.trim().length > 0);
 
+    const moviePosters: string[] = (movies?.map((m) => m.poster).filter(Boolean) || []) as string[];
+
+    const bannerImageUri =
+        (listDetails.image ? listDetails.image.toString() : null) ||
+        (moviePosters.length > 0 ? moviePosters[0] : null);
+
     const handleTextLayout = (e: NativeSyntheticEvent<TextLayoutEventData>) => {
         if (e.nativeEvent.lines.length > 2 && !isDescriptionTruncated) {
             setIsDescriptionTruncated(true);
@@ -67,11 +74,44 @@ export default function MovieListHero({
         });
     };
 
+    let heroCoverContent: React.ReactNode = null;
+    if (listDetails.image) {
+        heroCoverContent = (
+            <Image
+                source={{ uri: listDetails.image.toString() }}
+                style={styles.poster}
+                resizeMode="cover"
+            />
+        );
+    } else if (moviePosters.length === 0) {
+        heroCoverContent = (
+            <View style={[styles.poster, styles.posterPlaceholder]}>
+                <Ionicons name="film-outline" size={36} color={Colors.textSecondary} />
+            </View>
+        );
+    } else if (moviePosters.length < 4) {
+        heroCoverContent = (
+            <Image
+                source={{ uri: moviePosters[0] }}
+                style={styles.poster}
+                resizeMode="cover"
+            />
+        );
+    } else {
+        heroCoverContent = (
+            <View style={[styles.poster, { flexDirection: "row", flexWrap: "wrap", overflow: "hidden" }]}>
+                {moviePosters.slice(0, 4).map((posterUri, idx) => (
+                    <Image key={idx} source={{ uri: posterUri }} style={{ width: "50%", height: "50%" }} resizeMode="cover" />
+                ))}
+            </View>
+        );
+    }
+
     return (
         <>
             <View style={styles.heroBanner}>
-                {listDetails.image ? (
-                    <ImageBackground style={styles.bannerBackgroundImg} source={{ uri: listDetails.image.toString() }}>
+                {bannerImageUri ? (
+                    <ImageBackground style={styles.bannerBackgroundImg} source={{ uri: bannerImageUri }}>
                         <LinearGradient
                             colors={["transparent", "rgba(8, 12, 18, 0.8)", Colors.background]}
                             style={styles.bannerGradient}
@@ -88,17 +128,7 @@ export default function MovieListHero({
 
                 <View style={styles.bannerContent}>
                     <View style={styles.posterWrapper}>
-                        {listDetails.image ? (
-                            <Image
-                                source={{ uri: listDetails.image.toString() }}
-                                style={styles.poster}
-                                resizeMode="cover"
-                            />
-                        ) : (
-                            <View style={[styles.poster, styles.posterPlaceholder]}>
-                                <Ionicons name="film-outline" size={36} color={Colors.textSecondary} />
-                            </View>
-                        )}
+                        {heroCoverContent}
                     </View>
 
                     <View style={styles.infoContainer}>

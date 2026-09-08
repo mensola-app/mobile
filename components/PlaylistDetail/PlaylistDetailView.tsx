@@ -126,6 +126,7 @@ export default function PlaylistDetailView({
                         <PlaylistHero
                             playlistDetails={playlistDetails}
                             tracksCount={tracks.length}
+                            tracks={tracks}
                             commentsCount={interactions.length}
                             toggleLike={toggleLike}
                             onCommentPress={() => setIsInteractionSheetOpen(true)}

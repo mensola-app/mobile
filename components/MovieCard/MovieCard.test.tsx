@@ -136,6 +136,72 @@ describe("MovieCard Bileşeni Bütünsel Testleri", () => {
             expect(queryByText("@enes")).toBeNull();
         });
 
+        it("should render 2x2 grid when movie list has no cover and 4 or more movies", () => {
+            const movieListData = {
+                listId: "list-4",
+                listTitle: "Action Movies",
+                movieCount: 10,
+                previewMovies: [
+                    { id: "m1", title: "M1", poster: "https://example.com/p1.jpg" },
+                    { id: "m2", title: "M2", poster: "https://example.com/p2.jpg" },
+                    { id: "m3", title: "M3", poster: "https://example.com/p3.jpg" },
+                    { id: "m4", title: "M4", poster: "https://example.com/p4.jpg" },
+                ],
+            };
+
+            const { getByText, UNSAFE_getAllByType } = render(
+                <MovieCard type="movie-list" data={movieListData as any} />
+            );
+
+            expect(getByText("Action Movies")).toBeTruthy();
+            const images = UNSAFE_getAllByType("Image");
+            expect(images.length).toBe(4);
+            expect(images[0].props.source).toEqual({ uri: "https://example.com/p1.jpg" });
+            expect(images[3].props.source).toEqual({ uri: "https://example.com/p4.jpg" });
+        });
+
+        it("should render 2x2 grid using previewImages string array", () => {
+            const movieListData = {
+                listId: "list-preview-images",
+                listTitle: "Sci-Fi Favorites",
+                movieCount: 4,
+                previewImages: [
+                    "https://example.com/sci1.jpg",
+                    "https://example.com/sci2.jpg",
+                    "https://example.com/sci3.jpg",
+                    "https://example.com/sci4.jpg",
+                ],
+            };
+
+            const { getByText, UNSAFE_getAllByType } = render(
+                <MovieCard type="movie-list" data={movieListData as any} />
+            );
+
+            expect(getByText("Sci-Fi Favorites")).toBeTruthy();
+            expect(getByText("4 common.movie")).toBeTruthy();
+            const images = UNSAFE_getAllByType("Image");
+            expect(images.length).toBe(4);
+            expect(images[0].props.source).toEqual({ uri: "https://example.com/sci1.jpg" });
+            expect(images[3].props.source).toEqual({ uri: "https://example.com/sci4.jpg" });
+        });
+
+        it("should render placeholder icon when movie list has no cover and 0 movies", () => {
+            const movieListData = {
+                listId: "list-5",
+                listTitle: "Empty Movie List",
+                movieCount: 0,
+                previewMovies: [],
+            };
+
+            const { getByText, UNSAFE_queryByType } = render(
+                <MovieCard type="movie-list" data={movieListData as any} />
+            );
+
+            expect(getByText("Empty Movie List")).toBeTruthy();
+            expect(getByText("0 common.movie")).toBeTruthy();
+            expect(UNSAFE_queryByType("Image")).toBeNull();
+        });
+
         it("should render movie data object when type is 'movie'", () => {
             const movieData = {
                 id: "m-123",

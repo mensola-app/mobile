@@ -22,4 +22,21 @@ export const styles = StyleSheet.create({
     albumTitle: { color: Colors.textSecondary, fontSize: 12, marginTop: 2 },
     subTitle: { color: Colors.textSecondary, fontSize: 12, marginTop: 2 },
     compactSubTitle: { fontSize: 10, marginTop: 1, lineHeight: 13 },
+    placeholderContainer: {
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.surface,
+    },
+    gridContainer: {
+        width: "100%",
+        height: "100%",
+        flexDirection: "row",
+        flexWrap: "wrap",
+    },
+    gridImage: {
+        width: "50%",
+        height: "50%",
+    },
 });

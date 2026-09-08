@@ -131,6 +131,7 @@ export default function MovieListDetailView({
                         <MovieListHero
                             listDetails={listDetails}
                             moviesCount={movies.length}
+                            movies={movies}
                             commentsCount={interactions.length}
                             toggleLike={toggleLike}
                             toggleSave={toggleSave}

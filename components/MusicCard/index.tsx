@@ -1,4 +1,6 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
 
 import { IMusicCardProps } from "./types";
 import { styles } from "./styles";
@@ -58,16 +60,68 @@ export default function MusicCard<
         }
         case "playlist": {
             const playlistProps = props as Extract<IMusicCardProps, { type: "playlist" }>;
-            const playlistData = playlistProps.data;
+            const playlistData = playlistProps.data as any;
             subtitle = playlistProps.hideCreator || !playlistData.creator ? "" : `@${playlistData.creator.username}`;
-            secondaryInfo = !compact && playlistData.songCount ? `${playlistData.songCount} ${t("common.track")}` : null;
+            const count =
+                playlistData.songCount ??
+                playlistData.tracks?.length ??
+                playlistData.previewImages?.length;
+            secondaryInfo = count !== undefined && count !== null ? `${count} ${t("common.track")}` : null;
             break;
         }
     }
 
     const title = data.title || (data as any)?.name || "";
-    const image = data.image;
     const fullSubtitle = [subtitle, secondaryInfo].filter(Boolean).join(" • ");
+
+    let coverContent: React.ReactNode = null;
+
+    if (type === "playlist") {
+        const playlistProps = props as Extract<IMusicCardProps, { type: "playlist" }>;
+        const playlistData = playlistProps.data as any;
+        const rawCoverImage = playlistData.image ? playlistData.image.toString() : null;
+
+        const trackImages: string[] = (
+            playlistData.previewImages ||
+            playlistData.tracks?.map((t: any) => t.image).filter(Boolean) ||
+            []
+        ).filter(Boolean);
+
+        if (rawCoverImage) {
+            coverContent = <Image source={{ uri: rawCoverImage }} style={styles.fullImage} />;
+        } else if (trackImages.length === 0) {
+            coverContent = (
+                <View style={styles.placeholderContainer}>
+                    <Ionicons name="musical-notes-outline" size={32} color={Colors.textMuted} />
+                </View>
+            );
+        } else if (trackImages.length < 4) {
+            coverContent = <Image source={{ uri: trackImages[0] }} style={styles.fullImage} />;
+        } else {
+            coverContent = (
+                <View style={styles.gridContainer}>
+                    {trackImages.slice(0, 4).map((imgUri: string, idx: number) => (
+                        <Image key={idx} source={{ uri: imgUri }} style={styles.gridImage} resizeMode="cover" />
+                    ))}
+                </View>
+            );
+        }
+    } else {
+        const rawImage = data.image ? data.image.toString() : null;
+        if (rawImage) {
+            coverContent = <Image source={{ uri: rawImage }} style={styles.fullImage} />;
+        } else {
+            coverContent = (
+                <View style={styles.placeholderContainer}>
+                    <Ionicons
+                        name={type === "album" ? "disc-outline" : "musical-note-outline"}
+                        size={32}
+                        color={Colors.textMuted}
+                    />
+                </View>
+            );
+        }
+    }
 
     return (
         <TouchableOpacity
@@ -79,7 +133,7 @@ export default function MusicCard<
                     styles.imageWrapper,
                     isHorizontal ? styles.horizontalImageWrapper : styles.verticalImageWrapper,
                 ]}>
-                <Image source={{ uri: image?.toString() }} style={styles.fullImage} />
+                {coverContent}
             </View>
             <View style={[styles.infoWrapper, !isHorizontal && styles.verticalInfoWrapper]}>
                 <Text style={[styles.mainTitle, compact && styles.compactMainTitle]} numberOfLines={1}>

@@ -5,6 +5,7 @@ import { FollowUsersResponseDataItem } from "@/types/user.types";
 export interface IMovieListHeroProps {
     listDetails: MovieListDetails | null;
     moviesCount: number;
+    movies?: IMovie[];
     commentsCount?: number;
     toggleLike: () => void;
     toggleSave?: () => void;

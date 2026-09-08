@@ -6,9 +6,9 @@ import { FollowUsersResponseDataItem } from "@/types/user.types";
 export interface IPlaylistHeroProps {
     playlistDetails: PlaylistDetails;
     tracksCount: number;
+    tracks?: ITrack[];
     commentsCount?: number;
     toggleLike: () => void;
-
     onCommentPress?: () => void;
     onSharePress?: () => void;
 }

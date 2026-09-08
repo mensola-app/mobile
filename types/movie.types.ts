@@ -43,6 +43,7 @@ export interface IMovieList {
     owners?: FollowUsersResponseDataItem[];
     listType?: MovieListType;
     isPrivate?: boolean;
+    previewImages?: string[];
 }
 export type MovieListType = "custom" | "favorites" | "watchlist";
 export type MovieListDetails = IMovieList & {
@@ -75,7 +76,8 @@ export type GetListsResponseDataItem = {
     movieCount?: number;
     creator?: Pick<IUser, "id" | "username" | "avatar">;
     containsMovie?: boolean;
-    previewMovies: MovieSummaryViaInteraction[];
+    previewImages?: string[];
+    previewMovies?: MovieSummaryViaInteraction[];
 };
 export type GetListsResponseData = PaginationResponse & { items: GetListsResponseDataItem[] };
 export type GetListsResponse = ApiResponse<GetListsResponseData>;
