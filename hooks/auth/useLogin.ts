@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Alert } from "react-native";
+import i18n from "i18next";
 import { useGlobalUser } from "@/context/AuthContext";
 import { AuthService } from "@/services/auth.service";
 import { isApiError } from "@/utils/api.utils";
@@ -76,6 +77,24 @@ const useLogin = () => {
                     );
                     return;
                 }
+
+                if (error.error?.code === "OAUTH_ACCOUNT_NO_PASSWORD") {
+                    const apiErrorMessage = error.error?.message || error?.message;
+                    Alert.alert(
+                        i18n.t("common.error"),
+                        apiErrorMessage,
+                        [
+                            { text: i18n.t("common.ok"), style: "cancel" },
+                            {
+                                text: i18n.t("auth.login.forgotPasswordText"),
+                                onPress: () => router.push("/forgot-password"),
+                            },
+                        ]
+                    );
+                    setIsLoading(false);
+                    return;
+                }
+
                 const apiErrorMessage = error.error?.message || error?.message;
                 setError(apiErrorMessage || "Giriş yapılırken bir hatayla karşılaşıldı. Lütfen tekrar deneyiniz.");
             } else if (error instanceof Error) {
