@@ -32,10 +32,7 @@ const useGoogleLogin = () => {
             const { data: authResponse } = result;
 
             if (!authResponse.data?.accessToken || !authResponse.data?.refreshToken || !authResponse.data?.user) {
-                Alert.alert(
-                    t("common.error"),
-                    t("auth.google.genericError")
-                );
+                Alert.alert(t("common.error"), t("auth.google.genericError"));
                 return;
             }
 

@@ -2,7 +2,7 @@
     "expo": {
         "name": "mensola",
         "slug": "mensola",
-        "version": "0.11.0",
+        "version": "0.12.0",
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
         "scheme": "mensola",
@@ -44,7 +44,8 @@
             "expo-web-browser",
             "expo-secure-store",
             "expo-sharing",
-            "@react-native-google-signin/google-signin"
+            "@react-native-google-signin/google-signin",
+            "@react-native-community/datetimepicker"
         ],
         "experiments": {
             "typedRoutes": true,

@@ -1,4 +1,4 @@
-import { MovieId, MovieListId, TmdbId } from "@/types/common.types";
+import { MovieId, MovieListId, TmdbId, WatchedMovieId } from "@/types/common.types";
 import { client } from "../api/client";
 import {
     InteractionsRequest,
@@ -17,6 +17,7 @@ import {
     MovieListItemsResponse,
     MovieListLikeActionsResponse,
     FavoriteMoviesResponse,
+    WatchedMovie,
 } from "@/types/movie.types";
 import { ApiResponse } from "@/types/api";
 const MovieService = {
@@ -30,12 +31,24 @@ const MovieService = {
         return await client.get<MovieDetailsResponse>(`/v1/movies/${movieId}`, { auth: true });
     },
 
-    markAsWatched: async (movieId: MovieId): Promise<MarkAsWatchedResponse> => {
-        return await client.post<MarkAsWatchedResponse>(`/v1/movies/${movieId}/watched`, {}, { auth: true });
+    markAsWatched: async (movieId: MovieId, watchedAt?: string | null): Promise<MarkAsWatchedResponse> => {
+        return await client.post<MarkAsWatchedResponse>(`/v1/movies/${movieId}/watched`, { watchedAt: watchedAt ?? null }, { auth: true });
     },
 
     unmarkAsWatched: async (movieId: MovieId): Promise<ApiResponse> => {
         return await client.delete<ApiResponse>(`/v1/movies/${movieId}/watched`, { auth: true });
+    },
+
+    updateWatchedAt: async (watchedMovieId: WatchedMovieId, watchedAt: string): Promise<ApiResponse<WatchedMovie>> => {
+        return await client.patch<ApiResponse<WatchedMovie>>(`/v1/movies/watched/${watchedMovieId}`, { watchedAt }, { auth: true });
+    },
+
+    deleteWatchedEntry: async (watchedMovieId: WatchedMovieId): Promise<ApiResponse> => {
+        return await client.delete<ApiResponse>(`/v1/movies/watched/${watchedMovieId}`, { auth: true });
+    },
+
+    getWatchedHistoryByMovieId: async (movieId: MovieId): Promise<ApiResponse<WatchedMovie[]>> => {
+        return await client.get<ApiResponse<WatchedMovie[]>>(`/v1/movies/${movieId}/watched-history`, { auth: true });
     },
 
     likeMovie: async (movieId: MovieId): Promise<MovieLikeActionsResponse> => {

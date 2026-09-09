@@ -1,8 +1,4 @@
-import {
-    GoogleSignin,
-    statusCodes,
-    isErrorWithCode,
-} from "@react-native-google-signin/google-signin";
+import { GoogleSignin, statusCodes, isErrorWithCode } from "@react-native-google-signin/google-signin";
 import { AuthService } from "./auth.service";
 import { AuthResponse } from "@/types/auth.types";
 

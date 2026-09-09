@@ -10,10 +10,13 @@ import { useWatched } from "@/hooks/movie/useWatched";
 import { useLike } from "@/hooks/movie/useLike";
 import AddToListBottomSheet from "./AddToListBottomSheet";
 import InteractionSheet from "../Interaction/InteractionSheet";
+import WatchedMovieBottomSheet from "./WatchedMovieBottomSheet";
+import WatchedToast from "./WatchedToast";
 import { MovieService } from "@/services/movie.service";
-import { MovieId } from "@/types/common.types";
+import { MovieId, WatchedMovieId } from "@/types/common.types";
 import { Colors } from "@/constants/colors";
 import { useTranslation } from "react-i18next";
+import { WatchedMovie } from "@/types/movie.types";
 
 const formatReleaseYear = (releaseDate?: string | Date) => {
     if (!releaseDate) return "";
@@ -36,8 +39,14 @@ export default function MovieHero({
     const hasCurrentUserInteraction =
         !!movie?.currentUserInteraction?.rating || !!movie?.currentUserInteraction?.isLiked;
 
-    const { markAsWatched, unmarkAsWatched, isLoading: isWatchedLoading } = useWatched(movie?.id);
+    const { markAsWatched, unmarkAsWatched, deleteWatchedEntry, isLoading: isWatchedLoading } = useWatched(movie?.id);
     const [isWatched, setIsWatched] = useState<boolean>(movie?.isWatched ?? false);
+
+    // Watched history state
+    const [watchedHistory, setWatchedHistory] = useState<WatchedMovie[]>([]);
+    const [isWatchedSheetOpen, setIsWatchedSheetOpen] = useState(false);
+    const [showWatchedToast, setShowWatchedToast] = useState(false);
+    const [lastAddedRecord, setLastAddedRecord] = useState<WatchedMovie | null>(null);
 
     const { likeMovie, unlikeMovie, isLoading: isLikeLoading } = useLike(movie?.id);
     const [isLiked, setIsLiked] = useState<boolean>(movie?.currentUserInteraction?.isLiked ?? false);
@@ -112,34 +121,65 @@ export default function MovieHero({
         }
     }, [movie?.likesCount]);
 
-    const handleWatchedToggle = () => {
+    /**
+     * Kullanıcı daha önce izledi işaretlediyse geçmiş kayıtları çek
+     */
+    const loadWatchedHistory = async () => {
+        if (!movie?.id) return;
+        try {
+            const response = await MovieService.getWatchedHistoryByMovieId(movie.id);
+            setWatchedHistory(response.data ?? []);
+        } catch {
+            setWatchedHistory([]);
+        }
+    };
+
+    /**
+     * İzlendi butonuna basıldığında:
+     * - Daha önce izlemediyse: anında kaydeder, toast gösterir
+     * - Daha önce izlediyse: geçmişi yükleyip bottom sheet açar
+     */
+    const handleWatchedToggle = async () => {
         if (!movie?.id) return;
 
         if (isWatched) {
-            Alert.alert(t("movies.detail.removeFromWatchedTitle"), t("movies.detail.removeFromWatchedBody"), [
-                {
-                    text: t("common.giveUp"),
-                    style: "cancel",
-                },
-                {
-                    text: t("common.remove"),
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            await unmarkAsWatched(movie.id, () => {
-                                setIsWatched(false);
-                            });
-                        } catch (e) {
-                            // Error handling managed by hook
-                        }
-                    },
-                },
-            ]);
+            // Geçmişi yükle ve sheet'i aç
+            await loadWatchedHistory();
+            setIsWatchedSheetOpen(true);
         } else {
-            markAsWatched(movie.id, () => {
+            // Anında izlendi olarak kaydet (bugünün tarihi)
+            try {
+                const response = await markAsWatched(movie.id, undefined);
+                if (response?.data) {
+                    setLastAddedRecord(response.data as WatchedMovie);
+                    setWatchedHistory([response.data as WatchedMovie]);
+                }
                 setIsWatched(true);
-            });
+                setShowWatchedToast(true);
+            } catch (e) {
+                // hook içinde yönetiliyor
+            }
         }
+    };
+
+    const handleWatchedSheetAdd = (record: WatchedMovie) => {
+        setWatchedHistory((prev) => [record, ...prev]);
+        setIsWatched(true);
+    };
+
+    const handleWatchedSheetDelete = (watchedMovieId: WatchedMovieId) => {
+        setWatchedHistory((prev) => {
+            const newHistory = prev.filter((r) => r.id !== watchedMovieId);
+            if (newHistory.length === 0) {
+                setIsWatched(false);
+                setIsWatchedSheetOpen(false);
+            }
+            return newHistory;
+        });
+    };
+
+    const handleWatchedSheetUpdate = (updated: WatchedMovie) => {
+        setWatchedHistory((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
     };
 
     const handleLikeToggle = () => {
@@ -296,6 +336,30 @@ export default function MovieHero({
                         }
                     }
                 }}
+            />
+
+            {/* Watched History Bottom Sheet - izlediyse geçmişi göster */}
+            {movie?.id && (
+                <WatchedMovieBottomSheet
+                    isVisible={isWatchedSheetOpen}
+                    onClose={() => setIsWatchedSheetOpen(false)}
+                    movieId={movie.id}
+                    movieTitle={movie?.title}
+                    watchedHistory={watchedHistory}
+                    onAdded={handleWatchedSheetAdd}
+                    onDeleted={handleWatchedSheetDelete}
+                    onUpdated={handleWatchedSheetUpdate}
+                />
+            )}
+
+            {/* Toast - yeni izlendi eklenince göster */}
+            <WatchedToast
+                visible={showWatchedToast}
+                onEdit={() => {
+                    setShowWatchedToast(false);
+                    loadWatchedHistory().then(() => setIsWatchedSheetOpen(true));
+                }}
+                onHide={() => setShowWatchedToast(false)}
             />
         </View>
     );
