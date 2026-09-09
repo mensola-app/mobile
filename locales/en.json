@@ -169,7 +169,23 @@
             "emptyOverview": "No more information available for this movie.",
             "addToList": "Add to Lists",
             "emptyReviewsText": "No reviews yet. Be the first to share your thoughts on this film!",
-            "rateAndReview": "Rate & Review"
+            "rateAndReview": "Rate & Review",
+            "watchedHistory": {
+                "sheetTitle": "Watch History",
+                "historySection": "Past Records",
+                "addSection": "Add New Entry",
+                "watchedDate": "Watch Date",
+                "save": "Save",
+                "deleteTitle": "Delete Record",
+                "deleteBody": "Are you sure you want to delete the watch record from {{date}}?",
+                "addedToast": "Marked as watched",
+                "editButton": "Edit",
+                "loading": "Loading history...",
+                "empty": "No watch records yet.",
+                "errorLoad": "Error loading watch history.",
+                "errorAdd": "Error adding record.",
+                "errorDelete": "Error deleting record."
+            }
         },
         "interactions": {
             "title": "Movie Interactions",
@@ -425,7 +441,8 @@
         "loginRequired": "Login Required",
         "loginRequiredMessage": "Please sign in to like this comment.",
         "login": "Sign In",
-        "genericError": "An error occurred. Please try again."
+        "genericError": "An error occurred. Please try again.",
+        "delete": "Delete"
     },
     "home": {
         "nowPlaying": "Now Playing",

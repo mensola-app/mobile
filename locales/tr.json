@@ -169,7 +169,23 @@
             "emptyOverview": "Bu film hakkında daha fazla bilgi yok.",
             "addToList": "Listelerime Ekle",
             "emptyReviewsText": "Henüz inceleme yok. Bu film hakkındaki düşüncelerini ilk paylaşan sen ol!",
-            "rateAndReview": "Puanla & İncele"
+            "rateAndReview": "Puanla & İncele",
+            "watchedHistory": {
+                "sheetTitle": "İzleme Geçmişi",
+                "historySection": "Geçmiş Kayıtlar",
+                "addSection": "Yeni Kayıt Ekle",
+                "watchedDate": "İzleme Tarihi",
+                "save": "Kaydet",
+                "deleteTitle": "Kaydı Sil",
+                "deleteBody": "{{date}} tarihli izleme kaydını silmek istediğine emin misin?",
+                "addedToast": "İzlendi olarak eklendi",
+                "editButton": "Düzenle",
+                "loading": "Geçmiş yükleniyor...",
+                "empty": "Henüz izleme kaydı yok.",
+                "errorLoad": "Geçmiş yüklenirken bir hata oluştu.",
+                "errorAdd": "Kayıt eklenirken bir hata oluştu.",
+                "errorDelete": "Kayıt silinirken bir hata oluştu."
+            }
         },
         "interactions": {
             "title": "Film Etkileşimleri",
@@ -425,7 +441,8 @@
         "loginRequired": "Giriş Yapmalısınız",
         "loginRequiredMessage": "Beğeni yapmak için lütfen giriş yapın.",
         "login": "Giriş Yap",
-        "genericError": "Bir hata oluştu. Lütfen tekrar deneyin."
+        "genericError": "Bir hata oluştu. Lütfen tekrar deneyin.",
+        "delete": "Sil"
     },
     "home": {
         "nowPlaying": "Vizyondakiler",

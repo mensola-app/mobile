@@ -29,6 +29,10 @@ export interface MovieHeroProps {
     error: string;
     isInteractionSheetOpen?: boolean;
     onInteractionSheetOpenChange?: (open: boolean) => void;
+    isWatched?: boolean;
+    setIsWatched?: (isWatched: boolean) => void;
+    onShowWatchedToast?: () => void;
+    onOpenWatchedSheet?: () => void;
 }
 
 export interface MovieOverviewProps {

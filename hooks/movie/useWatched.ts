@@ -127,6 +127,7 @@ const useWatched = (defaultMovieId?: MovieId) => {
             const response = await MovieService.getWatchedHistoryByMovieId(movieId);
             return response.data ?? [];
         } catch (err: any) {
+            console.error("fetchHistory error:", err);
             if (err && err.success === false) {
                 const apiErrorMessage = err.error?.message || err?.message;
                 setError(apiErrorMessage || "İzleme geçmişi alınırken bir hata oluştu.");
