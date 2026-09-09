@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Animated, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
+import { useTranslation } from "react-i18next";
 
 interface WatchedToastProps {
     visible: boolean;
@@ -17,6 +18,7 @@ interface WatchedToastProps {
  * Modal kullanarak tüm ekran üzerinde render edilir.
  */
 export default function WatchedToast({ visible, onEdit, onHide, duration = 4000 }: WatchedToastProps) {
+    const { t } = useTranslation();
     const translateY = useRef(new Animated.Value(120)).current;
     const opacity = useRef(new Animated.Value(0)).current;
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,31 +89,33 @@ export default function WatchedToast({ visible, onEdit, onHide, duration = 4000 
             statusBarTranslucent
             onRequestClose={animateOut}
         >
-            {/* Backdrop - dokunulduğunda kapanır */}
-            <TouchableOpacity
-                style={styles.overlay}
-                activeOpacity={1}
-                onPress={animateOut}
-            />
-            <Animated.View
-                style={[
-                    styles.container,
-                    { transform: [{ translateY }], opacity },
-                ]}
-                pointerEvents="box-none"
-            >
-                <View style={styles.toast}>
-                    <View style={styles.leftContent}>
-                        <View style={styles.iconWrapper}>
-                            <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
+            <View style={{ flex: 1 }}>
+                {/* Backdrop - dokunulduğunda kapanır */}
+                <TouchableOpacity
+                    style={styles.overlay}
+                    activeOpacity={1}
+                    onPress={animateOut}
+                />
+                <Animated.View
+                    style={[
+                        styles.container,
+                        { transform: [{ translateY }], opacity },
+                    ]}
+                    pointerEvents="box-none"
+                >
+                    <View style={styles.toast}>
+                        <View style={styles.leftContent}>
+                            <View style={styles.iconWrapper}>
+                                <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
+                            </View>
+                            <Text style={styles.message}>{t("movies.detail.watchedHistory.addedToast")}</Text>
                         </View>
-                        <Text style={styles.message}>İzlendi olarak eklendi</Text>
+                        <TouchableOpacity onPress={handleEdit} activeOpacity={0.7} style={styles.editButton}>
+                            <Text style={styles.editText}>{t("movies.detail.watchedHistory.editButton")}</Text>
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity onPress={handleEdit} activeOpacity={0.7} style={styles.editButton}>
-                        <Text style={styles.editText}>Düzenle</Text>
-                    </TouchableOpacity>
-                </View>
-            </Animated.View>
+                </Animated.View>
+            </View>
         </Modal>
     );
 }

@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Platform,
-} from "react-native";
+import { View, Text, TouchableOpacity, Alert, ScrollView, StyleSheet, Platform, ActivityIndicator } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 import BottomSheet from "@/components/BottomSheet";
 import Button from "@/components/Button";
@@ -23,19 +16,13 @@ interface WatchedMovieBottomSheetProps {
     onClose: () => void;
     movieId?: MovieId;
     movieTitle?: string;
-    /** Kullanıcı daha önce izledi olarak işaretlediyse bu array dolu gelir */
-    watchedHistory: WatchedMovie[];
-    /** Yeni kayıt eklendiğinde çağrılır */
     onAdded: (record: WatchedMovie) => void;
-    /** Bir kayıt silindiğinde çağrılır */
-    onDeleted: (watchedMovieId: WatchedMovieId) => void;
-    /** Bir kayıt güncellendiğinde çağrılır */
-    onUpdated: (updated: WatchedMovie) => void;
+    onDeleted: (watchedMovieId: WatchedMovieId, remainingCount: number) => void;
 }
 
-const formatDate = (date: Date | string) => {
+const formatDate = (date: Date | string, locale: string = "tr-TR") => {
     const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" });
+    return d.toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" });
 };
 
 export default function WatchedMovieBottomSheet({
@@ -43,25 +30,45 @@ export default function WatchedMovieBottomSheet({
     onClose,
     movieId,
     movieTitle,
-    watchedHistory,
     onAdded,
     onDeleted,
-    onUpdated,
 }: WatchedMovieBottomSheetProps) {
+    const { t, i18n } = useTranslation();
+    const currentLocale = i18n.language === "tr" ? "tr-TR" : "en-US";
+
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [showDatePicker, setShowDatePicker] = useState<boolean>(Platform.OS === "ios");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { markAsWatched, deleteWatchedEntry } = useWatched(movieId);
 
-    // Her açılışta tarihi bugüne sıfırla
+    const [watchedHistory, setWatchedHistory] = useState<WatchedMovie[]>([]);
+    const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+    const [historyError, setHistoryError] = useState("");
+
+    const { markAsWatched, deleteWatchedEntry, getWatchedHistoryByMovieId } = useWatched(movieId);
+
     useEffect(() => {
-        if (isVisible) {
+        if (isVisible && movieId) {
             setSelectedDate(new Date());
             if (Platform.OS !== "ios") {
                 setShowDatePicker(false);
             }
+            fetchHistory();
         }
-    }, [isVisible]);
+    }, [isVisible, movieId]);
+
+    const fetchHistory = async () => {
+        if (!movieId) return;
+        setIsHistoryLoading(true);
+        setHistoryError("");
+        try {
+            const data = await getWatchedHistoryByMovieId(movieId);
+            setWatchedHistory(data);
+        } catch (error) {
+            setHistoryError(t("movies.detail.watchedHistory.errorLoad"));
+        } finally {
+            setIsHistoryLoading(false);
+        }
+    };
 
     const handleDateChange = (_: DateTimePickerEvent, date?: Date) => {
         if (Platform.OS === "android") {
@@ -79,10 +86,12 @@ export default function WatchedMovieBottomSheet({
             const isoDate = selectedDate.toISOString();
             const response = await markAsWatched(movieId, undefined, isoDate);
             if (response?.data) {
-                onAdded(response.data as WatchedMovie);
+                const newRecord = response.data as WatchedMovie;
+                setWatchedHistory((prev) => [newRecord, ...prev]);
+                onAdded(newRecord);
             }
         } catch (e) {
-            // hook içinde yönetiliyor
+            // hook içinde yönetiliyor, alert veya toast ile gösterilebilir
         } finally {
             setIsSubmitting(false);
         }
@@ -90,17 +99,21 @@ export default function WatchedMovieBottomSheet({
 
     const handleDelete = (record: WatchedMovie) => {
         Alert.alert(
-            "Kaydı Sil",
-            `${formatDate(record.watchedAt)} tarihli izleme kaydını silmek istediğine emin misin?`,
+            t("movies.detail.watchedHistory.deleteTitle"),
+            t("movies.detail.watchedHistory.deleteBody").replace(
+                "{{date}}",
+                formatDate(record.watchedAt, currentLocale),
+            ),
             [
-                { text: "Vazgeç", style: "cancel" },
+                { text: t("common.cancel"), style: "cancel" },
                 {
-                    text: "Sil",
+                    text: t("common.delete"),
                     style: "destructive",
                     onPress: async () => {
                         try {
                             await deleteWatchedEntry(record.id as WatchedMovieId, () => {
-                                onDeleted(record.id as WatchedMovieId);
+                                setWatchedHistory((prev) => prev.filter((h) => h.id !== record.id));
+                                onDeleted(record.id as WatchedMovieId, watchedHistory.length - 1);
                             });
                         } catch (e) {
                             // hook içinde yönetiliyor
@@ -117,45 +130,54 @@ export default function WatchedMovieBottomSheet({
         <BottomSheet
             isVisible={isVisible}
             onClose={onClose}
-            title={movieTitle ? `${movieTitle}` : "İzleme Geçmişi"}
-            showCloseButton
-        >
+            title={movieTitle ? `${movieTitle}` : t("movies.detail.watchedHistory.sheetTitle")}
+            showCloseButton>
             <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                 {/* Geçmiş Kayıtlar */}
-                {hasHistory && (
-                    <View style={styles.historySection}>
-                        <Text style={styles.sectionTitle}>Geçmiş Kayıtlar</Text>
-                        {watchedHistory.map((record) => (
-                            <View key={record.id} style={styles.historyRow}>
-                                <View style={styles.historyLeft}>
-                                    <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
-                                    <Text style={styles.historyDate}>{formatDate(record.watchedAt)}</Text>
+                <View style={styles.historySection}>
+                    <Text style={styles.sectionTitle}>{t("movies.detail.watchedHistory.historySection")}</Text>
+
+                    {isHistoryLoading ? (
+                        <ActivityIndicator size="small" color={Colors.primary} style={styles.loader} />
+                    ) : historyError ? (
+                        <Text style={styles.errorText}>{historyError}</Text>
+                    ) : hasHistory ? (
+                        <>
+                            {watchedHistory.map((record) => (
+                                <View key={record.id} style={styles.historyRow}>
+                                    <View style={styles.historyLeft}>
+                                        <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
+                                        <Text style={styles.historyDate}>
+                                            {formatDate(record.watchedAt, currentLocale)}
+                                        </Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        onPress={() => handleDelete(record)}
+                                        style={styles.deleteBtn}
+                                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                                        <Ionicons name="trash-outline" size={18} color={Colors.danger} />
+                                    </TouchableOpacity>
                                 </View>
-                                <TouchableOpacity
-                                    onPress={() => handleDelete(record)}
-                                    style={styles.deleteBtn}
-                                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                                >
-                                    <Ionicons name="trash-outline" size={18} color={Colors.danger} />
-                                </TouchableOpacity>
-                            </View>
-                        ))}
-                        <View style={styles.divider} />
-                    </View>
-                )}
+                            ))}
+                            <View style={styles.divider} />
+                        </>
+                    ) : (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>{t("movies.detail.watchedHistory.empty")}</Text>
+                            <View style={styles.divider} />
+                        </View>
+                    )}
+                </View>
 
                 {/* Yeni Kayıt Ekle */}
                 <View style={styles.addSection}>
-                    <Text style={styles.sectionTitle}>Yeni Kayıt Ekle</Text>
-                    <Text style={styles.dateLabel}>İzleme Tarihi</Text>
+                    <Text style={styles.sectionTitle}>{t("movies.detail.watchedHistory.addSection")}</Text>
+                    <Text style={styles.dateLabel}>{t("movies.detail.watchedHistory.watchedDate")}</Text>
 
                     {Platform.OS === "android" && !showDatePicker && (
-                        <TouchableOpacity
-                            onPress={() => setShowDatePicker(true)}
-                            style={styles.dateButton}
-                        >
+                        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateButton}>
                             <Ionicons name="calendar-outline" size={18} color={Colors.primary} />
-                            <Text style={styles.dateButtonText}>{formatDate(selectedDate)}</Text>
+                            <Text style={styles.dateButtonText}>{formatDate(selectedDate, currentLocale)}</Text>
                         </TouchableOpacity>
                     )}
 
@@ -169,12 +191,12 @@ export default function WatchedMovieBottomSheet({
                             style={styles.datePicker}
                             textColor={Colors.textPrimary}
                             themeVariant="dark"
-                            locale="tr-TR"
+                            locale={currentLocale}
                         />
                     )}
 
                     <Button
-                        label="Kaydet"
+                        label={t("movies.detail.watchedHistory.save")}
                         onPress={handleAddNew}
                         isLoading={isSubmitting}
                         style={styles.addButton}
@@ -253,5 +275,24 @@ const styles = StyleSheet.create({
     addButton: {
         marginTop: 8,
         borderRadius: 14,
+    },
+    loader: {
+        marginVertical: 16,
+    },
+    errorText: {
+        color: Colors.danger,
+        fontSize: 14,
+        marginBottom: 8,
+    },
+    emptyContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 8,
+    },
+    emptyText: {
+        color: Colors.textMuted,
+        fontSize: 14,
+        textAlign: "center",
+        fontStyle: "italic",
     },
 });
