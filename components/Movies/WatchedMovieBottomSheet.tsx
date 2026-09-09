@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
     TouchableOpacity,
     Alert,
     ScrollView,
-    ActivityIndicator,
     StyleSheet,
     Platform,
 } from "react-native";
@@ -13,6 +12,7 @@ import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/dat
 import { Ionicons } from "@expo/vector-icons";
 
 import BottomSheet from "@/components/BottomSheet";
+import Button from "@/components/Button";
 import { Colors } from "@/constants/colors";
 import { WatchedMovie } from "@/types/movie.types";
 import { MovieId, WatchedMovieId } from "@/types/common.types";
@@ -51,7 +51,7 @@ export default function WatchedMovieBottomSheet({
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [showDatePicker, setShowDatePicker] = useState<boolean>(Platform.OS === "ios");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { markAsWatched, updateWatchedAt, deleteWatchedEntry, isLoading } = useWatched(movieId);
+    const { markAsWatched, deleteWatchedEntry } = useWatched(movieId);
 
     // Her açılışta tarihi bugüne sıfırla
     useEffect(() => {
@@ -173,21 +173,12 @@ export default function WatchedMovieBottomSheet({
                         />
                     )}
 
-                    <TouchableOpacity
+                    <Button
+                        label="Kaydet"
                         onPress={handleAddNew}
-                        style={[styles.addButton, (isSubmitting || isLoading) && styles.addButtonDisabled]}
-                        disabled={isSubmitting || isLoading}
-                        activeOpacity={0.8}
-                    >
-                        {isSubmitting || isLoading ? (
-                            <ActivityIndicator size="small" color="#fff" />
-                        ) : (
-                            <>
-                                <Ionicons name="add-circle-outline" size={18} color="#fff" />
-                                <Text style={styles.addButtonText}>Kaydet</Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
+                        isLoading={isSubmitting}
+                        style={styles.addButton}
+                    />
                 </View>
             </ScrollView>
         </BottomSheet>
@@ -260,21 +251,7 @@ const styles = StyleSheet.create({
         alignSelf: "stretch",
     },
     addButton: {
-        backgroundColor: Colors.success,
-        borderRadius: 14,
-        paddingVertical: 14,
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "row",
-        gap: 8,
         marginTop: 8,
-    },
-    addButtonDisabled: {
-        opacity: 0.6,
-    },
-    addButtonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "600",
+        borderRadius: 14,
     },
 });

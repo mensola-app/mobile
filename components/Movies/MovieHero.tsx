@@ -134,6 +134,13 @@ export default function MovieHero({
         }
     };
 
+    // Film zaten izlendiyse sayfa açıldığında geçmişi yükle
+    useEffect(() => {
+        if (movie?.isWatched && movie?.id) {
+            loadWatchedHistory();
+        }
+    }, [movie?.id, movie?.isWatched]);
+
     /**
      * İzlendi butonuna basıldığında:
      * - Daha önce izlemediyse: anında kaydeder, toast gösterir
@@ -149,10 +156,11 @@ export default function MovieHero({
         } else {
             // Anında izlendi olarak kaydet (bugünün tarihi)
             try {
-                const response = await markAsWatched(movie.id, undefined);
+                const isoDate = new Date().toISOString();
+                const response = await markAsWatched(movie.id, undefined, isoDate);
                 if (response?.data) {
                     setLastAddedRecord(response.data as WatchedMovie);
-                    setWatchedHistory([response.data as WatchedMovie]);
+                    setWatchedHistory((prev) => [response.data as WatchedMovie, ...prev]);
                 }
                 setIsWatched(true);
                 setShowWatchedToast(true);

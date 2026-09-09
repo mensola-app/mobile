@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Animated, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 
@@ -14,9 +14,10 @@ interface WatchedToastProps {
 /**
  * Film izlendi olarak işaretlendiğinde ekranın altında çıkan toast bildirimi.
  * "İzlendi olarak eklendi" mesajı ve "Düzenle" butonu içerir.
+ * Modal kullanarak tüm ekran üzerinde render edilir.
  */
 export default function WatchedToast({ visible, onEdit, onHide, duration = 4000 }: WatchedToastProps) {
-    const translateY = useRef(new Animated.Value(100)).current;
+    const translateY = useRef(new Animated.Value(120)).current;
     const opacity = useRef(new Animated.Value(0)).current;
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -24,24 +25,22 @@ export default function WatchedToast({ visible, onEdit, onHide, duration = 4000 
         if (visible) {
             // Slide in
             Animated.parallel([
-                Animated.timing(translateY, {
+                Animated.spring(translateY, {
                     toValue: 0,
-                    duration: 280,
                     useNativeDriver: true,
+                    bounciness: 4,
                 }),
                 Animated.timing(opacity, {
                     toValue: 1,
-                    duration: 280,
+                    duration: 250,
                     useNativeDriver: true,
                 }),
             ]).start();
 
             // Otomatik kapat
             timerRef.current = setTimeout(() => {
-                hide();
+                animateOut();
             }, duration);
-        } else {
-            hide();
         }
 
         return () => {
@@ -49,14 +48,14 @@ export default function WatchedToast({ visible, onEdit, onHide, duration = 4000 
         };
     }, [visible]);
 
-    const hide = () => {
+    const animateOut = () => {
         if (timerRef.current) {
             clearTimeout(timerRef.current);
             timerRef.current = null;
         }
         Animated.parallel([
             Animated.timing(translateY, {
-                toValue: 100,
+                toValue: 120,
                 duration: 220,
                 useNativeDriver: true,
             }),
@@ -67,6 +66,9 @@ export default function WatchedToast({ visible, onEdit, onHide, duration = 4000 
             }),
         ]).start(() => {
             onHide();
+            // reset for next show
+            translateY.setValue(120);
+            opacity.setValue(0);
         });
     };
 
@@ -78,35 +80,51 @@ export default function WatchedToast({ visible, onEdit, onHide, duration = 4000 
     if (!visible) return null;
 
     return (
-        <Animated.View
-            style={[
-                styles.container,
-                { transform: [{ translateY }], opacity },
-            ]}
-            pointerEvents="box-none"
+        <Modal
+            transparent
+            visible={visible}
+            animationType="none"
+            statusBarTranslucent
+            onRequestClose={animateOut}
         >
-            <View style={styles.toast}>
-                <View style={styles.leftContent}>
-                    <View style={styles.iconWrapper}>
-                        <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
+            {/* Backdrop - dokunulduğunda kapanır */}
+            <TouchableOpacity
+                style={styles.overlay}
+                activeOpacity={1}
+                onPress={animateOut}
+            />
+            <Animated.View
+                style={[
+                    styles.container,
+                    { transform: [{ translateY }], opacity },
+                ]}
+                pointerEvents="box-none"
+            >
+                <View style={styles.toast}>
+                    <View style={styles.leftContent}>
+                        <View style={styles.iconWrapper}>
+                            <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
+                        </View>
+                        <Text style={styles.message}>İzlendi olarak eklendi</Text>
                     </View>
-                    <Text style={styles.message}>İzlendi olarak eklendi</Text>
+                    <TouchableOpacity onPress={handleEdit} activeOpacity={0.7} style={styles.editButton}>
+                        <Text style={styles.editText}>Düzenle</Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={handleEdit} activeOpacity={0.7} style={styles.editButton}>
-                    <Text style={styles.editText}>Düzenle</Text>
-                </TouchableOpacity>
-            </View>
-        </Animated.View>
+            </Animated.View>
+        </Modal>
     );
 }
 
 const styles = StyleSheet.create({
+    overlay: {
+        flex: 1,
+    },
     container: {
         position: "absolute",
-        bottom: 100,
+        bottom: 32,
         left: 16,
         right: 16,
-        zIndex: 999,
     },
     toast: {
         backgroundColor: "#1A2332",
