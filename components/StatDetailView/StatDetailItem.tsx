@@ -23,6 +23,7 @@ export default function StatDetailItem<T extends StatType = StatType>(props: Sta
                                 rating: movie?.rating,
                                 isLiked: movie.isLiked,
                                 hasReview: movie.hasReview,
+                                watchCount: (movie as any).watchCount,
                             }}
                             onPress={() => onListItemPress?.(movie.id)}
                         />
@@ -53,6 +54,7 @@ export default function StatDetailItem<T extends StatType = StatType>(props: Sta
                         rating: props.data?.rating,
                         isLiked: props.data.isLiked,
                         hasReview: props.data.hasReview,
+                        watchCount: (props.data as any).watchCount,
                     }}
                     style={{ width: "31%" }}
                     onPress={props.onPress}

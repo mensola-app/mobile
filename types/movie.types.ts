@@ -18,6 +18,8 @@ export type MovieSummaryViaInteraction = IMovie & {
     rating?: number;
     isLiked?: boolean;
     hasReview?: boolean;
+    watchedAt?: string;
+    watchCount?: number;
 };
 export type MovieDetails = IMovie & {
     isWatched?: boolean;

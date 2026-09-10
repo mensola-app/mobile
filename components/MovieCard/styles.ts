@@ -26,6 +26,11 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         gap: 4,
     },
+    topRightBadge: {
+        position: "absolute",
+        top: 6,
+        right: 6,
+    },
     badgeItem: {
         height: 20,
         flexDirection: "row",

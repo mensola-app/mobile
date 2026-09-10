@@ -7,6 +7,7 @@ export interface IMovieCardInteractions {
     hasReview?: boolean;
     totalLikes?: number;
     totalReviews?: number;
+    watchCount?: number;
 }
 
 export interface IMovieCardFooterProps {

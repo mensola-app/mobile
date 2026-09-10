@@ -12,12 +12,7 @@ import { IMovie, IMovieList } from "@/types/movie.types";
 export default function MovieCard<
     TMovie extends Omit<IMovie, "id"> = Omit<IMovie, "id">,
     TMovieList extends Omit<IMovieList, "id"> = Omit<IMovieList, "id">,
->({
-    layout = "vertical",
-    variant = "profile",
-    compact = false,
-    ...props
-}: IMovieCardProps<TMovie, TMovieList>) {
+>({ layout = "vertical", variant = "profile", compact = false, ...props }: IMovieCardProps<TMovie, TMovieList>) {
     const { t } = useTranslation();
     const isHorizontal = layout === "horizontal";
     const type = props.type ?? "movie";
@@ -29,6 +24,7 @@ export default function MovieCard<
     let subtitle: string | null = null;
     let secondaryInfo: string | null = null;
     let ratingAverage: number | undefined = undefined;
+    let watchCount: number | undefined = undefined;
 
     if (type === "movie-list") {
         const listProps = props as Extract<IMovieCardProps, { type: "movie-list" }>;
@@ -91,6 +87,7 @@ export default function MovieCard<
         const releaseDate = movieData.releaseDate || movieProps.releaseDate;
         const genres = movieData.genres || movieProps.genres;
         ratingAverage = movieData.ratingAverage ?? movieProps.ratingAverage;
+        watchCount = movieData.watchCount ?? (movieProps as any).watchCount;
 
         const formatReleaseYear = (dateStr?: string): string => {
             if (!dateStr) return "";
@@ -104,12 +101,16 @@ export default function MovieCard<
         interactions =
             movieProps.interactions ||
             (movieData.interactions
-                ? movieData.interactions
-                : movieData.rating !== undefined || movieData.isLiked !== undefined || movieData.hasReview !== undefined
+                ? { ...movieData.interactions, watchCount }
+                : movieData.rating !== undefined ||
+                    movieData.isLiked !== undefined ||
+                    movieData.hasReview !== undefined ||
+                    watchCount !== undefined
                   ? {
                         rating: movieData.rating,
                         isLiked: movieData.isLiked,
                         hasReview: movieData.hasReview,
+                        watchCount,
                     }
                   : null);
 
@@ -133,8 +134,7 @@ export default function MovieCard<
         return num.toFixed(1);
     };
 
-    const fullSubtitle =
-        type === "movie-list" ? [subtitle, secondaryInfo].filter(Boolean).join(" • ") : subtitle;
+    const fullSubtitle = type === "movie-list" ? [subtitle, secondaryInfo].filter(Boolean).join(" • ") : subtitle;
 
     return (
         <TouchableOpacity
@@ -153,14 +153,18 @@ export default function MovieCard<
                         variant={variant}
                     />
                 )}
+                {type === "movie" && watchCount !== undefined && watchCount > 1 && (
+                    <Badge
+                        icon={<Ionicons name="eye" size={10} color="#FF8000" />}
+                        value={`${watchCount}`}
+                        style={[styles.badgeItem, styles.topRightBadge]}
+                        textStyle={styles.badgeText}
+                    />
+                )}
             </View>
             <View style={[styles.infoWrapper, !isHorizontal && { flex: 0, width: "100%" }]}>
                 <Text
-                    style={[
-                        styles.title,
-                        isHorizontal && styles.horizontalTitle,
-                        compact && styles.compactTitle,
-                    ]}
+                    style={[styles.title, isHorizontal && styles.horizontalTitle, compact && styles.compactTitle]}
                     numberOfLines={1}>
                     {displayTitle}
                 </Text>
@@ -186,4 +190,3 @@ export default function MovieCard<
         </TouchableOpacity>
     );
 }
-
