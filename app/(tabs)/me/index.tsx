@@ -14,6 +14,7 @@ export default function Profile() {
                 options={
                     {
                         headerTransparent: true,
+                        headerBackVisible: false,
                         headerRightActions: [
                             {
                                 id: "settings",

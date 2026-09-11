@@ -15,6 +15,7 @@ export default function PageHeader({ options, navigation, back }: NativeStackHea
     const actions = (options as any).headerRightActions as IHeaderAction[] | undefined;
 
     const isTransparent = options.headerTransparent === true;
+    const canGoBack = options.headerBackVisible !== false && Boolean(back);
 
     return (
         <View
@@ -32,7 +33,7 @@ export default function PageHeader({ options, navigation, back }: NativeStackHea
                 },
             ]}>
             <View style={styles.content}>
-                {back && (
+                {canGoBack && (
                     <View style={styles.buttonContainer}>
                         <View style={styles.headerButton}>
                             <TouchableOpacity

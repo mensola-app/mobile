@@ -12,6 +12,7 @@ export default function RootLayout() {
                     name="index"
                     options={{
                         headerShown: true,
+                        headerBackVisible: false,
                         header: (props) => <PageHeader {...props} />,
                     }}
                 />
