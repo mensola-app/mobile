@@ -9,7 +9,7 @@ export type AuthTokens = {
 };
 export type LoginRequest = { email: string; password: string };
 export type RegisterRequest = { username: string; email: string; password: string };
-export type LogoutRequest = { refreshToken: RefreshToken };
+export type LogoutRequest = { refreshToken?: RefreshToken; pushToken?: string };
 export type ForgotPasswordRequest = { email: string };
 export type VerifyResetTokenRequest = { email: string; code: string };
 export type ResetPasswordRequest = { ticket: string; newPassword: string };

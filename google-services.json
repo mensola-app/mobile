@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "233435723477",
+    "project_id": "mensola-app",
+    "storage_bucket": "mensola-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233435723477:android:3f3b21260d6476633ed45c",
+        "android_client_info": {
+          "package_name": "com.enescdev.mensola"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjLvV68dDvUEDFGT6fzJeRBlpdU9FTe0Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

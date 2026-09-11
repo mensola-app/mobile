@@ -42,6 +42,10 @@ const UserService = {
     searchUsers: async (params: { q: string; page?: number; limit?: number }): Promise<any> => {
         return await client.get("/v1/users/search", { params, auth: true });
     },
+
+    savePushToken: async (data: { pushToken: string; platform: string }): Promise<any> => {
+        return await client.post("/v1/users/push-token", data, { auth: true });
+    },
 };
 
 export { UserService };

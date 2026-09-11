@@ -22,7 +22,7 @@ const AuthService = {
     },
 
     logout: async (data: LogoutRequest): Promise<ApiResponse> => {
-        return await client.post<ApiResponse>("/v1/auth/logout", data, { auth: false });
+        return await client.post<ApiResponse>("/v1/auth/logout", data, { auth: true });
     },
 
     forgotPassword: async (data: ForgotPasswordRequest): Promise<ApiResponse> => {

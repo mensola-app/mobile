@@ -12,6 +12,7 @@
         },
         "android": {
             "package": "com.enescdev.mensola",
+            "googleServicesFile": "./google-services.json",
             "versionCode": 1,
             "adaptiveIcon": {
                 "backgroundColor": "#080C12",
@@ -36,6 +37,13 @@
                     "dark": {
                         "backgroundColor": "#080C12"
                     }
+                }
+            ],
+            [
+                "expo-notifications",
+                {
+                    "icon": "./assets/images/android-icon-monochrome.png",
+                    "color": "#080C12"
                 }
             ],
             "expo-font",

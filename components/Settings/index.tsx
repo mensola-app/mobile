@@ -14,7 +14,6 @@ import { Colors } from "@/constants/colors";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useGlobalUser } from "@/context/AuthContext";
 import { UserService } from "@/services/user.service";
-import { AuthService } from "@/services/auth.service";
 import { useTranslation } from "react-i18next";
 
 const getSettingsConfig = (t: any): SettingSection[] => [
@@ -282,18 +281,9 @@ export default function SettingsView() {
                         style: "destructive",
                         onPress: async () => {
                             try {
-                                const refreshToken = await SecureStore.getItemAsync("refreshToken");
-                                if (refreshToken) {
-                                    await AuthService.logout({ refreshToken });
-                                }
+                                await logout();
                             } catch (e) {
-                                console.error("Backend logout failed:", e);
-                            } finally {
-                                try {
-                                    await logout();
-                                } catch (e) {
-                                    console.error("Error signing out locally:", e);
-                                }
+                                console.error("Error signing out:", e);
                             }
                         },
                     },
