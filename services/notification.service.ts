@@ -3,7 +3,8 @@ import { ApiResponse } from "@/types/api";
 import { NotificationItem } from "@/components/notifications/types";
 
 export interface NotificationsData {
-    followRequests: NotificationItem[];
+    notifications?: NotificationItem[];
+    followRequests?: NotificationItem[];
 }
 
 export type NotificationsResponse = ApiResponse<NotificationsData>;
@@ -27,5 +28,13 @@ export const notificationService = {
             {},
             { auth: true }
         );
+    },
+
+    markAsRead: async (notificationId: string): Promise<ApiResponse> => {
+        return await client.patch<ApiResponse>(`/v1/notifications/${notificationId}/read`, {}, { auth: true });
+    },
+
+    markAllAsRead: async (): Promise<ApiResponse> => {
+        return await client.patch<ApiResponse>("/v1/notifications/read-all", {}, { auth: true });
     },
 };

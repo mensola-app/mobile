@@ -10,6 +10,8 @@ export interface UseNotificationsReturn {
     refetch: () => Promise<void>;
     acceptRequest: (id: string) => Promise<void>;
     declineRequest: (id: string) => Promise<void>;
+    markAsRead: (id: string) => Promise<void>;
+    markAllAsRead: () => Promise<void>;
 }
 
 export const useNotifications = (): UseNotificationsReturn => {
@@ -35,11 +37,15 @@ export const useNotifications = (): UseNotificationsReturn => {
             const previousData = queryClient.getQueryData<NotificationsData>(["notifications"]);
 
             if (previousData) {
+                const updateItem = (item: NotificationItem) =>
+                    item.id === requesterId || item.actor?.id === requesterId
+                        ? { ...item, status: "accepted" as const }
+                        : item;
+
                 queryClient.setQueryData<NotificationsData>(["notifications"], {
                     ...previousData,
-                    followRequests: previousData.followRequests.map((item) =>
-                        item.id === requesterId ? { ...item, status: "accepted" as const } : item
-                    ),
+                    notifications: previousData.notifications?.map(updateItem),
+                    followRequests: previousData.followRequests?.map(updateItem),
                 });
             }
 
@@ -65,11 +71,15 @@ export const useNotifications = (): UseNotificationsReturn => {
             const previousData = queryClient.getQueryData<NotificationsData>(["notifications"]);
 
             if (previousData) {
+                const updateItem = (item: NotificationItem) =>
+                    item.id === requesterId || item.actor?.id === requesterId
+                        ? { ...item, status: "declined" as const }
+                        : item;
+
                 queryClient.setQueryData<NotificationsData>(["notifications"], {
                     ...previousData,
-                    followRequests: previousData.followRequests.map((item) =>
-                        item.id === requesterId ? { ...item, status: "declined" as const } : item
-                    ),
+                    notifications: previousData.notifications?.map(updateItem),
+                    followRequests: previousData.followRequests?.map(updateItem),
                 });
             }
 
@@ -86,7 +96,58 @@ export const useNotifications = (): UseNotificationsReturn => {
         },
     });
 
-    const notifications: NotificationItem[] = data?.followRequests ?? [];
+    const markAsReadMutation = useMutation({
+        mutationFn: async (notificationId: string) => {
+            return await notificationService.markAsRead(notificationId);
+        },
+        onMutate: async (notificationId: string) => {
+            await queryClient.cancelQueries({ queryKey: ["notifications"] });
+            const previousData = queryClient.getQueryData<NotificationsData>(["notifications"]);
+
+            if (previousData) {
+                const markItem = (item: NotificationItem) =>
+                    item.id === notificationId ? { ...item, isRead: true } : item;
+
+                queryClient.setQueryData<NotificationsData>(["notifications"], {
+                    ...previousData,
+                    notifications: previousData.notifications?.map(markItem),
+                    followRequests: previousData.followRequests?.map(markItem),
+                });
+            }
+
+            return { previousData };
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        },
+    });
+
+    const markAllAsReadMutation = useMutation({
+        mutationFn: async () => {
+            return await notificationService.markAllAsRead();
+        },
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ["notifications"] });
+            const previousData = queryClient.getQueryData<NotificationsData>(["notifications"]);
+
+            if (previousData) {
+                const markAll = (item: NotificationItem) => ({ ...item, isRead: true });
+
+                queryClient.setQueryData<NotificationsData>(["notifications"], {
+                    ...previousData,
+                    notifications: previousData.notifications?.map(markAll),
+                    followRequests: previousData.followRequests?.map(markAll),
+                });
+            }
+
+            return { previousData };
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        },
+    });
+
+    const notifications: NotificationItem[] = data?.notifications ?? data?.followRequests ?? [];
 
     const handleRefetch = async () => {
         await refetch();
@@ -100,6 +161,14 @@ export const useNotifications = (): UseNotificationsReturn => {
         await declineMutation.mutateAsync(id);
     };
 
+    const handleMarkAsRead = async (id: string) => {
+        await markAsReadMutation.mutateAsync(id);
+    };
+
+    const handleMarkAllAsRead = async () => {
+        await markAllAsReadMutation.mutateAsync();
+    };
+
     return {
         notifications,
         isLoading,
@@ -108,5 +177,7 @@ export const useNotifications = (): UseNotificationsReturn => {
         refetch: handleRefetch,
         acceptRequest: handleAcceptRequest,
         declineRequest: handleDeclineRequest,
+        markAsRead: handleMarkAsRead,
+        markAllAsRead: handleMarkAllAsRead,
     };
 };

@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { AuthProvider } from "../context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Colors } from "../constants/colors";
 import { configureGoogleSignIn } from "../services/googleAuth.service";
+import * as Notifications from "expo-notifications";
 import "../i18n";
 
 const queryClient = new QueryClient({
@@ -18,6 +19,24 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+    useEffect(() => {
+        Notifications.getLastNotificationResponseAsync().then((response) => {
+            const data = response?.notification?.request?.content?.data;
+            if (data?.path) {
+                router.push(data.path as any);
+            }
+        });
+
+        const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+            const data = response.notification.request.content.data;
+            if (data?.path) {
+                router.push(data.path as any);
+            }
+        });
+
+        return () => subscription.remove();
+    }, []);
+
     useEffect(() => {
         configureGoogleSignIn();
     }, []);
