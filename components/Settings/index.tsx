@@ -3,6 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocales } from "expo-localization";
 
 import { ListGroup } from "../ListGroup";
@@ -14,6 +15,7 @@ import { Colors } from "@/constants/colors";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useGlobalUser } from "@/context/AuthContext";
 import { UserService } from "@/services/user.service";
+import { DeviceService } from "@/services/device.service";
 import { useTranslation } from "react-i18next";
 
 const getSettingsConfig = (t: any): SettingSection[] => [
@@ -232,12 +234,21 @@ export default function SettingsView() {
         }
     };
 
-    const handleOptionSelect = (itemId: string, newValue: string) => {
+    const handleOptionSelect = async (itemId: string, newValue: string) => {
         setPreference(itemId as any, newValue);
         if (itemId === "language") {
             const deviceLanguage = getLocales()[0]?.languageCode ?? "en";
             const langToSet = newValue === "system" ? deviceLanguage : newValue;
             i18n.changeLanguage(langToSet);
+
+            // Mobilde AsyncStorage Fallback (Cihaz ID Yoksa sessizce devam et)
+            try {
+                const deviceDbId = await AsyncStorage.getItem("device_db_id");
+                if (!deviceDbId) return;
+                await DeviceService.updateDeviceLocale(deviceDbId, langToSet);
+            } catch {
+                // Silently ignore backend sync error on language change
+            }
         }
     };
 

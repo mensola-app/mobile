@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getLocales } from "expo-localization";
+import i18n from "i18next";
 import { router } from "expo-router";
 import { Platform } from "react-native";
 import { IUser } from "@/types/user.types";
 import { registerForPushNotificationsAsync } from "@/utils/notification.utils";
-import { UserService } from "@/services/user.service";
+import { DeviceService } from "@/services/device.service";
 import { AuthService } from "@/services/auth.service";
 
 interface AuthContextType {
@@ -30,12 +33,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             try {
                 const storedToken = await SecureStore.getItemAsync("token");
                 const storedUser = await SecureStore.getItemAsync("user_data");
-                const storedPushToken = await SecureStore.getItemAsync("push_token");
-
-                if (storedPushToken) {
-                    setPushToken(storedPushToken);
-                }
-
                 if (storedToken && storedUser) {
                     setToken(storedToken);
                     setUserState(JSON.parse(storedUser));
@@ -57,10 +54,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setPushToken(tokenData);
                     await SecureStore.setItemAsync("push_token", tokenData).catch(() => {});
                     try {
-                        await UserService.savePushToken({
+                        const deviceLanguage = getLocales()[0]?.languageCode ?? "tr";
+                        const locale = i18n.language || deviceLanguage;
+                        const deviceRes = await DeviceService.registerDevice({
                             pushToken: tokenData,
+                            locale,
                             platform: Platform.OS,
                         });
+                        if (deviceRes?.id) {
+                            await AsyncStorage.setItem("device_db_id", deviceRes.id);
+                        }
                     } catch {
                         // Silently handle backend sync error
                     }
@@ -101,6 +104,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const activePushToken = pushTokenOverride || pushToken || storedPushToken || undefined;
             const refreshToken = await SecureStore.getItemAsync("refreshToken");
 
+            // Delete device from backend if registered
+            try {
+                const deviceDbId = await AsyncStorage.getItem("device_db_id");
+                if (deviceDbId) {
+                    await DeviceService.deleteDevice(deviceDbId);
+                    await AsyncStorage.removeItem("device_db_id");
+                }
+            } catch {
+                // Ignore device deletion error on logout
+            }
+
             try {
                 await AuthService.logout({
                     refreshToken: refreshToken || undefined,
@@ -114,6 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await SecureStore.deleteItemAsync("refreshToken");
             await SecureStore.deleteItemAsync("user_data");
             await SecureStore.deleteItemAsync("push_token");
+            await AsyncStorage.removeItem("device_db_id");
 
             setToken(null);
             setUserState(undefined);
