@@ -9,7 +9,7 @@ export interface NotificationActor {
 
 export interface NotificationTarget {
     id: string;
-    type: "movie" | "track" | "album" | "user" | "review";
+    type: "user" | "review" | "comment" | "movie_list" | "playlist";
     title?: string;
     image?: string | null;
 }

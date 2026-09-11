@@ -19,6 +19,7 @@ export default function NotificationsScreen() {
         refetch,
         acceptRequest,
         declineRequest,
+        markAsRead,
     } = useNotifications();
 
     const handleRefresh = useCallback(async () => {
@@ -33,19 +34,28 @@ export default function NotificationsScreen() {
         await declineRequest(id);
     }, [declineRequest]);
 
-    const handlePressNotification = useCallback((item: NotificationItem) => {
-        if (item.target) {
-            if (item.target.type === "movie") {
-                router.push(`/movies/${item.target.id}` as any);
-            } else if (item.target.type === "track") {
-                router.push(`/tracks/${item.target.id}` as any);
-            } else if (item.target.type === "user") {
-                router.push(`/users/${item.target.id}` as any);
+    const handlePressNotification = useCallback(
+        (item: NotificationItem) => {
+            if (!item.isRead) {
+                markAsRead(item.id);
             }
-        } else if (item.actor?.id) {
-            router.push(`/users/${item.actor.id}` as any);
-        }
-    }, [router]);
+
+            if (item.target) {
+                if (item.target.type === "user") {
+                    router.push(`/users/${item.target.id}` as any);
+                } else if (item.target.type === "playlist") {
+                    router.push(`/playlists/${item.target.id}` as any);
+                } else if (item.target.type === "movie_list") {
+                    router.push(`/movie-lists/${item.target.id}` as any);
+                } else if (item.target.type === "comment") {
+                    router.push(`/comments/${item.target.id}` as any);
+                }
+            } else if (item.actor?.id) {
+                router.push(`/users/${item.actor.id}` as any);
+            }
+        },
+        [router, markAsRead],
+    );
 
     const handlePressActor = useCallback((actorId: string) => {
         router.push(`/users/${actorId}` as any);

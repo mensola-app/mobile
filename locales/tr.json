@@ -67,6 +67,9 @@
         "wantsToFollow": "seni takip etmek istiyor",
         "startedFollowing": "seni takip etmeye başladı",
         "likedYourReview": "incelemeni beğendi",
+        "likedYourPlaylist": "çalma listeni beğendi",
+        "likedYourMovieList": "film listeni beğendi",
+        "likedYourComment": "yorumunu beğendi",
         "reviewedContent": "içeriğine bir inceleme bıraktı"
     },
     "profile": {

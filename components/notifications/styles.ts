@@ -113,6 +113,11 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.border,
     },
+    targetPlaceholder: {
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: Colors.surface,
+    },
     unreadDot: {
         width: 8,
         height: 8,

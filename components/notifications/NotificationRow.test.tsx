@@ -41,4 +41,31 @@ describe("NotificationRow Component", () => {
 
         expect(getByText(/custom message arrived/)).toBeTruthy();
     });
+
+    it("renders appropriate message for playlist like", () => {
+        const playlistItem: NotificationItem = {
+            ...mockItem,
+            target: { id: "pl-1", type: "playlist" },
+        };
+        const { getByText } = render(<NotificationRow item={playlistItem} />);
+        expect(getByText(/notifications\.likedYourPlaylist/)).toBeTruthy();
+    });
+
+    it("renders appropriate message for movie_list like", () => {
+        const movieListItem: NotificationItem = {
+            ...mockItem,
+            target: { id: "ml-1", type: "movie_list" },
+        };
+        const { getByText } = render(<NotificationRow item={movieListItem} />);
+        expect(getByText(/notifications\.likedYourMovieList/)).toBeTruthy();
+    });
+
+    it("renders appropriate message for comment like", () => {
+        const commentItem: NotificationItem = {
+            ...mockItem,
+            target: { id: "c-1", type: "comment" },
+        };
+        const { getByText } = render(<NotificationRow item={commentItem} />);
+        expect(getByText(/notifications\.likedYourComment/)).toBeTruthy();
+    });
 });

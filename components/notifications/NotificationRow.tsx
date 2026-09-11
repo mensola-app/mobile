@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { NotificationRowProps } from "./types";
 import { styles } from "./styles";
+import { Colors } from "@/constants/colors";
 import { formatRelativeTime } from "@/utils/date.utils";
 
 export default function NotificationRow({ item, onPress, onPressActor }: NotificationRowProps) {
@@ -52,17 +53,25 @@ export default function NotificationRow({ item, onPress, onPressActor }: Notific
 
     const getDefaultMessage = () => {
         if (message) return message;
-        switch (type) {
-            case "follow":
-                return t("notifications.startedFollowing");
-            case "like":
-                return t("notifications.likedYourReview");
-            case "review":
-            case "comment":
-                return t("notifications.reviewedContent");
-            default:
-                return "";
+        if (type === "follow") {
+            return t("notifications.startedFollowing");
         }
+        if (type === "like") {
+            if (target?.type === "playlist") {
+                return t("notifications.likedYourPlaylist");
+            }
+            if (target?.type === "movie_list") {
+                return t("notifications.likedYourMovieList");
+            }
+            if (target?.type === "comment") {
+                return t("notifications.likedYourComment");
+            }
+            return t("notifications.likedYourReview");
+        }
+        if (type === "review" || type === "comment") {
+            return t("notifications.reviewedContent");
+        }
+        return "";
     };
 
     return (
@@ -94,9 +103,21 @@ export default function NotificationRow({ item, onPress, onPressActor }: Notific
                 {formattedTime ? <Text style={styles.timeText}>{formattedTime}</Text> : null}
             </View>
 
-            {/* Target Media Thumbnail (if applicable) */}
+            {/* Target Media Thumbnail or Placeholder Icon (if applicable) */}
             {target?.image ? (
                 <Image source={{ uri: target.image }} style={styles.targetThumbnail} />
+            ) : target?.type === "movie_list" ? (
+                <View style={[styles.targetThumbnail, styles.targetPlaceholder]}>
+                    <Ionicons name="film-outline" size={18} color={Colors.textMuted} />
+                </View>
+            ) : target?.type === "playlist" ? (
+                <View style={[styles.targetThumbnail, styles.targetPlaceholder]}>
+                    <Ionicons name="musical-notes-outline" size={18} color={Colors.textMuted} />
+                </View>
+            ) : target?.type === "comment" ? (
+                <View style={[styles.targetThumbnail, styles.targetPlaceholder]}>
+                    <Ionicons name="chatbubble-outline" size={18} color={Colors.textMuted} />
+                </View>
             ) : null}
 
             {/* Unread Indicator */}
