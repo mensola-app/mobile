@@ -19,7 +19,31 @@
                 "foregroundImage": "./assets/images/android-icon-foreground.png",
                 "monochromeImage": "./assets/images/android-icon-monochrome.png"
             },
-            "predictiveBackGestureEnabled": false
+            "predictiveBackGestureEnabled": false,
+            "intentFilters": [
+                {
+                    "action": "VIEW",
+                    "autoVerify": true,
+                    "data": [
+                        {
+                            "scheme": "https",
+                            "host": "mensola.app",
+                            "pathPrefix": "/users"
+                        },
+                        {
+                            "scheme": "https",
+                            "host": "mensola.app",
+                            "pathPrefix": "/movie-lists"
+                        },
+                        {
+                            "scheme": "https",
+                            "host": "mensola.app",
+                            "pathPrefix": "/playlists"
+                        }
+                    ],
+                    "category": ["BROWSABLE", "DEFAULT"]
+                }
+            ]
         },
         "web": {
             "output": "static",
