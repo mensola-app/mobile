@@ -67,6 +67,9 @@
         "wantsToFollow": "wants to follow you",
         "startedFollowing": "started following you",
         "likedYourReview": "liked your review",
+        "likedYourPlaylist": "liked your playlist",
+        "likedYourMovieList": "liked your movie list",
+        "likedYourComment": "liked your comment",
         "reviewedContent": "left a review on your content"
     },
     "profile": {
