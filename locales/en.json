@@ -550,5 +550,10 @@
         "playlistInteractionsTitle": "Playlist Reviews",
         "emptyInteractionsTitle": "No reviews yet",
         "emptyInteractionsSubtitle": "Be the first to share your thoughts!"
+    },
+    "share": {
+        "movieListMessage": "Check out \"{{title}}\" movie list on Mensola!\n{{url}}",
+        "playlistMessage": "Check out \"{{title}}\" playlist on Mensola!\n{{url}}",
+        "userMessage": "Check out @{{username}} on Mensola!\n{{url}}"
     }
 }

@@ -553,5 +553,10 @@
         "playlistInteractionsTitle": "Çalma Listesi Yorumları",
         "emptyInteractionsTitle": "Henüz yorum yapılmamış",
         "emptyInteractionsSubtitle": "İlk yorumu ve değerlendirmeyi sen yap!"
+    },
+    "share": {
+        "movieListMessage": "\"{{title}}\" film listesine Mensola'da göz atın!\n{{url}}",
+        "playlistMessage": "\"{{title}}\" çalma listesine Mensola'da göz atın!\n{{url}}",
+        "userMessage": "@{{username}} profilini Mensola'da inceleyin!\n{{url}}"
     }
 }
