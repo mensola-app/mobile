@@ -1,4 +1,6 @@
 import { Share } from "react-native";
+import { t } from "i18next";
+import { getOrCreateShortLink } from "@/services/shortLink.service";
 
 export interface IShareContentOptions {
     title?: string;
@@ -49,25 +51,37 @@ export const shareContent = async (options: IShareContentOptions): Promise<boole
 };
 
 /**
- * Shares a Movie List with formatted title and web link.
+ * Shares a Movie List with formatted title and short web link.
  */
 export const shareMovieList = async (list: IShareMovieListOptions): Promise<boolean> => {
-    const shareUrl = `https://mensola.app/movie-lists/${list.id}`;
+    const shareUrl = await getOrCreateShortLink("movie_list", list.id);
+    const message = t("share.movieListMessage", {
+        title: list.title,
+        url: shareUrl,
+        defaultValue: `"${list.title}" film listesine Mensola'da göz atın!\n${shareUrl}`,
+    });
+
     return shareContent({
         title: list.title,
-        message: `"${list.title}" film listesine Mensola'da göz atın!\n${shareUrl}`,
+        message,
         url: shareUrl,
     });
 };
 
 /**
- * Shares a Playlist with formatted title and web link.
+ * Shares a Playlist with formatted title and short web link.
  */
 export const sharePlaylist = async (list: ISharePlaylistOptions): Promise<boolean> => {
-    const shareUrl = `https://mensola.app/playlists/${list.id}`;
+    const shareUrl = await getOrCreateShortLink("playlist", list.id);
+    const message = t("share.playlistMessage", {
+        title: list.title,
+        url: shareUrl,
+        defaultValue: `"${list.title}" çalma listesine Mensola'da göz atın!\n${shareUrl}`,
+    });
+
     return shareContent({
         title: list.title,
-        message: `"${list.title}" oynatma listesine Mensola'da göz atın!\n${shareUrl}`,
+        message,
         url: shareUrl,
     });
 };
@@ -97,13 +111,19 @@ export const shareMovie = async (movie: IShareMovieOptions): Promise<boolean> =>
 };
 
 /**
- * Shares a User Profile with formatted username and web link.
+ * Shares a User Profile with formatted username and short web link.
  */
 export const shareUserProfile = async (user: IShareUserOptions): Promise<boolean> => {
-    const shareUrl = `https://mensola.app/users/${user.username}`;
+    const shareUrl = await getOrCreateShortLink("user", user.id);
+    const message = t("share.userMessage", {
+        username: user.username,
+        url: shareUrl,
+        defaultValue: `@${user.username} profilini Mensola'da inceleyin!\n${shareUrl}`,
+    });
+
     return shareContent({
         title: `@${user.username}`,
-        message: `@${user.username} profilini Mensola'da inceleyin!\n${shareUrl}`,
+        message,
         url: shareUrl,
     });
 };
@@ -115,6 +135,7 @@ export const useShare = () => {
     return {
         shareContent,
         shareMovieList,
+        sharePlaylist,
         shareMovie,
         shareUserProfile,
     };
