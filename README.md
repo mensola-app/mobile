@@ -1,50 +1,216 @@
-# Welcome to your Expo app 👋
+# Mensola — Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The React Native mobile application for Mensola, built with Expo SDK 57. Supports Android and iOS via a single codebase with file-based routing through Expo Router.
 
-## Get started
+---
 
-1. Install dependencies
+## Prerequisites
 
-   ```bash
-   npm install
-   ```
+- **Node.js** 20+
+- **Expo CLI** — `npm install -g expo-cli` (or use `npx expo` directly)
+- **Android Studio** (for Android emulator) or **Xcode** (for iOS simulator, macOS only)
+- A running instance of the [Mensola API](../api/README.md)
 
-2. Start the app
+For physical device development, install the [Expo Go](https://expo.dev/go) app or a custom development build (see [EAS Builds](#eas-builds) below).
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Getting Started
 
 ```bash
-npm run reset-project
+cd mobile
+
+# Install dependencies
+npm install
+
+# Copy and configure the environment file
+cp .env.example .env
+# Set EXPO_PUBLIC_API_URL to your local API address (see below)
+
+# Start the Expo development server
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+This opens the Expo dev tools in your terminal. From there you can:
 
-## Learn more
+- Press `a` to open on an Android emulator
+- Press `i` to open on an iOS simulator (macOS only)
+- Scan the QR code with the Expo Go app on a physical device
 
-To learn more about developing your project with Expo, look at the following resources:
+### Running on a Specific Platform
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+# Android emulator / device
+npm run android
 
-## Join the community
+# iOS simulator (macOS only)
+npm run ios
+```
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Environment Variables
+
+Create a `.env` file in the `mobile/` directory:
+
+```env
+# The base URL of the Mensola API
+EXPO_PUBLIC_API_URL=http://localhost:3457
+```
+
+> **Note:** When running on a physical device, `localhost` won't work. Use your machine's local network IP address instead (e.g. `http://192.168.1.x:3457`). For production builds, the URL is set automatically by EAS to `https://api.mensola.app`.
+
+---
+
+## Available Scripts
+
+| Script | Description |
+|---|---|
+| `npm start` | Start the Expo dev server |
+| `npm run android` | Start and open on Android |
+| `npm run ios` | Start and open on iOS |
+| `npm run web` | Start in web mode |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run the Jest test suite |
+
+---
+
+## Running Tests
+
+Tests use Jest with the `jest-expo` preset and `@testing-library/react-native`.
+
+```bash
+npm test
+```
+
+Test files live in the `__tests__/` directory at the project root.
+
+---
+
+## EAS Builds
+
+The app uses [EAS Build](https://docs.expo.dev/build/introduction/) for generating native binaries. Three build profiles are configured:
+
+| Profile | Distribution | Android Output | Notes |
+|---|---|---|---|
+| `development` | Internal | APK | Includes dev client for debugging |
+| `preview` | Internal | APK | Staging / QA builds |
+| `production` | Store | AAB | Points to `https://api.mensola.app` |
+
+### Running a Build
+
+```bash
+# Install EAS CLI
+npm install -g eas-cli
+
+# Log in to your Expo account
+eas login
+
+# Build for Android (development profile)
+eas build --platform android --profile development
+
+# Build for iOS (development profile)
+eas build --platform ios --profile development
+
+# Production build
+eas build --platform all --profile production
+```
+
+### OTA Updates
+
+The app is configured for [Expo Updates](https://docs.expo.dev/eas-update/introduction/) with the `appVersion` runtime policy. OTA updates are channel-scoped:
+
+- `development` channel → development builds
+- `preview` channel → preview builds
+- `production` channel → production builds
+
+```bash
+# Push an OTA update to the production channel
+eas update --channel production --message "Fix: home feed crash"
+```
+
+---
+
+## Project Structure
+
+```
+mobile/
+├── app/                → Expo Router screens (file-based routing)
+│   ├── (auth)/         → Authentication screens (login, register)
+│   ├── (tabs)/         → Main tab navigator screens
+│   └── _layout.tsx     → Root layout
+├── components/         → Reusable UI components
+├── constants/          → App-wide constants (colours, sizes, etc.)
+├── context/            → React context providers
+├── hooks/              → Custom hooks
+├── i18n/               → Internationalisation configuration
+├── locales/            → Translation files (JSON)
+├── services/           → API service layer (TanStack Query hooks)
+├── types/              → Shared TypeScript types
+├── utils/              → Helper functions
+├── assets/             → Images, fonts, icons
+├── __tests__/          → Jest test files
+├── app.json            → Expo app configuration
+├── eas.json            → EAS Build profiles
+└── package.json
+```
+
+---
+
+## Key Dependencies
+
+| Package | Purpose |
+|---|---|
+| `expo-router` | File-based navigation |
+| `@tanstack/react-query` | Server state management and data fetching |
+| `zustand` | Lightweight client-side state management |
+| `expo-secure-store` | Secure storage for auth tokens |
+| `react-native-mmkv` | High-performance key-value storage |
+| `i18next` + `react-i18next` | Internationalisation |
+| `expo-notifications` | Push notification handling |
+| `expo-image` | Optimised image component |
+| `expo-image-picker` | Profile photo selection |
+| `@react-native-google-signin/google-signin` | Google OAuth sign-in |
+
+---
+
+## Deep Linking
+
+The app handles deep links from `mensola.app` for the following paths:
+
+| Path prefix | Opens |
+|---|---|
+| `/users/*` | User profile screen |
+| `/movie-lists/*` | Movie list detail screen |
+| `/playlists/*` | Playlist detail screen |
+
+Deep link scheme: `mensola://`
+
+---
+
+## Internationalisation
+
+Translation files are located in `locales/`. The app uses `expo-localization` to detect the device locale and falls back to English if a translation is unavailable.
+
+To add a new language, create a new JSON file under `locales/` and register it in `i18n/`.
+
+---
+
+## Troubleshooting
+
+**Metro bundler cache issues**
+```bash
+npm start -- --clear
+```
+
+**Android build fails after updating dependencies**
+```bash
+cd android && ./gradlew clean && cd ..
+npm run android
+```
+
+**iOS pod issues (macOS)**
+```bash
+cd ios && pod install && cd ..
+npm run ios
+```
