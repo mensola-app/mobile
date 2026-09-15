@@ -11,6 +11,7 @@ import { UserId } from "@/types/common.types";
 import { StatDetailsItemMap, StatType } from "@/types/stat.types";
 import { FollowUsersResponseDataItem } from "@/types/user.types";
 import { Colors } from "@/constants/colors";
+import { usePreferences } from "@/hooks/usePreferences";
 
 export default function StatDetailView<T extends StatType = StatType>({
     currentUserId,
@@ -24,11 +25,14 @@ export default function StatDetailView<T extends StatType = StatType>({
     isError,
     refetch,
     isOwnProfile = false,
+    layout,
 }: StatDetailProps<T>) {
     const router = useRouter();
     const { t } = useTranslation();
     const { followHandler, unfollowHandler } = useFollow();
     const [statDetailItems, setStatDetailItems] = useState(items);
+    const shelfLayout = usePreferences((state) => state["shelf-layout"]);
+    const effectiveLayout: "horizontal" | "vertical" = layout ?? (shelfLayout === "list" ? "horizontal" : "vertical");
 
     useEffect(() => setStatDetailItems(items), [items]);
 
@@ -86,7 +90,7 @@ export default function StatDetailView<T extends StatType = StatType>({
         );
     }
 
-    const isGrid = [
+    const isMediaList = [
         "movie-lists",
         "liked-movie-lists",
         "watchlist",
@@ -98,6 +102,8 @@ export default function StatDetailView<T extends StatType = StatType>({
         "liked-albums",
     ].includes(statType);
 
+    const isGrid = isMediaList && effectiveLayout === "vertical";
+
     const renderItem = ({ item, index }: any) => {
         switch (statType) {
             case "movie-lists":
@@ -106,6 +112,7 @@ export default function StatDetailView<T extends StatType = StatType>({
                     <StatDetailItem
                         viewType="movie-card"
                         cardType="movie-list"
+                        layout={effectiveLayout}
                         data={item}
                         onPress={() => {
                             router.push(`/movie-lists/${item.listId || item.id}`);
@@ -142,6 +149,7 @@ export default function StatDetailView<T extends StatType = StatType>({
                 return (
                     <StatDetailItem
                         viewType="music-card"
+                        layout={effectiveLayout}
                         data={item}
                         onPress={handleMusicCardPress}
                         cardType={cardType}
@@ -155,6 +163,7 @@ export default function StatDetailView<T extends StatType = StatType>({
                 return (
                     <StatDetailItem
                         viewType="movie-card"
+                        layout={effectiveLayout}
                         data={item}
                         onPress={() => {
                             router.push(`/movies/${item.id}`);
@@ -265,6 +274,7 @@ export default function StatDetailView<T extends StatType = StatType>({
     return (
         <View style={styles.container}>
             <DynamicList
+                key={isGrid ? "grid" : "list"}
                 data={statDetailItems}
                 renderItem={renderItem}
                 variant="vertical"

@@ -18,10 +18,14 @@ export type StatDetailProps<T extends StatType = StatType> = {
     isError?: boolean;
     refetch?: () => void;
     isOwnProfile?: boolean;
+    layout?: "horizontal" | "vertical";
 };
 export type ViewTypes = "dynamic-list" | "music-card" | "movie-card" | "user-card";
 
-export type StatDetailItemProps<T extends StatType = StatType> = { viewType?: ViewTypes } & (
+export type StatDetailItemProps<T extends StatType = StatType> = {
+    viewType?: ViewTypes;
+    layout?: "horizontal" | "vertical";
+} & (
     | {
           viewType?: "dynamic-list";
           data: MovieSummaryViaInteraction[];

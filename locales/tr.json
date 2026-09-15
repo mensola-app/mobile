@@ -356,7 +356,7 @@
                     "movies": "Filmler",
                     "tracks": "Müzikler"
                 },
-                "shelf-layout": "Görünüm Düzeni (Yakında)",
+                "shelf-layout": "Görünüm Düzeni",
                 "shelf-layout-desc": "İçeriklerinizin nasıl görüntüleneceğini seçin",
                 "shelf-layout-options": {
                     "grid": "Izgara",

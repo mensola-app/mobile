@@ -59,4 +59,11 @@ export const styles = StyleSheet.create({
         width: "50%",
         height: "50%",
     },
+    horizontalBadgeRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: 6,
+        marginTop: 4,
+    },
 });

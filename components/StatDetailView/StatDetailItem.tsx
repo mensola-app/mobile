@@ -1,3 +1,4 @@
+import { StyleProp, ViewStyle } from "react-native";
 import { StatDetailsItemMap, StatType } from "@/types/stat.types";
 import DynamicList from "../DynamicList";
 import MovieCard from "../MovieCard";
@@ -7,6 +8,9 @@ import { StatDetailItemProps } from "./types";
 import { GetListsResponseDataItem } from "@/types/movie.types";
 
 export default function StatDetailItem<T extends StatType = StatType>(props: StatDetailItemProps<T>) {
+    const layout = props.layout ?? "vertical";
+    const cardStyle: StyleProp<ViewStyle> = layout === "horizontal" ? { width: "100%" } : { width: "31%" };
+
     switch (props.viewType) {
         case "dynamic-list": {
             const { data, onSeeAllPress, onListItemPress, listTitle } = props;
@@ -19,6 +23,7 @@ export default function StatDetailItem<T extends StatType = StatType>(props: Sta
                             key={movie.id}
                             title={movie.title}
                             poster={movie.poster}
+                            layout={layout}
                             interactions={{
                                 rating: movie?.rating,
                                 isLiked: movie.isLiked,
@@ -37,9 +42,10 @@ export default function StatDetailItem<T extends StatType = StatType>(props: Sta
                 return (
                     <MovieCard
                         type="movie-list"
+                        layout={layout}
                         data={props.data}
                         onPress={props.onPress}
-                        style={{ width: "31%" }}
+                        style={cardStyle}
                         hideCreator={props.hideCreator}
                     />
                 );
@@ -47,6 +53,7 @@ export default function StatDetailItem<T extends StatType = StatType>(props: Sta
             return (
                 <MovieCard
                     type="movie"
+                    layout={layout}
                     data={props.data}
                     title={props.data.title}
                     poster={props.data.poster}
@@ -56,7 +63,7 @@ export default function StatDetailItem<T extends StatType = StatType>(props: Sta
                         hasReview: props.data.hasReview,
                         watchCount: (props.data as any).watchCount,
                     }}
-                    style={{ width: "31%" }}
+                    style={cardStyle}
                     onPress={props.onPress}
                 />
             );
@@ -66,27 +73,30 @@ export default function StatDetailItem<T extends StatType = StatType>(props: Sta
                 return (
                     <MusicCard
                         type="track"
+                        layout={layout}
                         data={props.data}
                         onPress={props.onPress}
-                        style={{ width: "31%" }}
+                        style={cardStyle}
                     />
                 );
             } else if (props.cardType === "album") {
                 return (
                     <MusicCard
                         type="album"
+                        layout={layout}
                         data={props.data}
                         onPress={props.onPress}
-                        style={{ width: "31%" }}
+                        style={cardStyle}
                     />
                 );
             } else if (props.cardType === "playlist") {
                 return (
                     <MusicCard
                         type="playlist"
+                        layout={layout}
                         data={props.data}
                         onPress={props.onPress}
-                        style={{ width: "31%" }}
+                        style={cardStyle}
                         hideCreator={props.hideCreator}
                     />
                 );

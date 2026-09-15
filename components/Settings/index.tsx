@@ -89,7 +89,6 @@ const getSettingsConfig = (t: any): SettingSection[] => [
                 label: t("settings.menu.preferences.shelf-layout"),
                 description: t("settings.menu.preferences.shelf-layout-desc"),
                 value: "grid",
-                disabled: true,
                 options: [
                     { label: t("settings.menu.preferences.shelf-layout-options.grid"), value: "grid" },
                     { label: t("settings.menu.preferences.shelf-layout-options.list"), value: "list" },

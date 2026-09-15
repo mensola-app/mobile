@@ -4,7 +4,7 @@ import { styles } from "./styles";
 import { IMovieCardProps } from "./types";
 import MovieCardFooter from "./MovieCardFooter";
 import Badge from "../Badge";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useTranslation } from "react-i18next";
 import { IMovie, IMovieList } from "@/types/movie.types";
@@ -136,6 +136,15 @@ export default function MovieCard<
 
     const fullSubtitle = type === "movie-list" ? [subtitle, secondaryInfo].filter(Boolean).join(" • ") : subtitle;
 
+    const isProfile = variant === "profile";
+    const ratingValue = interactions?.rating ?? ratingAverage;
+    const formattedRating = formatRating(ratingValue);
+    const hasRating = !!formattedRating;
+    const hasLikes = isProfile ? !!interactions?.isLiked : !!(interactions?.totalLikes && interactions.totalLikes > 0);
+    const hasReviews = isProfile ? !!interactions?.hasReview : !!(interactions?.totalReviews && interactions.totalReviews > 0);
+    const hasWatchCount = type === "movie" && watchCount !== undefined && watchCount > 1;
+    const hasHorizontalBadges = hasRating || hasLikes || hasReviews || hasWatchCount;
+
     return (
         <TouchableOpacity
             onPress={onPress}
@@ -147,13 +156,13 @@ export default function MovieCard<
                     isHorizontal ? styles.horizontalPosterContainer : styles.verticalPosterContainer,
                 ]}>
                 {coverContent}
-                {interactions && (
+                {!isHorizontal && interactions && (
                     <MovieCardFooter
                         interactions={{ ...interactions, rating: Number(formatRating(interactions.rating)) }}
                         variant={variant}
                     />
                 )}
-                {type === "movie" && watchCount !== undefined && watchCount > 1 && (
+                {!isHorizontal && type === "movie" && watchCount !== undefined && watchCount > 1 && (
                     <Badge
                         icon={<Ionicons name="eye" size={10} color="#FF8000" />}
                         value={`${watchCount}`}
@@ -178,13 +187,41 @@ export default function MovieCard<
                         {subtitle}
                     </Text>
                 )}
-                {type === "movie" && isHorizontal && !!ratingAverage && ratingAverage !== 0 && (
-                    <Badge
-                        icon={<Ionicons name="star" size={10} color="#FF8000" />}
-                        value={formatRating(ratingAverage)}
-                        style={styles.badgeItem}
-                        textStyle={styles.badgeText}
-                    />
+                {isHorizontal && hasHorizontalBadges && (
+                    <View style={styles.horizontalBadgeRow}>
+                        {hasRating && (
+                            <Badge
+                                icon={<Ionicons name="star" size={10} color="#FF8000" />}
+                                value={formattedRating}
+                                style={styles.badgeItem}
+                                textStyle={styles.badgeText}
+                            />
+                        )}
+                        {hasLikes && (
+                            <Badge
+                                icon={<Ionicons name="heart" size={10} color="#FF8000" />}
+                                value={!isProfile ? interactions.totalLikes : undefined}
+                                style={styles.badgeItem}
+                                textStyle={styles.badgeText}
+                            />
+                        )}
+                        {hasReviews && (
+                            <Badge
+                                icon={<Entypo name="text" size={10} color="#FF8000" />}
+                                value={!isProfile ? interactions.totalReviews : undefined}
+                                style={styles.badgeItem}
+                                textStyle={styles.badgeText}
+                            />
+                        )}
+                        {hasWatchCount && (
+                            <Badge
+                                icon={<Ionicons name="eye" size={10} color="#FF8000" />}
+                                value={`${watchCount}`}
+                                style={styles.badgeItem}
+                                textStyle={styles.badgeText}
+                            />
+                        )}
+                    </View>
                 )}
             </View>
         </TouchableOpacity>

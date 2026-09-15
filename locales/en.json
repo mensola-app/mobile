@@ -356,7 +356,7 @@
                     "movies": "Movies",
                     "tracks": "Music"
                 },
-                "shelf-layout": "Shelf Layout (Coming Soon)",
+                "shelf-layout": "Shelf Layout",
                 "shelf-layout-desc": "Select how your content is displayed",
                 "shelf-layout-options": {
                     "grid": "Grid",

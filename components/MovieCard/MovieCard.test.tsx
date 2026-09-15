@@ -220,6 +220,29 @@ describe("MovieCard Bileşeni Bütünsel Testleri", () => {
             expect(getByLabelText("Inception • 2010")).toBeTruthy();
             expect(getByText("4.9")).toBeTruthy();
         });
+
+        it("should render badges in info area instead of poster in horizontal mode", () => {
+            const movieData = {
+                id: "m-123",
+                title: "Interstellar",
+                poster: "https://example.com/interstellar.jpg",
+                releaseDate: "2014-11-07",
+                genres: ["Sci-Fi", "Drama"],
+                rating: 4.8,
+                isLiked: true,
+                hasReview: true,
+            };
+
+            const { getByText } = render(
+                <MovieCard layout="horizontal" type="movie" data={movieData as any} />
+            );
+
+            expect(getByText("Interstellar • 2014")).toBeTruthy();
+            expect(getByText("Sci-Fi, Drama")).toBeTruthy();
+            expect(getByText("4.8")).toBeTruthy();
+            expect(getByText("heart")).toBeTruthy();
+            expect(getByText("text")).toBeTruthy();
+        });
     });
 });
 
