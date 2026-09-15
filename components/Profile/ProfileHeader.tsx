@@ -16,6 +16,10 @@ import Avatar from "../Avatar";
 import { Colors } from "@/constants/colors";
 import { notificationService } from "@/services/notification.service";
 
+const TIER_BADGES: Record<string, { label: string }> = {
+    pro: { label: "PRO" },
+};
+
 export default function ProfileHeader() {
     const router = useRouter();
     const { t } = useTranslation();
@@ -110,9 +114,7 @@ export default function ProfileHeader() {
                             {isHandlingRequest ? (
                                 <ActivityIndicator size="small" color="#FFFFFF" />
                             ) : (
-                                <Text style={styles.followRequestAcceptButtonText}>
-                                    {t("notifications.accept")}
-                                </Text>
+                                <Text style={styles.followRequestAcceptButtonText}>{t("notifications.accept")}</Text>
                             )}
                         </TouchableOpacity>
 
@@ -122,9 +124,7 @@ export default function ProfileHeader() {
                             disabled={isHandlingRequest}
                             activeOpacity={0.8}
                             testID="profile-decline-follow-request">
-                            <Text style={styles.followRequestDeclineButtonText}>
-                                {t("notifications.decline")}
-                            </Text>
+                            <Text style={styles.followRequestDeclineButtonText}>{t("notifications.decline")}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -142,7 +142,14 @@ export default function ProfileHeader() {
 
             <View style={styles.nameBlock}>
                 {headerData.fullname ? <Text style={styles.fullnameLabel}>{headerData.fullname}</Text> : null}
-                <Text style={styles.usernameLabel}>@{headerData.username}</Text>
+                <View style={styles.usernameRow}>
+                    <Text style={styles.usernameLabel}>@{headerData.username}</Text>
+                    {headerData.subscriptionTier && TIER_BADGES[headerData.subscriptionTier] && (
+                        <View style={styles.proBadge}>
+                            <Text style={styles.proBadgeText}>{TIER_BADGES[headerData.subscriptionTier].label}</Text>
+                        </View>
+                    )}
+                </View>
             </View>
 
             {headerData.bio ? <Text style={styles.userBio}>{headerData.bio}</Text> : null}
@@ -162,14 +169,16 @@ export default function ProfileHeader() {
                         activeOpacity={0.7}
                         style={[
                             styles.actionButton,
-                            (isFollowing || isPending) ? styles.actionButtonFollowing : styles.actionButtonPrimary,
+                            isFollowing || isPending ? styles.actionButtonFollowing : styles.actionButtonPrimary,
                         ]}
                         onPress={async () => {
                             if (isLoading) return;
                             if (isPending) {
                                 Alert.alert(
                                     t("profile.header.cancelRequestTitle"),
-                                    t("profile.header.cancelRequestBody", { name: headerData.fullname || headerData.username }),
+                                    t("profile.header.cancelRequestBody", {
+                                        name: headerData.fullname || headerData.username,
+                                    }),
                                     [
                                         { text: t("profile.header.no"), style: "cancel" },
                                         {
@@ -184,7 +193,9 @@ export default function ProfileHeader() {
                             } else if (isFollowing) {
                                 Alert.alert(
                                     t("profile.header.unfollowConfirmTitle"),
-                                    t("profile.header.unfollowConfirmBody", { name: headerData.fullname || headerData.username }),
+                                    t("profile.header.unfollowConfirmBody", {
+                                        name: headerData.fullname || headerData.username,
+                                    }),
                                     [
                                         { text: t("profile.header.no"), style: "cancel" },
                                         {
@@ -207,9 +218,16 @@ export default function ProfileHeader() {
                             }
                         }}>
                         {isLoading ? (
-                            <ActivityIndicator size="small" color={(isFollowing || isPending) ? Colors.primary : "#fff"} />
+                            <ActivityIndicator
+                                size="small"
+                                color={isFollowing || isPending ? Colors.primary : "#fff"}
+                            />
                         ) : (
-                            <Text style={[styles.actionButtonText, !(isFollowing || isPending) && styles.actionButtonTextPrimary]}>
+                            <Text
+                                style={[
+                                    styles.actionButtonText,
+                                    !(isFollowing || isPending) && styles.actionButtonTextPrimary,
+                                ]}>
                                 {isFollowing
                                     ? t("profile.header.followingButton")
                                     : isPending

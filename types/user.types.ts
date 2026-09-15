@@ -14,6 +14,7 @@ export interface IUser {
     isPrivate?: boolean;
     hasAccess?: boolean;
     isPending?: boolean;
+    subscriptionTier?: string;
 }
 export type UserFavorites = { favoriteMovies: FavoriteMovies; favoriteTracks: FavoriteTracks };
 export type UserStats = Record<StatTypeKey, number>;

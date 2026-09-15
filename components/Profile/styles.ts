@@ -38,10 +38,27 @@ const styles = StyleSheet.create({
         color: Colors.textPrimary,
         letterSpacing: -0.4,
     },
+    usernameRow: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
     usernameLabel: {
         fontSize: 13,
         color: Colors.textMuted,
         fontWeight: "400",
+    },
+    proBadge: {
+        backgroundColor: Colors.secondary,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        marginLeft: 6,
+    },
+    proBadgeText: {
+        color: "#fff",
+        fontSize: 10,
+        fontWeight: "bold",
+        letterSpacing: 0.5,
     },
 
     userBio: {

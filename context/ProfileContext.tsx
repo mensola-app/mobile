@@ -88,6 +88,7 @@ export function ProfileProvider({ children, userId = "me" }: { children: React.R
         hasPendingRequestFromUser,
         hasAccess = true,
         isPrivate = false,
+        subscriptionTier,
         ...stats
     } = profile;
 
@@ -108,6 +109,8 @@ export function ProfileProvider({ children, userId = "me" }: { children: React.R
         isFollowingByMe,
         isPendingByMe,
         hasPendingRequestFromUser,
+        subscriptionTier,
+        isPrivate,
     };
     const bodyData = {
         favoriteMovies: favoriteMovies?.slice(0, 3),
