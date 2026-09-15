@@ -14,6 +14,7 @@ import { TrackService } from "@/services/track.service";
 import { TmdbId, SpotifyId } from "@/types/common.types";
 import { useTranslation } from "react-i18next";
 import SearchNoResults from "./SearchNoResults";
+import SearchSkeleton from "./SearchSkeleton";
 
 export default function SearchResultList({
     activeTab,
@@ -142,12 +143,8 @@ export default function SearchResultList({
         );
     }
 
-    if (isLoading && results.length === 0) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-            </View>
-        );
+    if (isLoading && !isFetchingNextPage) {
+        return <SearchSkeleton variant={activeTab} />;
     }
 
     if (!isLoading && results.length === 0) {

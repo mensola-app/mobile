@@ -27,7 +27,7 @@ export default function ProfileView() {
             contentContainerStyle={styles.scrollContent}>
             <ProfileHeader />
             <View style={styles.divider} />
-            
+
             {hasAccess ? (
                 <>
                     <ProfileBody />
@@ -45,3 +45,4 @@ export default function ProfileView() {
         </ScrollView>
     );
 }
+

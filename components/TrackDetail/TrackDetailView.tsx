@@ -5,6 +5,7 @@ import { InteractionSheet } from "@/components/Interaction";
 import TrackHero from "./TrackHero";
 import LatestComments from "./LatestComments";
 import AddToPlaylistBottomSheet from "./AddToPlaylistBottomSheet";
+import TrackDetailSkeleton from "./TrackDetailSkeleton";
 import { styles } from "./styles";
 import { ITrackDetailViewProps } from "./types";
 import { TrackId } from "@/types/common.types";
@@ -51,11 +52,7 @@ export default function TrackDetailView({
     };
 
     if (isLoading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-            </View>
-        );
+        return <TrackDetailSkeleton />;
     }
 
     if (error && !trackDetails) {

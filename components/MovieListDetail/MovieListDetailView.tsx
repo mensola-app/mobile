@@ -7,6 +7,7 @@ import DynamicList from "@/components/DynamicList";
 import MovieCard from "@/components/MovieCard";
 import InteractionView, { InteractionSheet } from "@/components/Interaction";
 import MovieListHero from "./MovieListHero";
+import MovieListDetailSkeleton from "./MovieListDetailSkeleton";
 import { styles } from "./styles";
 import { IMovieListDetailViewProps } from "./types";
 import { MovieSummaryViaInteraction } from "@/types/movie.types";
@@ -96,11 +97,7 @@ export default function MovieListDetailView({
     };
 
     if (isLoading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#1DB954" />
-            </View>
-        );
+        return <MovieListDetailSkeleton />;
     }
 
     if (error && !listDetails) {

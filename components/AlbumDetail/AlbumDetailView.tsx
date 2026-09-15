@@ -8,6 +8,7 @@ import DynamicList from "@/components/DynamicList";
 import MusicCard from "@/components/MusicCard";
 import InteractionView, { InteractionSheet } from "@/components/Interaction";
 import AlbumHero from "./AlbumHero";
+import AlbumDetailSkeleton from "./AlbumDetailSkeleton";
 import { styles } from "./styles";
 import { IAlbumDetailViewProps } from "./types";
 import { ITrack } from "@/types/track.types";
@@ -95,11 +96,7 @@ export default function AlbumDetailView({
     };
 
     if (isLoading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#1DB954" />
-            </View>
-        );
+        return <AlbumDetailSkeleton />;
     }
 
     if (error && !albumDetails) {

@@ -13,6 +13,7 @@ import { Colors } from "@/constants/colors";
 import { MovieService } from "@/services/movie.service";
 import { TmdbId } from "@/types/common.types";
 import { useTranslation } from "react-i18next";
+import SearchEmptySkeleton from "./SearchEmptySkeleton";
 
 export default function SearchEmptyState({ activeTab }: SearchEmptyStateProps) {
     const router = useRouter();
@@ -78,6 +79,11 @@ export default function SearchEmptyState({ activeTab }: SearchEmptyStateProps) {
                 </TouchableOpacity>
             </View>
         );
+    }
+
+    // First load: data empty while fetching
+    if (isLoading && data.length === 0) {
+        return <SearchEmptySkeleton variant={isMoviesTab ? "movie" : "track"} />;
     }
 
     return (

@@ -7,6 +7,7 @@ import DynamicList from "@/components/DynamicList";
 import MusicCard from "@/components/MusicCard";
 import InteractionView, { InteractionSheet } from "@/components/Interaction";
 import PlaylistHero from "./PlaylistHero";
+import PlaylistDetailSkeleton from "./PlaylistDetailSkeleton";
 import { styles } from "./styles";
 import { IPlaylistDetailViewProps } from "./types";
 import { ITrack } from "@/types/track.types";
@@ -91,11 +92,7 @@ export default function PlaylistDetailView({
     };
 
     if (isLoading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-            </View>
-        );
+        return <PlaylistDetailSkeleton />;
     }
 
     if (error && !playlistDetails) {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { ActivityIndicator, Text, StyleSheet, View, TouchableOpacity } from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Href, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { STAT_ROUTE_MAP, StatTypeKey } from "@/types/stat.types";
 import { IUser, UserFavorites, UserStats } from "@/types/user.types";
 import { Colors } from "@/constants/colors";
 import { useGlobalUser } from "@/context/AuthContext";
+import ProfileSkeleton from "@/components/Profile/ProfileSkeleton";
 
 export interface ProfileContextType {
     userId?: UserId | "me";
@@ -39,14 +40,7 @@ export function ProfileProvider({ children, userId = "me" }: { children: React.R
     const { profile, fetchProfile, isLoading, error } = useProfile(userId);
     const router = useRouter();
 
-    if (isLoading) {
-        return (
-            <SafeAreaView style={styles.container}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-            </SafeAreaView>
-        );
-    }
-
+    // Error state takes priority
     if (error) {
         return (
             <SafeAreaView style={styles.container}>
@@ -60,12 +54,13 @@ export function ProfileProvider({ children, userId = "me" }: { children: React.R
         );
     }
 
-    if (!profile) {
+    // Show skeleton while loading OR on first render before useEffect fires
+    // (useProfile initialises isLoading=false, so there's a one-frame gap before
+    //  isLoading flips to true — guarding on !profile covers that gap too)
+    if (isLoading || !profile) {
         return (
-            <SafeAreaView style={styles.container}>
-                <Text style={{ color: Colors.textPrimary }}>
-                    {t("common.userNotFound", { defaultValue: "Kullanıcı bulunamadı." })}
-                </Text>
+            <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
+                <ProfileSkeleton />
             </SafeAreaView>
         );
     }
