@@ -173,6 +173,11 @@
             "addToList": "Add to Lists",
             "emptyReviewsText": "No reviews yet. Be the first to share your thoughts on this film!",
             "rateAndReview": "Rate & Review",
+            "cast": "Cast",
+            "crew": "Crew",
+            "roleDirector": "Director",
+            "roleWriter": "Writer",
+            "roleCinematography": "Cinematography",
             "watchedHistory": {
                 "sheetTitle": "Watch History",
                 "historySection": "Past Records",

@@ -173,6 +173,11 @@
             "addToList": "Listelerime Ekle",
             "emptyReviewsText": "Henüz inceleme yok. Bu film hakkındaki düşüncelerini ilk paylaşan sen ol!",
             "rateAndReview": "Puanla & İncele",
+            "cast": "Oyuncular",
+            "crew": "Ekip",
+            "roleDirector": "Yönetmen",
+            "roleWriter": "Senarist",
+            "roleCinematography": "Görüntü Yönetmeni",
             "watchedHistory": {
                 "sheetTitle": "İzleme Geçmişi",
                 "historySection": "Geçmiş Kayıtlar",

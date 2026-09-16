@@ -3,6 +3,22 @@ import { MovieId, MovieListId, PaginationQueries, PaginationResponse, UserId, Wa
 import { InteractionItemResponse, InteractionSummary } from "./interaction.types";
 import { FollowUsersResponseDataItem, IUser } from "./user.types";
 
+export interface MovieCreditPerson {
+    id: number;
+    name: string;
+    profilePath: string;
+    character?: string;
+}
+
+export interface MovieCredits {
+    cast: MovieCreditPerson[];
+    crew: {
+        directors: MovieCreditPerson[];
+        writers: MovieCreditPerson[];
+        cinematographers: MovieCreditPerson[];
+    };
+}
+
 export interface IMovie {
     id: MovieId;
     title: string;
@@ -12,6 +28,7 @@ export interface IMovie {
     genres?: string[];
     duration?: number;
     overview?: string;
+    credits?: MovieCredits;
 }
 export type MovieSummary = Pick<IMovie, "id" | "title" | "poster">;
 export type MovieSummaryViaInteraction = IMovie & {

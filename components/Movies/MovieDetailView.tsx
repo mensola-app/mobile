@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ScrollView, RefreshControl, View, StyleSheet } from "react-native";
 import MovieHero from "./MovieHero";
 import MovieOverview from "./MovieOverview";
+import MovieCreditsSection from "./MovieCreditsSection";
 import LatestComments from "./LatestComments";
 import { MovieDetailViewProps } from "./types";
 import { Colors } from "@/constants/colors";
@@ -82,6 +83,7 @@ export default function MovieDetailView({
                     onOpenWatchedSheet={() => setIsWatchedSheetOpen(true)}
                 />
                 <MovieOverview movie={movie} />
+                <MovieCreditsSection credits={movie?.credits} />
                 <LatestComments
                     targetId={movie?.id}
                     movieTitle={movie?.title}
