@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
     View,
     Text,
@@ -5,9 +6,9 @@ import {
     ImageBackground,
     ScrollView,
     TouchableOpacity,
-    Share,
     Linking,
     ActivityIndicator,
+    RefreshControl,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
@@ -29,6 +30,7 @@ const formatDuration = (ms: number) => {
 export default function ArtistDetailView({
     artistDetails,
     isLoading,
+    isRefreshing: propIsRefreshing,
     error,
     isFollowLoading,
     onToggleFollow,
@@ -36,6 +38,17 @@ export default function ArtistDetailView({
 }: IArtistDetailViewProps) {
     const { t } = useTranslation();
     const router = useRouter();
+    const [refreshing, setRefreshing] = useState<boolean>(false);
+
+    const onRefresh = async () => {
+        if (!onRefetch) return;
+        setRefreshing(true);
+        try {
+            await onRefetch();
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
     const handleShare = async () => {
         if (!artistDetails) return;
@@ -84,6 +97,16 @@ export default function ArtistDetailView({
             style={styles.container}
             contentContainerStyle={{ paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+                onRefetch ? (
+                    <RefreshControl
+                        refreshing={propIsRefreshing !== undefined ? propIsRefreshing : refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={Colors.primary}
+                        colors={[Colors.primary]}
+                    />
+                ) : undefined
+            }
         >
             {/* Hero Section */}
             <View style={styles.heroBanner}>

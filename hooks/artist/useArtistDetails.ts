@@ -8,29 +8,39 @@ export const useArtistDetails = (artistId: string) => {
     const { t } = useTranslation();
     const [details, setDetails] = useState<ArtistDetailResponse | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
     const [error, setError] = useState<Error | null>(null);
     const [isFollowLoading, setIsFollowLoading] = useState<boolean>(false);
 
-    const fetchDetails = useCallback(async () => {
+    const fetchDetails = useCallback(async (isRefresh: boolean = false) => {
         if (!artistId) return;
-        setIsLoading(true);
+        if (isRefresh) {
+            setIsRefreshing(true);
+        } else {
+            setIsLoading(true);
+        }
         setError(null);
         try {
             const data = await ArtistService.getArtistDetails(artistId);
-            // Handle standard API response format if it's wrapped in { success, data }
-            // Looking at the API client, it seems it unwraps the success/data if we use the generic properly, 
-            // but just to be safe if the response structure contains the actual object in .data
             const artistData = (data as any).data ? (data as any).data : data;
             setDetails(artistData);
         } catch (err: any) {
             setError(err);
         } finally {
-            setIsLoading(false);
+            if (isRefresh) {
+                setIsRefreshing(false);
+            } else {
+                setIsLoading(false);
+            }
         }
     }, [artistId]);
 
     useEffect(() => {
         fetchDetails();
+    }, [fetchDetails]);
+
+    const refetch = useCallback(async () => {
+        await fetchDetails(true);
     }, [fetchDetails]);
 
     const toggleFollow = useCallback(async () => {
@@ -76,8 +86,9 @@ export const useArtistDetails = (artistId: string) => {
     return {
         details,
         isLoading,
+        isRefreshing,
         error,
-        refetch: fetchDetails,
+        refetch,
         toggleFollow,
         isFollowLoading,
     };

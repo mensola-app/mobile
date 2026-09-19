@@ -1,5 +1,6 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react-native";
+import { render, fireEvent, act } from "@testing-library/react-native";
+import { RefreshControl } from "react-native";
 import { ArtistDetailView } from "../index";
 
 // Mock hooks and services
@@ -97,5 +98,18 @@ describe("ArtistDetailView", () => {
         const { getByText } = render(<ArtistDetailView {...followingProps} />);
         
         expect(getByText("artist.following")).toBeTruthy();
+    });
+
+    it("renders with RefreshControl and calls onRefetch on pull-to-refresh", async () => {
+        const { UNSAFE_getByType } = render(<ArtistDetailView {...mockProps} />);
+
+        const refreshControl = UNSAFE_getByType(RefreshControl);
+        expect(refreshControl).toBeTruthy();
+
+        await act(async () => {
+            await refreshControl.props.onRefresh();
+        });
+
+        expect(mockProps.onRefetch).toHaveBeenCalled();
     });
 });
