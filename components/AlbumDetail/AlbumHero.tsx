@@ -16,6 +16,7 @@ import ActionButton from "@/components/Movies/ActionButton";
 import Badge from "@/components/Badge";
 import { styles } from "./styles";
 import { IAlbumHeroProps } from "./types";
+import { useRouter } from "expo-router";
 import { shareAlbum } from "@/utils/share";
 import { Colors } from "@/constants/colors";
 
@@ -28,6 +29,7 @@ export default function AlbumHero({
     onSharePress,
     onPlayPress,
 }: IAlbumHeroProps) {
+    const router = useRouter();
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
     const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);
 
@@ -115,7 +117,14 @@ export default function AlbumHero({
                         </View>
 
                         {artist && (
-                            <TouchableOpacity style={styles.creatorContainer} activeOpacity={0.8}>
+                            <TouchableOpacity 
+                                style={styles.creatorContainer} 
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    const id = artist.spotifyId || artist.id;
+                                    if (id) router.push(`/artists/${id}`);
+                                }}
+                            >
                                 {artist.avatar ? (
                                     <Image source={{ uri: artist.avatar.toString() }} style={styles.avatar} />
                                 ) : (

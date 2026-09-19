@@ -16,6 +16,7 @@ import ActionButton from "@/components/Movies/ActionButton";
 import Badge from "@/components/Badge";
 import { styles } from "./styles";
 import { ITrackHeroProps } from "./types";
+import { useRouter } from "expo-router";
 import { Colors } from "@/constants/colors";
 
 export default function TrackHero({
@@ -26,6 +27,8 @@ export default function TrackHero({
     onPlayPress,
     commentsCount: propCommentsCount,
 }: ITrackHeroProps) {
+    const router = useRouter();
+
     if (!trackDetails) return null;
 
     const artistName = trackDetails.artists && trackDetails.artists.length > 0 ? trackDetails.artists[0].name : "";
@@ -91,7 +94,15 @@ export default function TrackHero({
                         </View>
 
                         {trackDetails.artists && trackDetails.artists.length > 0 && (
-                            <TouchableOpacity style={styles.creatorContainer} activeOpacity={0.8}>
+                            <TouchableOpacity 
+                                style={styles.creatorContainer} 
+                                activeOpacity={0.8}
+                                onPress={() => {
+                                    const artist = trackDetails.artists![0];
+                                    const id = artist.spotifyId || artist.id;
+                                    if (id) router.push(`/artists/${id}`);
+                                }}
+                            >
                                 {trackDetails.artists[0].avatar ? (
                                     <Image
                                         source={{ uri: trackDetails.artists[0].avatar.toString() }}
