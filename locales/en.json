@@ -445,6 +445,7 @@
         "movie": "Movie",
         "album": "Album",
         "playlist": "Playlist",
+        "artist": "Artist",
         "content": "Content",
         "user": "user",
         "giveUp": "Give Up",
