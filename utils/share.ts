@@ -128,6 +128,26 @@ export const shareUserProfile = async (user: IShareUserOptions): Promise<boolean
     });
 };
 
+export interface IShareArtistOptions {
+    id: string;
+    name: string;
+}
+
+export const shareArtist = async (artist: IShareArtistOptions): Promise<boolean> => {
+    const shareUrl = await getOrCreateShortLink("artist", artist.id);
+    const message = t("share.artistMessage", {
+        name: artist.name,
+        url: shareUrl,
+        defaultValue: `"${artist.name}" sanatçısına Mensola'da göz atın!\n${shareUrl}`,
+    });
+
+    return shareContent({
+        title: artist.name,
+        message,
+        url: shareUrl,
+    });
+};
+
 /**
  * Reusable React Hook wrapper for sharing content.
  */
@@ -138,5 +158,6 @@ export const useShare = () => {
         sharePlaylist,
         shareMovie,
         shareUserProfile,
+        shareArtist,
     };
 };

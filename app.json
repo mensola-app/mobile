@@ -2,7 +2,7 @@
     "expo": {
         "name": "mensola",
         "slug": "mensola",
-        "version": "0.14.0",
+        "version": "0.15.0",
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
         "scheme": "mensola",
@@ -39,6 +39,11 @@
                             "scheme": "https",
                             "host": "mensola.app",
                             "pathPrefix": "/playlists"
+                        },
+                        {
+                            "scheme": "https",
+                            "host": "mensola.app",
+                            "pathPrefix": "/artists"
                         }
                     ],
                     "category": ["BROWSABLE", "DEFAULT"]
