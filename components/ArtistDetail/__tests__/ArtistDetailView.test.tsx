@@ -41,6 +41,18 @@ describe("ArtistDetailView", () => {
                 artists: [{ spotifyId: "spotify-123", name: "Test Artist" }],
             },
         ],
+        albums: [
+            {
+                id: "album-1",
+                spotifyId: "album-1",
+                title: "Test Album 1",
+                name: "Test Album 1",
+                image: "https://test.com/album1.jpg",
+                releaseYear: 2024,
+                totalTracks: 8,
+                artists: [{ id: "123", spotifyId: "spotify-123", name: "Test Artist" }],
+            },
+        ],
     };
 
     const mockProps = {
@@ -111,5 +123,19 @@ describe("ArtistDetailView", () => {
         });
 
         expect(mockProps.onRefetch).toHaveBeenCalled();
+    });
+
+    it("renders discography section and navigates on see all press", () => {
+        const mockPush = jest.fn();
+        jest.spyOn(require("expo-router"), "useRouter").mockReturnValue({ push: mockPush });
+
+        const { getByText } = render(<ArtistDetailView {...mockProps} />);
+
+        expect(getByText("artist.discography")).toBeTruthy();
+        expect(getByText("Test Album 1")).toBeTruthy();
+
+        const seeAllButton = getByText("common.seeAll");
+        fireEvent.press(seeAllButton);
+        expect(mockPush).toHaveBeenCalledWith("/artists/spotify-123/discography");
     });
 });

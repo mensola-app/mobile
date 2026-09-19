@@ -54,7 +54,7 @@ describe("DynamicList Component Unit Tests", () => {
 
         expect(getByText("Latest Movies")).toBeTruthy();
 
-        const seeAllButton = getByText("Hepsini Gör");
+        const seeAllButton = getByText("common.seeAll");
         fireEvent.press(seeAllButton);
 
         expect(mockPress).toHaveBeenCalledTimes(1);

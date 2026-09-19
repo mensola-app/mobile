@@ -112,7 +112,7 @@ export const styles = StyleSheet.create({
     },
     sectionContainer: {
         paddingTop: 16,
-        paddingBottom: 32,
+        paddingBottom: 8,
     },
     sectionTitle: {
         fontSize: 18,

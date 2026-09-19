@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { styles } from "./styles";
 import { IDynamicListProps } from "./types";
@@ -8,11 +9,13 @@ export default function DynamicList<T>({
     data,
     renderItem,
     onSeeAllPress,
+    seeAllText,
     variant = "horizontal",
     ItemSeparatorComponent,
     style,
     ...restProps
 }: IDynamicListProps<T>) {
+    const { t } = useTranslation();
     const isHorizontal = variant === "horizontal";
 
     const renderDefaultSeparator = () => <View style={isHorizontal ? { width: 16 } : { height: 16 }} />;
@@ -24,7 +27,7 @@ export default function DynamicList<T>({
                     <Text style={styles.listTitle}>{title}</Text>
                     {onSeeAllPress && (
                         <TouchableOpacity onPress={onSeeAllPress}>
-                            <Text style={styles.seeAll}>Hepsini Gör</Text>
+                            <Text style={styles.seeAll}>{seeAllText || t("common.seeAll", "Hepsini Gör")}</Text>
                         </TouchableOpacity>
                     )}
                 </View>

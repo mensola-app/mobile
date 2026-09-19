@@ -7,5 +7,5 @@ export interface IArtistDetailViewProps {
     error: Error | null;
     isFollowLoading: boolean;
     onToggleFollow: () => void;
-    onRefetch: () => void | Promise<void>;
+    onRefetch?: () => void | Promise<void>;
 }

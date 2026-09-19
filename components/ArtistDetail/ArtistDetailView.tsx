@@ -16,6 +16,9 @@ import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import ActionButton from "@/components/Movies/ActionButton";
+import DynamicList from "@/components/DynamicList";
+import MusicCard from "@/components/MusicCard";
+import { ArtistAlbumItem } from "@/types/artist.types";
 import { shareArtist } from "@/utils/share";
 import { styles } from "./styles";
 import { IArtistDetailViewProps } from "./types";
@@ -243,6 +246,34 @@ export default function ArtistDetailView({
                             <Ionicons name="ellipsis-vertical" size={18} color={Colors.textMuted} />
                         </TouchableOpacity>
                     ))}
+                </View>
+            )}
+
+            {/* Albums (Discography) Section */}
+            {artistDetails.albums && artistDetails.albums.length > 0 && (
+                <View style={{ marginTop: 8 }}>
+                    <DynamicList<ArtistAlbumItem>
+                        title={t("artist.discography", { defaultValue: "Diskografi" })}
+                        data={artistDetails.albums}
+                        variant="horizontal"
+                        onSeeAllPress={() =>
+                            router.push(`/artists/${artistDetails.spotifyId || artistDetails.id}/discography`)
+                        }
+                        renderItem={({ item }) => (
+                            <MusicCard
+                                type="album"
+                                layout="vertical"
+                                data={{
+                                    spotifyId: (item.spotifyId || item.id) as any,
+                                    title: item.title || item.name,
+                                    image: item.image || item.images?.[0]?.url,
+                                    releaseYear: item.releaseYear,
+                                    artists: (item.artists || [{ name: artistDetails.name }]) as any,
+                                }}
+                                onPress={() => router.push(`/albums/${item.spotifyId || item.id}?type=spotify`)}
+                            />
+                        )}
+                    />
                 </View>
             )}
         </ScrollView>

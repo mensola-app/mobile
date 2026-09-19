@@ -6,6 +6,7 @@ export interface IDynamicListProps<T> extends Partial<FlatListProps<T>> {
     data: T[];
     renderItem: ({ item }: { item: T }) => React.ReactElement;
     onSeeAllPress?: () => void;
+    seeAllText?: string;
     variant?: "horizontal" | "vertical";
     ItemSeparatorComponent?: React.ComponentType<any> | null;
     style?: StyleProp<ViewStyle>;
