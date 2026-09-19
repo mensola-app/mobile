@@ -9,12 +9,24 @@ export default function ArtistsLayout() {
         <Stack
             screenOptions={{
                 headerShown: true,
-                headerTransparent: true,
                 header: (props) => <PageHeader {...props} />,
                 contentStyle: { backgroundColor: Colors.background },
                 animation: "slide_from_right",
             }}>
-            <Stack.Screen name="[id]" options={{ title: t("common.artist", "Sanatçı") }} />
+            <Stack.Screen
+                name="[id]/index"
+                options={{
+                    headerTransparent: true,
+                    title: t("common.artist", "Sanatçı"),
+                }}
+            />
+            <Stack.Screen
+                name="[id]/discography"
+                options={{
+                    headerTransparent: false,
+                    title: t("artist.discography", "Diskografi"),
+                }}
+            />
         </Stack>
     );
 }

@@ -3,8 +3,10 @@
         "follow": "Follow",
         "following": "Following",
         "topTracks": "Top Tracks",
+        "discography": "Discography",
+        "emptyDiscography": "No albums found yet",
         "followers": "followers",
-        "shareMessage": "check out this artist:"
+        "shareMessage": "check out the artist:"
     },
     "auth": {
         "login": {
