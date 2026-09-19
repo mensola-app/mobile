@@ -1,4 +1,11 @@
 {
+    "artist": {
+        "follow": "Follow",
+        "following": "Following",
+        "topTracks": "Top Tracks",
+        "followers": "followers",
+        "shareMessage": "check out this artist:"
+    },
     "auth": {
         "login": {
             "emailLabel": "Email",

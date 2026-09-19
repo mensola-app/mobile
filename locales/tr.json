@@ -1,4 +1,11 @@
 {
+    "artist": {
+        "follow": "Takip Et",
+        "following": "Takip Ediliyor",
+        "topTracks": "Popüler Şarkılar",
+        "followers": "takipçi",
+        "shareMessage": "sanatçısına göz at:"
+    },
     "auth": {
         "login": {
             "emailLabel": "E-posta",
