@@ -416,6 +416,8 @@
             "backgroundInfo": "You can close this window; the import will continue in the background.",
             "successTitle": "Congratulations!",
             "successMessage": "{{count}} movies have been successfully imported to your profile.",
+            "successDetailed": "{{watched}} movies added to watch history, {{watchlist}} movies added to your watchlist.",
+            "successWatchlistOnly": "{{watchlist}} movies added to your watchlist.",
             "skippedNotice": "{{count}} movies could not be found on TMDb and were skipped.",
             "failedMoviesTitle": "Unsaved Movies ({{count}})",
             "failedMoviesDesc": "The following movies could not be added because they were not found on TMDb or an error occurred:",

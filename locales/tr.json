@@ -416,6 +416,8 @@
             "backgroundInfo": "Bu pencereyi kapatabilirsiniz; aktarım işlemi arka planda devam eder.",
             "successTitle": "Tebrikler!",
             "successMessage": "{{count}} film başarıyla profilinize aktarıldı.",
+            "successDetailed": "{{watched}} film izleme geçmişinize, {{watchlist}} film izleme listenize eklendi.",
+            "successWatchlistOnly": "{{watchlist}} film izleme listenize eklendi.",
             "skippedNotice": "{{count}} film TMDb'de bulunamadığı için atlandı.",
             "failedMoviesTitle": "Kaydedilemeyen Filmler ({{count}})",
             "failedMoviesDesc": "Aşağıdaki filmler TMDb'de bulunamadığı veya bir sorun oluştuğu için eklenemedi:",

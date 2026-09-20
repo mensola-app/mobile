@@ -83,6 +83,8 @@ export default function ImportLetterboxdModal({ isVisible, onClose, onSuccess }:
                         queryClient.invalidateQueries({ queryKey: ["profile"] });
                         queryClient.invalidateQueries({ queryKey: ["movies"] });
                         queryClient.invalidateQueries({ queryKey: ["user"] });
+                        queryClient.invalidateQueries({ queryKey: ["watchlist"] });
+                        queryClient.invalidateQueries({ queryKey: ["movieLists"] });
                         onSuccess?.();
                     } else if (data.status === "failed") {
                         stopPolling();
@@ -438,9 +440,23 @@ export default function ImportLetterboxdModal({ isVisible, onClose, onSuccess }:
                         </Text>
 
                         <Text style={styles.successMessage}>
-                            {t("settings.letterboxdImport.successMessage", {
-                                count: progressData?.successCount ?? progressData?.totalItems ?? 0,
-                            })}
+                            {(() => {
+                                const watched = progressData?.watchedCount ?? 0;
+                                const watchlist = progressData?.watchlistCount ?? 0;
+                                const count = progressData?.successCount ?? progressData?.totalItems ?? 0;
+
+                                if (watched > 0 && watchlist > 0) {
+                                    return t("settings.letterboxdImport.successDetailed", {
+                                        watched,
+                                        watchlist,
+                                    });
+                                } else if (watchlist > 0 && watched === 0) {
+                                    return t("settings.letterboxdImport.successWatchlistOnly", {
+                                        watchlist,
+                                    });
+                                }
+                                return t("settings.letterboxdImport.successMessage", { count });
+                            })()}
                         </Text>
 
                         {progressData?.errors && progressData.errors.length > 0 ? (
