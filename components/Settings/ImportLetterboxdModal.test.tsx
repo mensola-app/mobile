@@ -273,4 +273,51 @@ describe("ImportLetterboxdModal", () => {
             expect(getByText("settings.letterboxdImport.successDetailed")).toBeTruthy();
         });
     });
+
+    it("renders breakdown with lists and displays public lists notice when lists are imported", async () => {
+        (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValueOnce({
+            canceled: false,
+            assets: [{ name: "letterboxd.zip", uri: "file:///export.zip", size: 2048 }],
+        });
+
+        (ImportService.uploadLetterboxdZip as jest.Mock).mockResolvedValueOnce({
+            jobId: "job-lists-test",
+            status: "queued",
+            totalItems: 17,
+        });
+
+        (ImportService.getImportProgress as jest.Mock).mockResolvedValue({
+            jobId: "job-lists-test",
+            userId: "u1",
+            status: "completed",
+            totalItems: 17,
+            processedItems: 17,
+            successCount: 17,
+            failedCount: 0,
+            watchedCount: 10,
+            watchlistCount: 5,
+            listsCount: 2,
+            createdAt: "2026-09-20T12:00:00Z",
+            updatedAt: "2026-09-20T12:00:10Z",
+        });
+
+        const { getByText } = render(
+            <ImportLetterboxdModal
+                isVisible={true}
+                onClose={mockOnClose}
+                onSuccess={mockOnSuccess}
+            />,
+        );
+
+        const selectBtn = getByText("settings.letterboxdImport.selectZipButton");
+        await act(async () => {
+            fireEvent.press(selectBtn);
+        });
+
+        await waitFor(() => {
+            expect(getByText("settings.letterboxdImport.successTitle")).toBeTruthy();
+            expect(getByText("settings.letterboxdImport.successDetailedWithLists")).toBeTruthy();
+            expect(getByText("settings.letterboxdImport.listsPublicNotice")).toBeTruthy();
+        });
+    });
 });

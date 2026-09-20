@@ -22,6 +22,7 @@ export interface ImportJobProgress {
     failedCount: number;
     watchedCount?: number;
     watchlistCount?: number;
+    listsCount?: number;
     errors?: ImportFailedItem[];
     createdAt: string;
     updatedAt: string;

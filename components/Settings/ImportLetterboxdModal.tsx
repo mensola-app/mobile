@@ -443,9 +443,30 @@ export default function ImportLetterboxdModal({ isVisible, onClose, onSuccess }:
                             {(() => {
                                 const watched = progressData?.watchedCount ?? 0;
                                 const watchlist = progressData?.watchlistCount ?? 0;
+                                const lists = progressData?.listsCount ?? 0;
                                 const count = progressData?.successCount ?? progressData?.totalItems ?? 0;
 
-                                if (watched > 0 && watchlist > 0) {
+                                if (watched > 0 && watchlist > 0 && lists > 0) {
+                                    return t("settings.letterboxdImport.successDetailedWithLists", {
+                                        watched,
+                                        watchlist,
+                                        lists,
+                                    });
+                                } else if (watched > 0 && lists > 0) {
+                                    return t("settings.letterboxdImport.successWatchedAndLists", {
+                                        watched,
+                                        lists,
+                                    });
+                                } else if (watchlist > 0 && lists > 0) {
+                                    return t("settings.letterboxdImport.successWatchlistAndLists", {
+                                        watchlist,
+                                        lists,
+                                    });
+                                } else if (lists > 0 && watched === 0 && watchlist === 0) {
+                                    return t("settings.letterboxdImport.successListsOnly", {
+                                        lists,
+                                    });
+                                } else if (watched > 0 && watchlist > 0) {
                                     return t("settings.letterboxdImport.successDetailed", {
                                         watched,
                                         watchlist,
@@ -458,6 +479,15 @@ export default function ImportLetterboxdModal({ isVisible, onClose, onSuccess }:
                                 return t("settings.letterboxdImport.successMessage", { count });
                             })()}
                         </Text>
+
+                        {(progressData?.listsCount ?? 0) > 0 && (
+                            <View style={styles.listsNoticeBox}>
+                                <Ionicons name="information-circle-outline" size={18} color={Colors.primary} />
+                                <Text style={styles.listsNoticeText}>
+                                    {t("settings.letterboxdImport.listsPublicNotice")}
+                                </Text>
+                            </View>
+                        )}
 
                         {progressData?.errors && progressData.errors.length > 0 ? (
                             <View style={styles.failedMoviesContainer}>
