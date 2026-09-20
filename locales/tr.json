@@ -382,6 +382,11 @@
                 "is-private": "Gizli Profil",
                 "is-private-desc": "Sadece onaylı takipçileriniz listelerinizi görebilir"
             },
+            "import": {
+                "title": "Veri ve İçe Aktarma",
+                "letterboxd": "Letterboxd'dan İçe Aktar",
+                "letterboxd-desc": "İzleme geçmişi, puanlar ve incelemeler"
+            },
             "about": {
                 "title": "YASAL & HAKKINDA",
                 "aboutMensola": "mensola Hakkında",
@@ -394,6 +399,33 @@
                 "delete-account": "Hesabı Sil",
                 "delete-account-desc": "Hesabınızı ve tüm verilerinizi kalıcı olarak silin"
             }
+        },
+        "letterboxdImport": {
+            "title": "Letterboxd'dan İçe Aktar",
+            "subtitle": "İzleme geçmişinizi, puanlarınızı ve incelemelerinizi Mensola'ya aktarın.",
+            "guideTitle": "Nasıl Yapılır?",
+            "step1": "Aşağıdaki butona dokunarak Letterboxd veri dışa aktarma sayfasını açın.",
+            "step2": "Sayfadaki 'Export Your Data' butonuna dokunun ve ZIP dosyasını indirin.",
+            "step3": "İndirdiğiniz ZIP dosyasını seçerek yüklemeyi başlatın.",
+            "openLetterboxd": "Letterboxd Sayfasını Aç",
+            "selectZipButton": "ZIP Dosyasını Seç",
+            "uploading": "Dosya yükleniyor...",
+            "processingTitle": "İçe Aktarma Devam Ediyor",
+            "progressText": "%{{percent}} tamamlandı ({{current}} / {{total}} Film)",
+            "backgroundButton": "Arka Plana Al",
+            "backgroundInfo": "Bu pencereyi kapatabilirsiniz; aktarım işlemi arka planda devam eder.",
+            "successTitle": "Tebrikler!",
+            "successMessage": "{{count}} film başarıyla profilinize aktarıldı.",
+            "skippedNotice": "{{count}} film TMDb'de bulunamadığı için atlandı.",
+            "failedMoviesTitle": "Kaydedilemeyen Filmler ({{count}})",
+            "failedMoviesDesc": "Aşağıdaki filmler TMDb'de bulunamadığı veya bir sorun oluştuğu için eklenemedi:",
+            "notFoundOnTmdb": "TMDb'de bulunamadı",
+            "doneButton": "Harika",
+            "errorTitle": "Hata",
+            "invalidZip": "Yalnızca .zip uzantılı arşiv dosyaları desteklenir.",
+            "fileTooLarge": "Dosya boyutu 50MB'dan büyük olamaz.",
+            "genericError": "İçe aktarma sırasında bir hata oluştu.",
+            "retryText": "Yeniden Dene"
         },
         "about": {
             "version": "Sürüm {{version}} (Beta)",

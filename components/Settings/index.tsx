@@ -9,6 +9,7 @@ import { getLocales } from "expo-localization";
 import { ListGroup } from "../ListGroup";
 import BottomSheet from "../BottomSheet";
 import SettingsItem from "./SettingsItem";
+import ImportLetterboxdModal from "./ImportLetterboxdModal";
 import { SettingSection, OptionsSetting } from "./types";
 import { styles } from "./styles";
 import { Colors } from "@/constants/colors";
@@ -110,6 +111,20 @@ const getSettingsConfig = (t: any): SettingSection[] => [
         ],
     },
     {
+        id: "import",
+        title: t("settings.menu.import.title"),
+        items: [
+            {
+                id: "letterboxd-import",
+                type: "action",
+                label: t("settings.menu.import.letterboxd"),
+                description: t("settings.menu.import.letterboxd-desc"),
+                actionKey: "IMPORT_LETTERBOXD",
+                variant: "default",
+            },
+        ],
+    },
+    {
         id: "about",
         title: t("settings.menu.about.title"),
         items: [
@@ -159,6 +174,7 @@ export default function SettingsView() {
     const { t, i18n } = useTranslation();
     const [activeOptionsSetting, setActiveOptionsSetting] = useState<OptionsSetting | null>(null);
     const [isSheetVisible, setIsSheetVisible] = useState(false);
+    const [isImportModalVisible, setIsImportModalVisible] = useState(false);
 
     // Compute sections configurations dynamically using state, global user, and Zustand store values
     const sections: SettingSection[] = getSettingsConfig(t).map((section) => {
@@ -266,7 +282,9 @@ export default function SettingsView() {
     };
 
     const handleActionPress = (actionKey: string) => {
-        if (actionKey === "EXPORT_USER_DATA") {
+        if (actionKey === "IMPORT_LETTERBOXD") {
+            setIsImportModalVisible(true);
+        } else if (actionKey === "EXPORT_USER_DATA") {
             Alert.alert(
                 t("settings.alerts.exportData.title"),
                 t("settings.alerts.exportData.body"),
@@ -383,6 +401,11 @@ export default function SettingsView() {
                     </View>
                 )}
             </BottomSheet>
+
+            <ImportLetterboxdModal
+                isVisible={isImportModalVisible}
+                onClose={() => setIsImportModalVisible(false)}
+            />
         </View>
     );
 }

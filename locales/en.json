@@ -382,6 +382,11 @@
                 "is-private": "Private Profile",
                 "is-private-desc": "Only approved followers can see your lists"
             },
+            "import": {
+                "title": "Data & Import",
+                "letterboxd": "Import from Letterboxd",
+                "letterboxd-desc": "Watch history, ratings, and reviews"
+            },
             "about": {
                 "title": "LEGAL & ABOUT",
                 "aboutMensola": "About mensola",
@@ -394,6 +399,33 @@
                 "delete-account": "Delete Account",
                 "delete-account-desc": "Permanently delete your account and all data"
             }
+        },
+        "letterboxdImport": {
+            "title": "Import from Letterboxd",
+            "subtitle": "Import your watch history, ratings, and reviews to Mensola.",
+            "guideTitle": "How It Works",
+            "step1": "Tap the button below to open the Letterboxd data export page.",
+            "step2": "Tap 'Export Your Data' on the page and download your ZIP file.",
+            "step3": "Select the downloaded ZIP file to begin the import.",
+            "openLetterboxd": "Open Letterboxd Page",
+            "selectZipButton": "Select ZIP File",
+            "uploading": "Uploading file...",
+            "processingTitle": "Import in Progress",
+            "progressText": "{{percent}}% completed ({{current}} / {{total}} Movies)",
+            "backgroundButton": "Run in Background",
+            "backgroundInfo": "You can close this window; the import will continue in the background.",
+            "successTitle": "Congratulations!",
+            "successMessage": "{{count}} movies have been successfully imported to your profile.",
+            "skippedNotice": "{{count}} movies could not be found on TMDb and were skipped.",
+            "failedMoviesTitle": "Unsaved Movies ({{count}})",
+            "failedMoviesDesc": "The following movies could not be added because they were not found on TMDb or an error occurred:",
+            "notFoundOnTmdb": "Not found on TMDb",
+            "doneButton": "Awesome",
+            "errorTitle": "Error",
+            "invalidZip": "Only .zip archive files are supported.",
+            "fileTooLarge": "File size cannot exceed 50MB.",
+            "genericError": "An error occurred during import.",
+            "retryText": "Try Again"
         },
         "about": {
             "version": "Version {{version}} (Beta)",
