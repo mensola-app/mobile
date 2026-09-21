@@ -385,7 +385,9 @@
             "import": {
                 "title": "Data & Import",
                 "letterboxd": "Import from Letterboxd",
-                "letterboxd-desc": "Watch history, ratings, and reviews"
+                "letterboxd-desc": "Watch history, ratings, and reviews",
+                "spotify": "Import from Spotify",
+                "spotify-desc": "Playlists and tracks"
             },
             "about": {
                 "title": "LEGAL & ABOUT",
@@ -399,6 +401,34 @@
                 "delete-account": "Delete Account",
                 "delete-account-desc": "Permanently delete your account and all data"
             }
+        },
+        "spotifyImport": {
+            "title": "Import from Spotify",
+            "subtitle": "Import your public Spotify playlists by pasting links into Mensola.",
+            "inputLabel": "Playlist Link or ID",
+            "inputPlaceholder": "https://open.spotify.com/playlist/... or ID",
+            "addButton": "Add",
+            "playlistsCount": "Playlists to Import ({{count}}/10)",
+            "publicNotice": "Your playlists are imported as public by default. You can adjust their privacy in playlist settings at any time.",
+            "importButton": "Start Import",
+            "processingTitle": "Importing Playlists",
+            "progressText": "{{percent}}% completed ({{current}} / {{total}} Playlists)",
+            "tracksImported": "{{count}} tracks imported",
+            "backgroundButton": "Run in Background",
+            "backgroundInfo": "You can close this window; the import will continue in the background.",
+            "successTitle": "Congratulations!",
+            "successMessage": "{{playlists}} playlist(s) and {{tracks}} track(s) have been successfully imported.",
+            "failedPlaylistsTitle": "Unsaved Playlists ({{count}})",
+            "failedPlaylistsDesc": "The following playlists could not be imported because they were not found or are private:",
+            "doneButton": "Awesome",
+            "errorTitle": "Error",
+            "emptyListError": "Please add at least one playlist link.",
+            "maxLimitReached": "You can import up to 10 playlists at once.",
+            "invalidPlaylistUrl": "Please enter a valid Spotify playlist link.",
+            "inputNotPlaylist": "Only playlist links are supported. Track, album, or artist links cannot be imported.",
+            "alreadyAdded": "This playlist is already in the list.",
+            "genericError": "An error occurred while importing playlists.",
+            "retryText": "Try Again"
         },
         "letterboxdImport": {
             "title": "Import from Letterboxd",

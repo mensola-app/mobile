@@ -385,7 +385,9 @@
             "import": {
                 "title": "Veri ve İçe Aktarma",
                 "letterboxd": "Letterboxd'dan İçe Aktar",
-                "letterboxd-desc": "İzleme geçmişi, puanlar ve incelemeler"
+                "letterboxd-desc": "İzleme geçmişi, puanlar ve incelemeler",
+                "spotify": "Spotify'dan İçe Aktar",
+                "spotify-desc": "Çalma listeleri ve şarkılar"
             },
             "about": {
                 "title": "YASAL & HAKKINDA",
@@ -399,6 +401,34 @@
                 "delete-account": "Hesabı Sil",
                 "delete-account-desc": "Hesabınızı ve tüm verilerinizi kalıcı olarak silin"
             }
+        },
+        "spotifyImport": {
+            "title": "Spotify'dan İçe Aktar",
+            "subtitle": "Spotify çalma listelerinizi bağlantı ekleyerek Mensola'ya aktarın.",
+            "inputLabel": "Çalma Listesi Bağlantısı veya ID",
+            "inputPlaceholder": "https://open.spotify.com/playlist/... veya ID",
+            "addButton": "Ekle",
+            "playlistsCount": "Eklenecek Çalma Listeleri ({{count}}/10)",
+            "publicNotice": "Listeleriniz varsayılan olarak herkese açık aktarılır. Liste ayarlarından dilediğiniz zaman gizlilik durumunu düzenleyebilirsiniz.",
+            "importButton": "İçe Aktarmayı Başlat",
+            "processingTitle": "Çalma Listeleri Aktarılıyor",
+            "progressText": "%{{percent}} tamamlandı ({{current}} / {{total}} Liste)",
+            "tracksImported": "{{count}} parça içe aktarıldı",
+            "backgroundButton": "Arka Plana Al",
+            "backgroundInfo": "Bu pencereyi kapatabilirsiniz; aktarım işlemi arka planda devam eder.",
+            "successTitle": "Tebrikler!",
+            "successMessage": "{{playlists}} çalma listesi ve {{tracks}} parça başarıyla profilinize aktarıldı.",
+            "failedPlaylistsTitle": "Aktarılamayan Çalma Listeleri ({{count}})",
+            "failedPlaylistsDesc": "Aşağıdaki listeler bulunamadığı veya gizli olduğu için aktarılamadı:",
+            "doneButton": "Harika",
+            "errorTitle": "Hata",
+            "emptyListError": "Lütfen en az bir çalma listesi bağlantısı ekleyin.",
+            "maxLimitReached": "En fazla 10 çalma listesi ekleyebilirsiniz.",
+            "invalidPlaylistUrl": "Lütfen geçerli bir Spotify çalma listesi bağlantısı girin.",
+            "inputNotPlaylist": "Yalnızca çalma listesi bağlantıları eklenebilir. Şarkı, albüm veya sanatçı bağlantıları desteklenmez.",
+            "alreadyAdded": "Bu çalma listesi zaten listeye eklendi.",
+            "genericError": "Çalma listeleri içe aktarılırken bir hata oluştu.",
+            "retryText": "Yeniden Dene"
         },
         "letterboxdImport": {
             "title": "Letterboxd'dan İçe Aktar",

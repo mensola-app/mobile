@@ -10,6 +10,7 @@ import { ListGroup } from "../ListGroup";
 import BottomSheet from "../BottomSheet";
 import SettingsItem from "./SettingsItem";
 import ImportLetterboxdModal from "./ImportLetterboxdModal";
+import ImportSpotifyModal from "./ImportSpotifyModal";
 import { SettingSection, OptionsSetting } from "./types";
 import { styles } from "./styles";
 import { Colors } from "@/constants/colors";
@@ -122,6 +123,14 @@ const getSettingsConfig = (t: any): SettingSection[] => [
                 actionKey: "IMPORT_LETTERBOXD",
                 variant: "default",
             },
+            {
+                id: "spotify-import",
+                type: "action",
+                label: t("settings.menu.import.spotify"),
+                description: t("settings.menu.import.spotify-desc"),
+                actionKey: "IMPORT_SPOTIFY",
+                variant: "default",
+            },
         ],
     },
     {
@@ -175,6 +184,7 @@ export default function SettingsView() {
     const [activeOptionsSetting, setActiveOptionsSetting] = useState<OptionsSetting | null>(null);
     const [isSheetVisible, setIsSheetVisible] = useState(false);
     const [isImportModalVisible, setIsImportModalVisible] = useState(false);
+    const [isSpotifyModalVisible, setIsSpotifyModalVisible] = useState(false);
 
     // Compute sections configurations dynamically using state, global user, and Zustand store values
     const sections: SettingSection[] = getSettingsConfig(t).map((section) => {
@@ -284,6 +294,8 @@ export default function SettingsView() {
     const handleActionPress = (actionKey: string) => {
         if (actionKey === "IMPORT_LETTERBOXD") {
             setIsImportModalVisible(true);
+        } else if (actionKey === "IMPORT_SPOTIFY") {
+            setIsSpotifyModalVisible(true);
         } else if (actionKey === "EXPORT_USER_DATA") {
             Alert.alert(
                 t("settings.alerts.exportData.title"),
@@ -405,6 +417,10 @@ export default function SettingsView() {
             <ImportLetterboxdModal
                 isVisible={isImportModalVisible}
                 onClose={() => setIsImportModalVisible(false)}
+            />
+            <ImportSpotifyModal
+                isVisible={isSpotifyModalVisible}
+                onClose={() => setIsSpotifyModalVisible(false)}
             />
         </View>
     );
