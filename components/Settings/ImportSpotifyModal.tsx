@@ -339,6 +339,7 @@ export default function ImportSpotifyModal({ isVisible, onClose, onSuccess }: Pr
                         <Text style={styles.addButtonText}>{t("settings.spotifyImport.addButton")}</Text>
                     </TouchableOpacity>
                 </View>
+                <Text style={styles.inputHintText}>{t("settings.spotifyImport.inputHint")}</Text>
             </View>
 
             {playlistUrls.length > 0 && (
