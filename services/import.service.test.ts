@@ -130,4 +130,45 @@ describe("ImportService", () => {
             expect(result).toEqual(mockProgress);
         });
     });
+
+    describe("importSpotifyPlaylists", () => {
+        it("should post playlist URLs and return queued job details", async () => {
+            const mockResponse = {
+                jobId: "spotify-job-456",
+                status: "queued",
+                totalItems: 2,
+                type: "spotify",
+            };
+
+            (client.post as jest.Mock).mockResolvedValueOnce({
+                success: true,
+                data: mockResponse,
+            });
+
+            const urls = [
+                "https://open.spotify.com/playlist/5XzIwoEzc7KWg250ua37Ew",
+                "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M",
+            ];
+
+            const result = await ImportService.importSpotifyPlaylists(urls);
+
+            expect(client.post).toHaveBeenCalledWith(
+                "/v1/imports/spotify",
+                { urls },
+                { auth: true },
+            );
+            expect(result).toEqual(mockResponse);
+        });
+
+        it("should throw error if API returns unsuccessful response", async () => {
+            (client.post as jest.Mock).mockResolvedValueOnce({
+                success: false,
+                message: "No valid playlists",
+            });
+
+            await expect(
+                ImportService.importSpotifyPlaylists(["https://open.spotify.com/playlist/invalid"]),
+            ).rejects.toBeDefined();
+        });
+    });
 });

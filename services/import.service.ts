@@ -79,4 +79,23 @@ export const ImportService = {
 
         return response.data;
     },
+
+    /**
+     * Imports Spotify playlists by sending public playlist URLs or IDs to the API.
+     */
+    importSpotifyPlaylists: async (urls: string[]): Promise<ImportResponseDto> => {
+        const response = await client.post<ApiResponse<ImportResponseDto>>(
+            `/v1/imports/spotify`,
+            { urls },
+            {
+                auth: true,
+            },
+        );
+
+        if (!response.success || !response.data) {
+            throw response || new Error("Failed to queue Spotify import");
+        }
+
+        return response.data;
+    },
 };
