@@ -420,6 +420,7 @@
             "successMessage": "{{playlists}} çalma listesi ve {{tracks}} parça başarıyla profilinize aktarıldı.",
             "failedPlaylistsTitle": "Aktarılamayan Çalma Listeleri ({{count}})",
             "failedPlaylistsDesc": "Aşağıdaki listeler bulunamadığı veya gizli olduğu için aktarılamadı:",
+            "playlistNotFound": "Spotify çalma listesi bulunamadı veya gizli.",
             "doneButton": "Harika",
             "errorTitle": "Hata",
             "emptyListError": "Lütfen en az bir çalma listesi bağlantısı ekleyin.",

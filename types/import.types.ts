@@ -14,6 +14,7 @@ export interface ImportFailedItem {
     playlist?: string;
     year?: number | null;
     error: string;
+    errorCode?: string;
 }
 
 export interface ImportJobProgress {

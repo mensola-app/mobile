@@ -438,6 +438,24 @@ export default function ImportSpotifyModal({ isVisible, onClose, onSuccess }: Pr
         );
     };
 
+    const renderFailedReason = (item: ImportFailedItem) => {
+        const err = item.error || "";
+        const code = item.errorCode || "";
+        if (
+            code === "PLAYLIST_NOT_FOUND" ||
+            err === "PLAYLIST_NOT_FOUND" ||
+            err === "Spotify çalma listesi bulunamadı veya gizli." ||
+            err === "Spotify playlist not found or is private." ||
+            err.toLowerCase().includes("bulunamadı") ||
+            err.toLowerCase().includes("not found") ||
+            err.toLowerCase().includes("gizli") ||
+            err.toLowerCase().includes("private")
+        ) {
+            return t("settings.spotifyImport.playlistNotFound");
+        }
+        return err || t("settings.spotifyImport.genericError");
+    };
+
     const renderCompletedContent = () => {
         const playlists = progressData?.playlistsCount ?? progressData?.successCount ?? 0;
         const tracks = progressData?.tracksCount ?? 0;
@@ -472,7 +490,7 @@ export default function ImportSpotifyModal({ isVisible, onClose, onSuccess }: Pr
                                         <Text style={styles.failedItemName} numberOfLines={1}>
                                             {item.playlist || "Spotify Playlist"}
                                         </Text>
-                                        <Text style={styles.failedReason}>{item.error}</Text>
+                                        <Text style={styles.failedReason}>{renderFailedReason(item)}</Text>
                                     </View>
                                 </View>
                             ))}

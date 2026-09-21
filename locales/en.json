@@ -420,6 +420,7 @@
             "successMessage": "{{playlists}} playlist(s) and {{tracks}} track(s) have been successfully imported.",
             "failedPlaylistsTitle": "Unsaved Playlists ({{count}})",
             "failedPlaylistsDesc": "The following playlists could not be imported because they were not found or are private:",
+            "playlistNotFound": "Spotify playlist not found or is private.",
             "doneButton": "Awesome",
             "errorTitle": "Error",
             "emptyListError": "Please add at least one playlist link.",
