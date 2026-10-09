@@ -27,6 +27,13 @@ jest.mock("expo-router", () => ({
     }),
 }));
 
+jest.mock("@/hooks/auth/useGoogleLogin", () => ({
+    useGoogleLogin: () => ({
+        isLoading: false,
+        handleGoogleLogin: jest.fn(),
+    }),
+}));
+
 describe("SignupScreen Consent", () => {
     beforeEach(() => {
         jest.clearAllMocks();
