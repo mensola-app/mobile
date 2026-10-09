@@ -51,4 +51,17 @@ describe("TextField Component", () => {
 
         expect(mockOnChangeText).toHaveBeenCalledWith("mensola");
     });
+
+    it("should trigger onSubmitEditing when submitted", () => {
+        const mockOnSubmitEditing = jest.fn();
+        const { getByPlaceholderText } = render(
+            <TextField placeholder="Şifreniz" onSubmitEditing={mockOnSubmitEditing} returnKeyType="go" />
+        );
+
+        const input = getByPlaceholderText("Şifreniz");
+        fireEvent(input, "submitEditing");
+
+        expect(mockOnSubmitEditing).toHaveBeenCalled();
+        expect(input.props.returnKeyType).toBe("go");
+    });
 });

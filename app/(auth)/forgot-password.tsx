@@ -33,6 +33,8 @@ export default function ForgotPasswordScreen() {
                         value={email}
                         onChangeText={setEmail}
                         editable={!isLoading}
+                        returnKeyType="go"
+                        onSubmitEditing={handleForgotPassword}
                     />
                     <Button
                         label={t("auth.forgotPassword.submitButton")}

@@ -32,6 +32,8 @@ export default function VerifyResetTokenScreen() {
                         value={code}
                         onChangeText={setCode}
                         editable={!isLoading}
+                        returnKeyType="done"
+                        onSubmitEditing={handleVerifyToken}
                     />
                     <Button
                         label={t("auth.verifyToken.submitButton")}

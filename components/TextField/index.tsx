@@ -1,9 +1,9 @@
+import { forwardRef, useState } from "react";
 import { Text, TextInput } from "react-native";
 
 import { styles } from "./styles";
 import { ITextFieldProps, TextFieldType } from "./types";
 import { Colors } from "@/constants/colors";
-import { useState } from "react";
 
 const typePresets: Record<TextFieldType, Partial<ITextFieldProps>> = {
     text: {},
@@ -12,7 +12,10 @@ const typePresets: Record<TextFieldType, Partial<ITextFieldProps>> = {
     number: { keyboardType: "number-pad" },
 };
 
-export default function TextField({ label, type = "text", error, style, ...rest }: ITextFieldProps) {
+const TextField = forwardRef<TextInput, ITextFieldProps>(function TextField(
+    { label, type = "text", error, style, ...rest },
+    ref
+) {
     const presetProps = typePresets[type];
     const [isFocused, setIsFocused] = useState(false);
 
@@ -20,6 +23,7 @@ export default function TextField({ label, type = "text", error, style, ...rest 
         <>
             {label && <Text style={styles.label}>{label}</Text>}
             <TextInput
+                ref={ref}
                 style={[
                     styles.textField,
                     isFocused && { borderColor: Colors.primary },
@@ -28,8 +32,14 @@ export default function TextField({ label, type = "text", error, style, ...rest 
                     style,
                 ]}
                 placeholderTextColor={Colors.textMuted}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
+                onFocus={(e) => {
+                    setIsFocused(true);
+                    rest.onFocus?.(e);
+                }}
+                onBlur={(e) => {
+                    setIsFocused(false);
+                    rest.onBlur?.(e);
+                }}
                 autoCapitalize="none"
                 autoCorrect={false}
                 {...presetProps}
@@ -37,4 +47,6 @@ export default function TextField({ label, type = "text", error, style, ...rest 
             />
         </>
     );
-}
+});
+
+export default TextField;

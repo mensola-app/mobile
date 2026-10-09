@@ -33,6 +33,8 @@ export default function ResetPasswordScreen() {
                         value={newPassword}
                         onChangeText={setNewPassword}
                         editable={!isLoading}
+                        returnKeyType="go"
+                        onSubmitEditing={handleResetPassword}
                     />
                     <Button
                         label={t("auth.resetPassword.submitButton")}

@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform, Alert, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -18,6 +18,8 @@ export default function LoginScreen() {
 
     const { email, setEmail, password, setPassword, isLoading, error, handleLogin } = useLogin();
     const { isLoading: isGoogleLoading, handleGoogleLogin } = useGoogleLogin();
+
+    const passwordInputRef = useRef<TextInput>(null);
 
     const isBusy = isLoading || isGoogleLoading;
 
@@ -41,14 +43,20 @@ export default function LoginScreen() {
                         value={email}
                         onChangeText={setEmail}
                         editable={!isBusy}
+                        returnKeyType="next"
+                        onSubmitEditing={() => passwordInputRef.current?.focus()}
+                        blurOnSubmit={false}
                     />
                     <TextField
+                        ref={passwordInputRef}
                         label={t("auth.login.passwordLabel")}
                         type="password"
                         placeholder={t("auth.login.passwordPlaceholder")}
                         value={password}
                         onChangeText={setPassword}
                         editable={!isBusy}
+                        returnKeyType="go"
+                        onSubmitEditing={handleLogin}
                     />
                     <Button
                         label={t("auth.login.submitButton")}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
     StyleSheet,
     Text,
@@ -9,6 +9,7 @@ import {
     Alert,
     ScrollView,
     Linking,
+    TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -42,6 +43,10 @@ export default function SignupScreen() {
     const { isLoading: isGoogleLoading, handleGoogleLogin } = useGoogleLogin();
     const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
 
+    const emailInputRef = useRef<TextInput>(null);
+    const passwordInputRef = useRef<TextInput>(null);
+    const confirmPasswordInputRef = useRef<TextInput>(null);
+
     const isBusy = isLoading || isGoogleLoading;
 
     useEffect(() => {
@@ -73,30 +78,44 @@ export default function SignupScreen() {
                             value={username}
                             onChangeText={setUsername}
                             editable={!isLoading}
+                            returnKeyType="next"
+                            onSubmitEditing={() => emailInputRef.current?.focus()}
+                            blurOnSubmit={false}
                         />
                         <TextField
+                            ref={emailInputRef}
                             label={t("auth.signup.emailLabel")}
                             type="email"
                             placeholder={t("auth.signup.emailPlaceholder")}
                             value={email}
                             onChangeText={setEmail}
                             editable={!isLoading}
+                            returnKeyType="next"
+                            onSubmitEditing={() => passwordInputRef.current?.focus()}
+                            blurOnSubmit={false}
                         />
                         <TextField
+                            ref={passwordInputRef}
                             label={t("auth.signup.passwordLabel")}
                             type="password"
                             placeholder={t("auth.signup.passwordPlaceholder")}
                             value={password}
                             onChangeText={setPassword}
                             editable={!isLoading}
+                            returnKeyType="next"
+                            onSubmitEditing={() => confirmPasswordInputRef.current?.focus()}
+                            blurOnSubmit={false}
                         />
                         <TextField
+                            ref={confirmPasswordInputRef}
                             label={t("auth.signup.confirmPasswordLabel")}
                             type="password"
                             placeholder={t("auth.signup.confirmPasswordPlaceholder")}
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
                             editable={!isLoading}
+                            returnKeyType="go"
+                            onSubmitEditing={handleSubmit}
                         />
 
                         {/* Terms & Privacy Consent */}
