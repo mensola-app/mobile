@@ -31,6 +31,7 @@ export default function PlaylistDetailView({
     isRefetching,
     error,
     toggleLike,
+    toggleSave,
 }: IPlaylistDetailViewProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<"tracks" | "comments">("tracks");
@@ -126,6 +127,7 @@ export default function PlaylistDetailView({
                             tracks={tracks}
                             commentsCount={interactions.length}
                             toggleLike={toggleLike}
+                            toggleSave={toggleSave}
                             onCommentPress={() => setIsInteractionSheetOpen(true)}
                         />
                         <View style={styles.tabContainer}>

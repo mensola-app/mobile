@@ -3,6 +3,7 @@ import { PlaylistService } from "@/services/playlist.service";
 import { useInteracion } from "../shared/useInteraction";
 import { useDetailBase } from "../shared/useDetailBase";
 import { useListItems } from "../shared/useListItems";
+import { useBookmark } from "../shared/useBookmark";
 import { PlaylistDetails, PlaylistItemsResponseDataItem } from "@/types/playlist.types";
 import { PlaylistId } from "@/types/common.types";
 
@@ -20,6 +21,22 @@ export const usePlaylistDetails = (playlistId?: PlaylistId) => {
         getIsLiked: (d) => !!d.isLiked,
         getLikesCount: (d) => d.likesCount ?? 0,
         updateLike: (d, isLiked, count) => ({ ...d, isLiked, likesCount: count }),
+    });
+
+    const { toggleSave } = useBookmark<PlaylistDetails>({
+        targetId: playlistId,
+        targetType: "playlist",
+        targetDetails: playlistDetails || undefined,
+        setTargetDetails: (newIsSaved, newSavesCount) =>
+            setDetails((prev) =>
+                prev
+                    ? {
+                          ...prev,
+                          isSaved: newIsSaved,
+                          savesCount: typeof newSavesCount === "number" ? newSavesCount : prev.savesCount,
+                      }
+                    : prev,
+            ),
     });
 
     const {
@@ -71,6 +88,7 @@ export const usePlaylistDetails = (playlistId?: PlaylistId) => {
         loadMoreInteractions,
         hasNextInteractionsPage,
         isFetchingNextInteractionPage,
+        toggleSave,
         ...rest,
     };
 };

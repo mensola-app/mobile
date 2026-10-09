@@ -1,4 +1,4 @@
-import { InteractionItemResponse, UpsertInteractionRequest, UpsertInteractionSummary } from "@/types/interaction.types";
+import { InteractionItemResponse, UpsertInteractionSummary } from "@/types/interaction.types";
 import { PlaylistDetails } from "@/types/playlist.types";
 import { ITrack } from "@/types/track.types";
 import { FollowUsersResponseDataItem } from "@/types/user.types";
@@ -9,6 +9,7 @@ export interface IPlaylistHeroProps {
     tracks?: ITrack[];
     commentsCount?: number;
     toggleLike: () => void;
+    toggleSave?: () => void;
     onCommentPress?: () => void;
     onSharePress?: () => void;
 }
@@ -28,6 +29,7 @@ export interface IPlaylistDetailViewProps {
     error: string;
     refetchAll: () => void;
     toggleLike: () => void;
+    toggleSave?: () => void;
 }
 export interface IPlaylistOwnersBottomSheetProps {
     isVisible: boolean;

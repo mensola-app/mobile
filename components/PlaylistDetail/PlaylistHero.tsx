@@ -25,6 +25,7 @@ export default function PlaylistHero({
     tracks,
     commentsCount,
     toggleLike,
+    toggleSave,
     onCommentPress,
     onSharePress,
 }: IPlaylistHeroProps) {
@@ -40,6 +41,8 @@ export default function PlaylistHero({
     const othersCount = owners.length > 1 ? owners.length - 1 : 0;
     const ownerText = othersCount > 0 ? `${creatorName} ve ${othersCount} diğer yönetici` : creatorName;
     const likesCount = playlistDetails.likesCount || 0;
+
+    const isSaved = playlistDetails?.isSaved ?? false;
     const userRating = playlistDetails?.currentUserInteraction?.rating
         ? Number(playlistDetails.currentUserInteraction.rating)
         : 0;
@@ -176,12 +179,12 @@ export default function PlaylistHero({
                         </View>
 
                         <View style={styles.actionBar}>
-                            {/* Aktar */}
+                            {/* 1. Yer İmi (Kaydet) */}
                             <ActionButton
-                                icon="arrow-redo"
-                                isActive={false}
-                                activeColor={`${Colors.secondary}66`}
-                                onPress={() => {}}
+                                icon={isSaved ? "bookmark" : "bookmark-outline"}
+                                isActive={isSaved}
+                                activeColor={`${Colors.warning}66`}
+                                onPress={toggleSave}
                             />
 
                             {/* Paylaş */}
