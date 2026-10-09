@@ -26,7 +26,8 @@
                 "buildType": "app-bundle"
             },
             "env": {
-                "EXPO_PUBLIC_API_URL": "https://api.mensola.app"
+                "EXPO_PUBLIC_API_URL": "https://api.mensola.app",
+                "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "937877552131-oqa82ipblqi20sksm38sti5s4emalbe4.apps.googleusercontent.com"
             }
         }
     },
