@@ -108,6 +108,7 @@ export default function PlaylistDetailView({
     }
 
     const isTracksTab = activeTab === "tracks";
+    const totalTracksCount = playlistDetails?.songCount ?? tracks.length;
 
     return (
         <View style={styles.container}>
@@ -123,7 +124,7 @@ export default function PlaylistDetailView({
                     <>
                         <PlaylistHero
                             playlistDetails={playlistDetails}
-                            tracksCount={tracks.length}
+                            tracksCount={totalTracksCount}
                             tracks={tracks}
                             commentsCount={interactions.length}
                             toggleLike={toggleLike}
@@ -141,7 +142,7 @@ export default function PlaylistDetailView({
                                     color={isTracksTab ? "#1DB954" : "#8c8c8c"}
                                 />
                                 <Text style={[styles.tabText, isTracksTab && styles.activeTabText]}>
-                                    Şarkılar ({tracks.length})
+                                    Şarkılar ({totalTracksCount})
                                 </Text>
                             </TouchableOpacity>
 

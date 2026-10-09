@@ -168,7 +168,7 @@ export default function PlaylistHero({
                         <View style={styles.movieStats}>
                             <Badge
                                 icon={<Ionicons name="musical-note-outline" size={12} color="#FF8000" />}
-                                value={tracksCount}
+                                value={playlistDetails.songCount ?? tracksCount}
                             />
                             <Badge icon={<Ionicons name="heart" size={12} color="#FF8000" />} value={likesCount} />
                             <Badge icon={<Entypo name="text" size={12} color="#FF8000" />} value={commentsCount ?? 0} />

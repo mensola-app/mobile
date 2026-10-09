@@ -65,6 +65,20 @@ describe("MovieListHero Component", () => {
         expect(getByText("15")).toBeTruthy();
     });
 
+    it("should prioritize listDetails.movieCount over moviesCount prop for total count", () => {
+        const { getByText } = render(
+            <MovieListHero
+                listDetails={{ ...mockListDetails, movieCount: 50 } as any}
+                moviesCount={18}
+                commentsCount={8}
+                toggleLike={() => {}}
+                toggleSave={() => {}}
+            />
+        );
+
+        expect(getByText("50")).toBeTruthy();
+    });
+
     it("should trigger toggleSave and toggleLike when action buttons are pressed", () => {
         const toggleLikeMock = jest.fn();
         const toggleSaveMock = jest.fn();

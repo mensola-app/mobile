@@ -112,6 +112,7 @@ export default function MovieListDetailView({
     }
 
     const isMoviesTab = activeTab === "movies";
+    const totalMoviesCount = listDetails?.movieCount ?? movies.length;
 
     return (
         <View style={styles.container}>
@@ -127,7 +128,7 @@ export default function MovieListDetailView({
                     <>
                         <MovieListHero
                             listDetails={listDetails}
-                            moviesCount={movies.length}
+                            moviesCount={totalMoviesCount}
                             movies={movies}
                             commentsCount={interactions.length}
                             toggleLike={toggleLike}
@@ -141,7 +142,7 @@ export default function MovieListDetailView({
                                 activeOpacity={0.7}>
                                 <Ionicons name="film-outline" size={18} color={isMoviesTab ? "#1DB954" : "#8c8c8c"} />
                                 <Text style={[styles.tabText, isMoviesTab && styles.activeTabText]}>
-                                    Filmler ({movies.length})
+                                    Filmler ({totalMoviesCount})
                                 </Text>
                             </TouchableOpacity>
 

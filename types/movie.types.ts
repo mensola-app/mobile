@@ -63,6 +63,7 @@ export interface IMovieList {
     listType?: MovieListType;
     isPrivate?: boolean;
     previewImages?: string[];
+    movieCount?: number;
 }
 export type MovieListType = "custom" | "favorites" | "watchlist";
 export type MovieListDetails = IMovieList & {

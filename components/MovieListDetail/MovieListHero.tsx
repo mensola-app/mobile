@@ -161,7 +161,7 @@ export default function MovieListHero({
                         <View style={styles.movieStats}>
                             <Badge
                                 icon={<Ionicons name="film-outline" size={12} color="#FF8000" />}
-                                value={moviesCount}
+                                value={listDetails.movieCount ?? moviesCount}
                             />
                             <Badge icon={<Ionicons name="heart" size={12} color="#FF8000" />} value={likesCount} />
                             <Badge icon={<Entypo name="text" size={12} color="#FF8000" />} value={commentsCount ?? 0} />
