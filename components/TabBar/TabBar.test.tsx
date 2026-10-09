@@ -96,4 +96,43 @@ describe("TabBar Component", () => {
         const { getByTestId } = render(<TabBar {...propsWithBadge} />);
         expect(getByTestId("tab-badge-Settings")).toBeTruthy();
     });
+
+    it("tabBarStyle display none olduğunda null dönmeli", () => {
+        const propsWithHiddenTabBar = {
+            ...mockProps,
+            descriptors: {
+                "home-key": {
+                    options: {
+                        tabBarStyle: { display: "none" },
+                    },
+                },
+            },
+        } as unknown as BottomTabBarProps;
+
+        const { queryByTestId } = render(<TabBar {...propsWithHiddenTabBar} />);
+        expect(queryByTestId("tab-button-Home")).toBeNull();
+    });
+
+    it("odaklanılan alt ekran [statType] olduğunda null dönmeli", () => {
+        const propsWithNestedStatType = {
+            ...mockProps,
+            state: {
+                index: 0,
+                routes: [
+                    {
+                        key: "home-key",
+                        name: "Home",
+                        state: {
+                            index: 1,
+                            routes: [{ name: "index" }, { name: "[statType]" }],
+                        },
+                    },
+                    { key: "settings-key", name: "Settings" },
+                ],
+            },
+        } as unknown as BottomTabBarProps;
+
+        const { queryByTestId } = render(<TabBar {...propsWithNestedStatType} />);
+        expect(queryByTestId("tab-button-Home")).toBeNull();
+    });
 });

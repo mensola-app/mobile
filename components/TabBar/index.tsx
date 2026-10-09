@@ -1,6 +1,7 @@
 import { View } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 import { TABS_CONFIG } from "../../constants/tabs";
 import TabBarItem from "./TabBarItem";
@@ -8,6 +9,18 @@ import { styles } from "./styles";
 
 export default function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const insets = useSafeAreaInsets();
+
+    const focusedRoute = state.routes[state.index];
+    const focusedDescriptor = descriptors ? descriptors[focusedRoute.key] : undefined;
+    const focusedOptions = focusedDescriptor?.options;
+
+    const childRouteName = getFocusedRouteNameFromRoute(focusedRoute);
+    if (
+        childRouteName === "[statType]" ||
+        (focusedOptions?.tabBarStyle && (focusedOptions.tabBarStyle as any).display === "none")
+    ) {
+        return null;
+    }
 
     const dynamicBottomSpace = insets.bottom > 0 ? insets.bottom + 12 : 24;
 

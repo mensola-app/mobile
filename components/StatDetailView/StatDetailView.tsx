@@ -286,6 +286,7 @@ export default function StatDetailView<T extends StatType = StatType>({
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={renderFooter}
+                contentContainerStyle={styles.listContent}
             />
         </View>
     );

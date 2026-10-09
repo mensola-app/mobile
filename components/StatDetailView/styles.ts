@@ -8,6 +8,9 @@ export const styles = StyleSheet.create({
         backgroundColor: Colors.background,
         paddingTop: 20,
     },
+    listContent: {
+        paddingBottom: 40,
+    },
     rowWrapper: {
         gap: "3.5%",
         paddingHorizontal: "2%",
