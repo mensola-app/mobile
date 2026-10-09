@@ -30,6 +30,7 @@ export default function PlaylistDetailPage() {
         isRefetching,
         error,
         toggleLike,
+        toggleSave,
     } = usePlaylistDetails(playlistId);
 
     const isOwner = Boolean(
@@ -52,7 +53,7 @@ export default function PlaylistDetailPage() {
                                       id: "edit-playlist",
                                       icon: "create-outline",
                                       size: 22,
-                                      color: Colors.textPrimary,
+                                      color: Colors.textMuted,
                                       onPress: () => setIsEditSheetVisible(true),
                                   },
                               ]
@@ -75,6 +76,7 @@ export default function PlaylistDetailPage() {
                 error={error}
                 refetchAll={refetchAll}
                 toggleLike={toggleLike}
+                toggleSave={toggleSave}
                 submitInteraction={submitInteraction}
             />
 

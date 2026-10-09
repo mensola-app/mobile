@@ -52,7 +52,7 @@ export default function MovieListDetailPage() {
                                       id: "edit-movie-list",
                                       icon: "create-outline",
                                       size: 22,
-                                      color: Colors.textPrimary,
+                                      color: Colors.textMuted,
                                       onPress: () => setIsEditSheetVisible(true),
                                   },
                               ]
