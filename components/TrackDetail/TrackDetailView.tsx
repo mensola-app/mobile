@@ -56,7 +56,6 @@ export default function TrackDetailView({
     }
 
     if (error && !trackDetails) {
-        console.log(error);
         return (
             <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{error}</Text>
@@ -87,7 +86,7 @@ export default function TrackDetailView({
                     trackDetails={trackDetails}
                     toggleLike={toggleLike}
                     onCommentPress={() => setIsInteractionSheetOpen(true)}
-                    onPlayPress={() => console.log("Play pressed")}
+                    onPlayPress={() => {}}
                     onAddPress={() => setIsAddToPlaylistSheetOpen(true)}
                     commentsCount={commentsCount}
                 />

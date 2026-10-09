@@ -26,7 +26,7 @@ export default function TabsLayout() {
                 name="notifications"
                 options={{
                     title: t("tabs.notifications"),
-                    tabBarBadge: data?.hasPendingFollowRequest ? true : undefined,
+                    tabBarBadge: data?.hasPendingFollowRequest ? "•" : undefined,
                 }}
             />
             <Tabs.Screen name="me" options={{ title: t("tabs.profile") }} />

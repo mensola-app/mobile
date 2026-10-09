@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 
 import BottomSheet from "@/components/BottomSheet";
 import { ImportService } from "@/services/import.service";
-import { ImportJobProgress } from "@/types/import.types";
+import { ImportJobProgress, ImportFailedItem } from "@/types/import.types";
 import { Colors } from "@/constants/colors";
 import { styles } from "./ImportSpotifyModal.styles";
 

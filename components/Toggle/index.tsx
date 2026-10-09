@@ -5,6 +5,7 @@ import { Colors } from "@/constants/colors";
 interface ToggleProps {
     value: boolean;
     onValueChange: (value: boolean) => void;
+    disabled?: boolean;
     activeColor?: string;
     inactiveColor?: string;
     thumbColor?: string;
@@ -13,6 +14,7 @@ interface ToggleProps {
 export default function Toggle({
     value,
     onValueChange,
+    disabled = false,
     activeColor = Colors.primary,
     inactiveColor = Colors.border,
     thumbColor = Colors.textPrimary,
@@ -38,8 +40,11 @@ export default function Toggle({
     });
 
     return (
-        <TouchableWithoutFeedback onPress={() => onValueChange(!value)}>
-            <Animated.View style={[styles.container, { backgroundColor }]}>
+        <TouchableWithoutFeedback
+            disabled={disabled}
+            onPress={() => !disabled && onValueChange(!value)}
+        >
+            <Animated.View style={[styles.container, { backgroundColor, opacity: disabled ? 0.5 : 1 }]}>
                 <Animated.View
                     style={[
                         styles.thumb,

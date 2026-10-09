@@ -7,7 +7,7 @@ export interface SearchUserRowUser {
     id: string | number;
     username: string;
     fullname?: string | null;
-    avatar?: string | null;
+    avatar?: string | URL | null;
 }
 
 export interface SearchUserRowProps {
@@ -28,7 +28,7 @@ export default function SearchUserRow({ user, onPress, style, testID }: SearchUs
             testID={testID}
             accessibilityRole="button"
         >
-            <Avatar user={user} size={38} />
+            <Avatar url={user.avatar ?? undefined} name={user.fullname || user.username} size={38} />
             <View style={styles.nameContainer}>
                 {hasFullname ? (
                     <>

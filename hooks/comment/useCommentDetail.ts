@@ -206,10 +206,7 @@ export const useCommentDetail = (
         if (displayInteraction) {
             return {
                 isLiked: Boolean(displayInteraction.isLikedByMe),
-                likeCount:
-                    displayInteraction.likesCount ??
-                    displayInteraction.likeCount ??
-                    0,
+                likeCount: displayInteraction.likesCount ?? 0,
             };
         }
         return { isLiked: false, likeCount: 0 };

@@ -44,7 +44,6 @@ const useLogin = () => {
 
             router.replace("/home");
         } catch (error) {
-            console.log(error);
             if (isApiError(error)) {
                 if (error.error?.code === "ACCOUNT_SOFT_DELETED") {
                     Alert.alert(
