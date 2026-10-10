@@ -1,20 +1,53 @@
 import { View } from "react-native";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 import { TABS_CONFIG } from "../../constants/tabs";
 import TabBarItem from "./TabBarItem";
 import { styles } from "./styles";
 
-export default function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+interface TabBarProps {
+    state: {
+        index: number;
+        routes: Array<{
+            key: string;
+            name: string;
+            state?: any;
+            params?: any;
+        }>;
+    };
+    descriptors?: Record<string, {
+        options?: {
+            tabBarBadge?: any;
+            tabBarStyle?: any;
+            [key: string]: any;
+        };
+    }>;
+    navigation: {
+        emit: (event: any) => any;
+        navigate: (name: string) => void;
+    };
+}
+
+function getActiveChildRoute(route: any): any {
+    if (!route) return undefined;
+    if (route.state) {
+        const state = route.state;
+        const index = typeof state.index === "number" ? state.index : (state.routes?.length ?? 1) - 1;
+        const child = state.routes?.[index];
+        return child ? (getActiveChildRoute(child) ?? child) : route;
+    }
+    return route;
+}
+
+export default function TabBar({ state, descriptors, navigation }: TabBarProps) {
     const insets = useSafeAreaInsets();
 
     const focusedRoute = state.routes[state.index];
     const focusedDescriptor = descriptors ? descriptors[focusedRoute.key] : undefined;
     const focusedOptions = focusedDescriptor?.options;
 
-    const childRouteName = getFocusedRouteNameFromRoute(focusedRoute);
+    const activeChild = getActiveChildRoute(focusedRoute);
+    const childRouteName = activeChild?.name;
     if (
         childRouteName === "[statType]" ||
         (focusedOptions?.tabBarStyle && (focusedOptions.tabBarStyle as any).display === "none")

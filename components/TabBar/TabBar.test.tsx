@@ -1,7 +1,6 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 import TabBar from "./index";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 jest.mock("react-native-safe-area-context", () => ({
     useSafeAreaInsets: () => ({ bottom: 20, top: 0, left: 0, right: 0 })
@@ -30,7 +29,7 @@ describe("TabBar Component", () => {
             emit: mockEmit,
             navigate: mockNavigate
         }
-    } as unknown as BottomTabBarProps;
+    } as any;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -91,7 +90,7 @@ describe("TabBar Component", () => {
                     },
                 },
             },
-        } as unknown as BottomTabBarProps;
+        } as any;
 
         const { getByTestId } = render(<TabBar {...propsWithBadge} />);
         expect(getByTestId("tab-badge-Settings")).toBeTruthy();
@@ -107,7 +106,7 @@ describe("TabBar Component", () => {
                     },
                 },
             },
-        } as unknown as BottomTabBarProps;
+        } as any;
 
         const { queryByTestId } = render(<TabBar {...propsWithHiddenTabBar} />);
         expect(queryByTestId("tab-button-Home")).toBeNull();
@@ -130,7 +129,7 @@ describe("TabBar Component", () => {
                     { key: "settings-key", name: "Settings" },
                 ],
             },
-        } as unknown as BottomTabBarProps;
+        } as any;
 
         const { queryByTestId } = render(<TabBar {...propsWithNestedStatType} />);
         expect(queryByTestId("tab-button-Home")).toBeNull();
