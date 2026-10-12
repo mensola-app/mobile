@@ -199,8 +199,12 @@
                 "editButton": "Edit",
                 "loading": "Loading history...",
                 "empty": "No watch records yet.",
+                "editSection": "Edit Record",
+                "update": "Update",
+                "cancelEdit": "Cancel",
                 "errorLoad": "Error loading watch history.",
                 "errorAdd": "Error adding record.",
+                "errorUpdate": "Error updating record.",
                 "errorDelete": "Error deleting record."
             }
         },

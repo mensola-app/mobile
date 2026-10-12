@@ -129,7 +129,7 @@ export default function MovieHero({
                 const response = await markAsWatched(movie.id, undefined, isoDate);
                 if (response?.data) {
                     setIsWatched?.(true);
-                    onShowWatchedToast?.();
+                    onShowWatchedToast?.(response.data as WatchedMovie);
                 }
             } catch (e) {
                 // hook içinde yönetiliyor

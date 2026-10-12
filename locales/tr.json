@@ -199,8 +199,12 @@
                 "editButton": "Düzenle",
                 "loading": "Geçmiş yükleniyor...",
                 "empty": "Henüz izleme kaydı yok.",
+                "editSection": "Kaydı Düzenle",
+                "update": "Güncelle",
+                "cancelEdit": "Vazgeç",
                 "errorLoad": "Geçmiş yüklenirken bir hata oluştu.",
                 "errorAdd": "Kayıt eklenirken bir hata oluştu.",
+                "errorUpdate": "Kayıt güncellenirken bir hata oluştu.",
                 "errorDelete": "Kayıt silinirken bir hata oluştu."
             }
         },

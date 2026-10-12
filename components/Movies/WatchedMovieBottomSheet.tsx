@@ -16,7 +16,9 @@ interface WatchedMovieBottomSheetProps {
     onClose: () => void;
     movieId?: MovieId;
     movieTitle?: string;
+    initialEditingRecordId?: WatchedMovieId | null;
     onAdded: (record: WatchedMovie) => void;
+    onUpdated?: (record: WatchedMovie) => void;
     onDeleted: (watchedMovieId: WatchedMovieId, remainingCount: number) => void;
 }
 
@@ -30,7 +32,9 @@ export default function WatchedMovieBottomSheet({
     onClose,
     movieId,
     movieTitle,
+    initialEditingRecordId,
     onAdded,
+    onUpdated,
     onDeleted,
 }: WatchedMovieBottomSheetProps) {
     const { t, i18n } = useTranslation();
@@ -40,14 +44,17 @@ export default function WatchedMovieBottomSheet({
     const [showDatePicker, setShowDatePicker] = useState<boolean>(Platform.OS === "ios");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const [editingRecord, setEditingRecord] = useState<WatchedMovie | null>(null);
+
     const [watchedHistory, setWatchedHistory] = useState<WatchedMovie[]>([]);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
     const [historyError, setHistoryError] = useState("");
 
-    const { markAsWatched, deleteWatchedEntry, getWatchedHistoryByMovieId } = useWatched(movieId);
+    const { markAsWatched, updateWatchedAt, deleteWatchedEntry, getWatchedHistoryByMovieId } = useWatched(movieId);
 
     useEffect(() => {
         if (isVisible && movieId) {
+            setEditingRecord(null);
             setSelectedDate(new Date());
             if (Platform.OS !== "ios") {
                 setShowDatePicker(false);
@@ -63,6 +70,17 @@ export default function WatchedMovieBottomSheet({
         try {
             const data = await getWatchedHistoryByMovieId(movieId);
             setWatchedHistory(data);
+
+            if (initialEditingRecordId) {
+                const target = data.find((h: WatchedMovie) => h.id === initialEditingRecordId) || data[0];
+                if (target) {
+                    setEditingRecord(target);
+                    setSelectedDate(new Date(target.watchedAt));
+                    if (Platform.OS === "android") {
+                        setShowDatePicker(true);
+                    }
+                }
+            }
         } catch (error) {
             setHistoryError(t("movies.detail.watchedHistory.errorLoad"));
         } finally {
@@ -79,6 +97,22 @@ export default function WatchedMovieBottomSheet({
         }
     };
 
+    const startEditing = (record: WatchedMovie) => {
+        setEditingRecord(record);
+        setSelectedDate(new Date(record.watchedAt));
+        if (Platform.OS === "android") {
+            setShowDatePicker(true);
+        }
+    };
+
+    const cancelEditing = () => {
+        setEditingRecord(null);
+        setSelectedDate(new Date());
+        if (Platform.OS === "android") {
+            setShowDatePicker(false);
+        }
+    };
+
     const handleAddNew = async () => {
         if (!movieId) return;
         setIsSubmitting(true);
@@ -89,9 +123,32 @@ export default function WatchedMovieBottomSheet({
                 const newRecord = response.data as WatchedMovie;
                 setWatchedHistory((prev) => [newRecord, ...prev]);
                 onAdded(newRecord);
+                setSelectedDate(new Date());
             }
         } catch (e) {
-            // hook içinde yönetiliyor, alert veya toast ile gösterilebilir
+            // hook içinde yönetiliyor
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleUpdate = async () => {
+        if (!editingRecord) return;
+        setIsSubmitting(true);
+        try {
+            const isoDate = selectedDate.toISOString();
+            const response = await updateWatchedAt(editingRecord.id as WatchedMovieId, isoDate);
+            const updatedRecord: WatchedMovie = response?.data
+                ? (response.data as WatchedMovie)
+                : { ...editingRecord, watchedAt: isoDate };
+
+            setWatchedHistory((prev) =>
+                prev.map((item) => (item.id === editingRecord.id ? { ...item, watchedAt: isoDate } : item))
+            );
+            onUpdated?.(updatedRecord);
+            cancelEditing();
+        } catch (e) {
+            // hook içinde yönetiliyor
         } finally {
             setIsSubmitting(false);
         }
@@ -112,6 +169,9 @@ export default function WatchedMovieBottomSheet({
                     onPress: async () => {
                         try {
                             await deleteWatchedEntry(record.id as WatchedMovieId, () => {
+                                if (editingRecord?.id === record.id) {
+                                    cancelEditing();
+                                }
                                 setWatchedHistory((prev) => prev.filter((h) => h.id !== record.id));
                                 onDeleted(record.id as WatchedMovieId, watchedHistory.length - 1);
                             });
@@ -144,22 +204,57 @@ export default function WatchedMovieBottomSheet({
                         <Text style={styles.errorText}>{historyError}</Text>
                     ) : hasHistory ? (
                         <>
-                            {watchedHistory.map((record) => (
-                                <View key={record.id} style={styles.historyRow}>
-                                    <View style={styles.historyLeft}>
-                                        <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
-                                        <Text style={styles.historyDate}>
-                                            {formatDate(record.watchedAt, currentLocale)}
-                                        </Text>
+                            {watchedHistory.map((record) => {
+                                const isBeingEdited = editingRecord?.id === record.id;
+                                return (
+                                    <View
+                                        key={record.id}
+                                        style={[
+                                            styles.historyRow,
+                                            isBeingEdited && styles.historyRowActive,
+                                        ]}>
+                                        <View style={styles.historyLeft}>
+                                            <Ionicons
+                                                name={isBeingEdited ? "pencil" : "checkmark-circle"}
+                                                size={20}
+                                                color={isBeingEdited ? Colors.primary : Colors.success}
+                                            />
+                                            <View>
+                                                <Text
+                                                    style={[
+                                                        styles.historyDate,
+                                                        isBeingEdited && styles.historyDateActive,
+                                                    ]}>
+                                                    {formatDate(record.watchedAt, currentLocale)}
+                                                </Text>
+                                                {isBeingEdited ? (
+                                                    <Text style={styles.editingBadge}>
+                                                        {t("movies.detail.watchedHistory.editSection")}
+                                                    </Text>
+                                                ) : null}
+                                            </View>
+                                        </View>
+                                        <View style={styles.historyActions}>
+                                            <TouchableOpacity
+                                                onPress={() => (isBeingEdited ? cancelEditing() : startEditing(record))}
+                                                style={styles.actionBtn}
+                                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                                                <Ionicons
+                                                    name={isBeingEdited ? "close" : "pencil-outline"}
+                                                    size={18}
+                                                    color={isBeingEdited ? Colors.textPrimary : Colors.textSecondary}
+                                                />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={() => handleDelete(record)}
+                                                style={styles.deleteBtn}
+                                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                                                <Ionicons name="trash-outline" size={18} color={Colors.danger} />
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
-                                    <TouchableOpacity
-                                        onPress={() => handleDelete(record)}
-                                        style={styles.deleteBtn}
-                                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                                        <Ionicons name="trash-outline" size={18} color={Colors.danger} />
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
+                                );
+                            })}
                             <View style={styles.divider} />
                         </>
                     ) : (
@@ -170,9 +265,13 @@ export default function WatchedMovieBottomSheet({
                     )}
                 </View>
 
-                {/* Yeni Kayıt Ekle */}
-                <View style={styles.addSection}>
-                    <Text style={styles.sectionTitle}>{t("movies.detail.watchedHistory.addSection")}</Text>
+                {/* Form Alanı (Yeni Ekle veya Düzenle) */}
+                <View style={styles.formSection}>
+                    <Text style={styles.sectionTitle}>
+                        {editingRecord
+                            ? t("movies.detail.watchedHistory.editSection")
+                            : t("movies.detail.watchedHistory.addSection")}
+                    </Text>
                     <Text style={styles.dateLabel}>{t("movies.detail.watchedHistory.watchedDate")}</Text>
 
                     {Platform.OS === "android" && !showDatePicker && (
@@ -196,12 +295,29 @@ export default function WatchedMovieBottomSheet({
                         />
                     )}
 
-                    <Button
-                        label={t("movies.detail.watchedHistory.save")}
-                        onPress={handleAddNew}
-                        isLoading={isSubmitting}
-                        style={styles.addButton}
-                    />
+                    {editingRecord ? (
+                        <View style={styles.buttonRow}>
+                            <Button
+                                label={t("movies.detail.watchedHistory.cancelEdit")}
+                                onPress={cancelEditing}
+                                style={styles.cancelButton}
+                                labelStyle={styles.cancelButtonText}
+                            />
+                            <Button
+                                label={t("movies.detail.watchedHistory.update")}
+                                onPress={handleUpdate}
+                                isLoading={isSubmitting}
+                                style={styles.submitButton}
+                            />
+                        </View>
+                    ) : (
+                        <Button
+                            label={t("movies.detail.watchedHistory.save")}
+                            onPress={handleAddNew}
+                            isLoading={isSubmitting}
+                            style={styles.addButton}
+                        />
+                    )}
                 </View>
             </ScrollView>
         </BottomSheet>
@@ -212,7 +328,7 @@ const styles = StyleSheet.create({
     historySection: {
         marginBottom: 8,
     },
-    addSection: {
+    formSection: {
         paddingBottom: 24,
     },
     sectionTitle: {
@@ -228,20 +344,48 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         paddingVertical: 12,
+        paddingHorizontal: 8,
+        borderRadius: 10,
         borderBottomWidth: 1,
         borderBottomColor: Colors.border,
+    },
+    historyRowActive: {
+        backgroundColor: "rgba(56, 189, 248, 0.1)",
+        borderColor: Colors.primary,
+        borderBottomColor: Colors.primary,
     },
     historyLeft: {
         flexDirection: "row",
         alignItems: "center",
         gap: 10,
+        flex: 1,
     },
     historyDate: {
         color: Colors.textPrimary,
         fontSize: 15,
     },
+    historyDateActive: {
+        color: Colors.primary,
+        fontWeight: "600",
+    },
+    editingBadge: {
+        color: Colors.primary,
+        fontSize: 11,
+        fontWeight: "500",
+        marginTop: 2,
+    },
+    historyActions: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+    },
+    actionBtn: {
+        padding: 6,
+        borderRadius: 8,
+    },
     deleteBtn: {
-        padding: 4,
+        padding: 6,
+        borderRadius: 8,
     },
     divider: {
         height: 1,
@@ -275,6 +419,26 @@ const styles = StyleSheet.create({
     },
     addButton: {
         marginTop: 8,
+        borderRadius: 14,
+    },
+    buttonRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+        marginTop: 8,
+    },
+    cancelButton: {
+        flex: 1,
+        borderRadius: 14,
+        backgroundColor: Colors.surface,
+        borderWidth: 1,
+        borderColor: Colors.border,
+    },
+    cancelButtonText: {
+        color: Colors.textSecondary,
+    },
+    submitButton: {
+        flex: 1,
         borderRadius: 14,
     },
     loader: {

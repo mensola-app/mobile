@@ -25,6 +25,8 @@ export default function MovieDetailView({
     const [isWatchedSheetOpen, setIsWatchedSheetOpen] = useState<boolean>(false);
     const [showWatchedToast, setShowWatchedToast] = useState<boolean>(false);
     const [isWatched, setIsWatched] = useState<boolean>(movie?.isWatched ?? false);
+    const [lastAddedRecordId, setLastAddedRecordId] = useState<WatchedMovieId | null>(null);
+    const [editingRecordId, setEditingRecordId] = useState<WatchedMovieId | null>(null);
 
     useEffect(() => {
         if (movie?.isWatched !== undefined) {
@@ -79,8 +81,16 @@ export default function MovieDetailView({
                     onInteractionSheetOpenChange={setIsInteractionSheetOpen}
                     isWatched={isWatched}
                     setIsWatched={setIsWatched}
-                    onShowWatchedToast={() => setShowWatchedToast(true)}
-                    onOpenWatchedSheet={() => setIsWatchedSheetOpen(true)}
+                    onShowWatchedToast={(record?: WatchedMovie) => {
+                        if (record?.id) {
+                            setLastAddedRecordId(record.id as WatchedMovieId);
+                        }
+                        setShowWatchedToast(true);
+                    }}
+                    onOpenWatchedSheet={() => {
+                        setEditingRecordId(null);
+                        setIsWatchedSheetOpen(true);
+                    }}
                 />
                 <MovieOverview movie={movie} />
                 <MovieCreditsSection credits={movie?.credits} />
@@ -96,9 +106,13 @@ export default function MovieDetailView({
             {movie?.id && (
                 <WatchedMovieBottomSheet
                     isVisible={isWatchedSheetOpen}
-                    onClose={() => setIsWatchedSheetOpen(false)}
+                    onClose={() => {
+                        setIsWatchedSheetOpen(false);
+                        setEditingRecordId(null);
+                    }}
                     movieId={movie.id}
                     movieTitle={movie?.title}
+                    initialEditingRecordId={editingRecordId}
                     onAdded={handleWatchedSheetAdd}
                     onDeleted={handleWatchedSheetDelete}
                 />
@@ -109,9 +123,13 @@ export default function MovieDetailView({
                 visible={showWatchedToast}
                 onEdit={() => {
                     setShowWatchedToast(false);
+                    setEditingRecordId(lastAddedRecordId);
                     setIsWatchedSheetOpen(true);
                 }}
-                onHide={() => setShowWatchedToast(false)}
+                onHide={() => {
+                    setShowWatchedToast(false);
+                    setLastAddedRecordId(null);
+                }}
             />
         </View>
     );

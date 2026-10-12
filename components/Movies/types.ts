@@ -31,7 +31,7 @@ export interface MovieHeroProps {
     onInteractionSheetOpenChange?: (open: boolean) => void;
     isWatched?: boolean;
     setIsWatched?: (isWatched: boolean) => void;
-    onShowWatchedToast?: () => void;
+    onShowWatchedToast?: (record?: WatchedMovie) => void;
     onOpenWatchedSheet?: () => void;
 }
 
