@@ -4,7 +4,7 @@ import { Colors } from "@/constants/colors";
 
 interface SkeletonBoxProps {
     width: number | string;
-    height: number | string;
+    height?: number | string;
     borderRadius?: number;
     style?: StyleProp<ViewStyle>;
 }
@@ -43,8 +43,8 @@ export default function SkeletonBox({ width, height, borderRadius = 12, style }:
         <Animated.View
             style={[
                 {
-                    width: width as number,
-                    height: height as number,
+                    width: width as any,
+                    ...(height !== undefined ? { height: height as any } : {}),
                     borderRadius,
                     backgroundColor: Colors.surfaceLight,
                     opacity,
