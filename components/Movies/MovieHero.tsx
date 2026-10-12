@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Alert, ImageBackground, Text, View, Image } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { Alert, Text, View } from "react-native";
 import { styles } from "./styles";
 import Badge from "../Badge";
 import { Entypo, Ionicons } from "@expo/vector-icons";
@@ -14,9 +13,9 @@ import WatchedMovieBottomSheet from "./WatchedMovieBottomSheet";
 import WatchedToast from "./WatchedToast";
 import { MovieService } from "@/services/movie.service";
 import { MovieId, WatchedMovieId } from "@/types/common.types";
-import { Colors } from "@/constants/colors";
 import { useTranslation } from "react-i18next";
 import { WatchedMovie } from "@/types/movie.types";
+import DetailHero from "@/components/DetailHero";
 
 const formatReleaseYear = (releaseDate?: string | Date) => {
     if (!releaseDate) return "";
@@ -155,45 +154,31 @@ export default function MovieHero({
     };
 
     return (
-        <View style={styles.heroBanner}>
-            {movie?.poster ? (
-                <ImageBackground style={styles.bannerBackgroundImg} source={{ uri: movie.poster }}>
-                    <LinearGradient
-                        colors={["transparent", "rgba(18, 18, 18, 0.8)", Colors.background]}
-                        style={styles.bannerGradient}
+        <>
+            <DetailHero
+                bannerImageUri={movie?.poster}
+                cover={
+                    <DetailHero.Cover
+                        imageUri={movie?.poster}
+                        placeholderIcon="film-outline"
+                        aspectRatio={2 / 3}
                     />
-                </ImageBackground>
-            ) : (
-                <View style={[styles.bannerBackgroundImg, { backgroundColor: Colors.background }]}>
-                    <LinearGradient
-                        colors={["transparent", "rgba(18, 18, 18, 0.8)", Colors.background]}
-                        style={styles.bannerGradient}
-                    />
-                </View>
-            )}
-
-            <View style={styles.bannerContent}>
-                <View style={styles.posterWrapper}>
-                    {movie?.poster ? (
-                        <Image source={{ uri: movie.poster }} style={styles.poster} resizeMode="cover" />
-                    ) : (
-                        <View style={[styles.poster, styles.posterPlaceholder]}>
-                            <Ionicons name="film-outline" size={36} color={Colors.textSecondary} />
-                        </View>
-                    )}
-                </View>
-
-                <View style={styles.infoContainer}>
-                    <View style={styles.titleWrapper}>
-                        <Text style={styles.movieTitle}>{movie?.title ?? t("movies.detail.loadingText")}</Text>
-                        <Text style={styles.releaseDate}>{releaseYear}</Text>
-                    </View>
+                }
+                title={movie?.title ?? t("movies.detail.loadingText")}
+                titleRight={releaseYear}
+                subtitle={
                     <View style={styles.metaWrapper}>
                         {durationText ? <Text style={styles.duration}>{durationText}</Text> : null}
                         {durationText && genreText ? <Text style={styles.dot}>•</Text> : null}
-                        {genreText ? <Text style={styles.genres}>{genreText}</Text> : null}
+                        {genreText ? (
+                            <Text style={styles.genres} numberOfLines={1} ellipsizeMode="tail">
+                                {genreText}
+                            </Text>
+                        ) : null}
                     </View>
-                    <View style={styles.movieStats}>
+                }
+                stats={
+                    <>
                         {typeof movie?.rating === "number" && movie.rating > 0 ? (
                             <Badge icon={<Ionicons name="star" size={12} color="#FF8000" />} value={movie.rating} />
                         ) : null}
@@ -203,8 +188,10 @@ export default function MovieHero({
                         {typeof commentsCount === "number" ? (
                             <Badge icon={<Entypo name="text" size={12} color="#FF8000" />} value={commentsCount} />
                         ) : null}
-                    </View>
-                    <View style={styles.actionBar}>
+                    </>
+                }
+                actions={
+                    <>
                         <ActionButton
                             icon="checkmark"
                             isActive={isWatched}
@@ -233,9 +220,9 @@ export default function MovieHero({
                             activeColor="#FFCC00"
                             onPress={() => setIsInteractionSheetOpen(true)}
                         />
-                    </View>
-                </View>
-            </View>
+                    </>
+                }
+            />
 
             <AddToListBottomSheet
                 isVisible={isAddToListOpen}
@@ -293,6 +280,6 @@ export default function MovieHero({
                     }
                 }}
             />
-        </View>
+        </>
     );
 }

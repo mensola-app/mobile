@@ -78,6 +78,7 @@ export const styles = StyleSheet.create({
     infoContainer: {
         flex: 1,
         gap: 4,
+        minWidth: 0,
     },
     titleWrapper: {
         flexDirection: "row",
@@ -117,13 +118,16 @@ export const styles = StyleSheet.create({
     movieStats: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 6,
+        gap: 4,
         marginTop: 4,
+        flexWrap: "wrap",
     },
     actionBar: {
         flexDirection: "row",
-        gap: 8,
+        alignItems: "center",
+        gap: 6,
         marginTop: 8,
+        width: "100%",
     },
     descriptionSection: {
         paddingHorizontal: 16,

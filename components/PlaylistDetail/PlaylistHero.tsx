@@ -3,12 +3,8 @@ import {
     View,
     Text,
     Image,
-    ImageBackground,
     TouchableOpacity,
-    NativeSyntheticEvent,
-    TextLayoutEventData,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 
 import ActionButton from "@/components/Movies/ActionButton";
@@ -18,6 +14,7 @@ import { styles } from "./styles";
 import { IPlaylistHeroProps } from "./types";
 import { sharePlaylist } from "@/utils/share";
 import { Colors } from "@/constants/colors";
+import DetailHero from "@/components/DetailHero";
 
 export default function PlaylistHero({
     playlistDetails,
@@ -30,8 +27,6 @@ export default function PlaylistHero({
     onSharePress,
 }: IPlaylistHeroProps) {
     const [isOwnersSheetVisible, setIsOwnersSheetVisible] = useState(false);
-    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-    const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);
 
     if (!playlistDetails) return null;
 
@@ -59,12 +54,6 @@ export default function PlaylistHero({
         (playlistDetails.image ? playlistDetails.image.toString() : null) ||
         (trackImages.length > 0 ? trackImages[0] : null);
 
-    const handleTextLayout = (e: NativeSyntheticEvent<TextLayoutEventData>) => {
-        if (e.nativeEvent.lines.length > 2 && !isDescriptionTruncated) {
-            setIsDescriptionTruncated(true);
-        }
-    };
-
     const handleShare = async () => {
         if (onSharePress) {
             onSharePress();
@@ -82,159 +71,115 @@ export default function PlaylistHero({
     let heroCoverContent: React.ReactNode = null;
     if (playlistDetails.image) {
         heroCoverContent = (
-            <Image
-                source={{ uri: playlistDetails.image.toString() }}
-                style={styles.poster}
-                resizeMode="cover"
+            <DetailHero.Cover
+                imageUri={playlistDetails.image.toString()}
+                aspectRatio={1}
             />
         );
     } else if (trackImages.length === 0) {
         heroCoverContent = (
-            <View style={[styles.poster, styles.posterPlaceholder]}>
-                <Ionicons name="musical-notes-outline" size={36} color={Colors.textSecondary} />
-            </View>
+            <DetailHero.Cover
+                placeholderIcon="musical-notes-outline"
+                aspectRatio={1}
+            />
         );
     } else if (trackImages.length < 4) {
         heroCoverContent = (
-            <Image
-                source={{ uri: trackImages[0] }}
-                style={styles.poster}
-                resizeMode="cover"
+            <DetailHero.Cover
+                imageUri={trackImages[0]}
+                aspectRatio={1}
             />
         );
     } else {
         heroCoverContent = (
-            <View style={[styles.poster, { flexDirection: "row", flexWrap: "wrap", overflow: "hidden" }]}>
-                {trackImages.slice(0, 4).map((imgUri, idx) => (
-                    <Image key={idx} source={{ uri: imgUri }} style={{ width: "50%", height: "50%" }} resizeMode="cover" />
-                ))}
-            </View>
+            <DetailHero.Cover aspectRatio={1}>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%", height: "100%", overflow: "hidden" }}>
+                    {trackImages.slice(0, 4).map((imgUri, idx) => (
+                        <Image key={idx} source={{ uri: imgUri }} style={{ width: "50%", height: "50%" }} resizeMode="cover" />
+                    ))}
+                </View>
+            </DetailHero.Cover>
         );
     }
 
     return (
         <>
-            <View style={styles.heroBanner}>
-                {bannerImageUri ? (
-                    <ImageBackground
-                        style={styles.bannerBackgroundImg}
-                        source={{ uri: bannerImageUri }}>
-                        <LinearGradient
-                            colors={["transparent", "rgba(8, 12, 18, 0.8)", Colors.background]}
-                            style={styles.bannerGradient}
-                        />
-                    </ImageBackground>
-                ) : (
-                    <View style={[styles.bannerBackgroundImg, { backgroundColor: Colors.surface }]}>
-                        <LinearGradient
-                            colors={["transparent", "rgba(8, 12, 18, 0.8)", Colors.background]}
-                            style={styles.bannerGradient}
-                        />
-                    </View>
-                )}
-
-                <View style={styles.bannerContent}>
-                    <View style={styles.posterWrapper}>
-                        {heroCoverContent}
-                    </View>
-
-                    <View style={styles.infoContainer}>
-                        <View style={styles.titleWrapper}>
-                            <Text style={styles.movieTitle} numberOfLines={2}>
-                                {playlistDetails.title}
-                            </Text>
-                        </View>
-
-                        {creator && (
-                            <TouchableOpacity
-                                style={styles.creatorContainer}
-                                onPress={() => setIsOwnersSheetVisible(true)}
-                                activeOpacity={0.8}>
-                                {creator.avatar ? (
-                                    <Image source={{ uri: creator.avatar.toString() }} style={styles.avatar} />
-                                ) : (
-                                    <View style={[styles.avatar, styles.avatarPlaceholder]}>
-                                        <Text style={styles.avatarLetter}>
-                                            {(creatorName || "U").charAt(0).toUpperCase()}
-                                        </Text>
-                                    </View>
-                                )}
-                                <Text style={styles.creatorName} numberOfLines={1}>
-                                    {ownerText}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-
-                        <View style={styles.movieStats}>
-                            <Badge
-                                icon={<Ionicons name="musical-note-outline" size={12} color="#FF8000" />}
-                                value={playlistDetails.songCount ?? tracksCount}
-                            />
-                            <Badge icon={<Ionicons name="heart" size={12} color="#FF8000" />} value={likesCount} />
-                            <Badge icon={<Entypo name="text" size={12} color="#FF8000" />} value={commentsCount ?? 0} />
-                            <Badge
-                                icon={<Ionicons name="bookmark" size={12} color="#FF8000" />}
-                                value={playlistDetails.savesCount ?? 0}
-                            />
-                        </View>
-
-                        <View style={styles.actionBar}>
-                            {/* 1. Yer İmi (Kaydet) */}
-                            <ActionButton
-                                icon={isSaved ? "bookmark" : "bookmark-outline"}
-                                isActive={isSaved}
-                                activeColor={`${Colors.warning}66`}
-                                onPress={toggleSave}
-                            />
-
-                            {/* Paylaş */}
-                            <ActionButton
-                                icon="share-social-outline"
-                                isActive={false}
-                                activeColor={`${Colors.primary}66`}
-                                onPress={handleShare}
-                            />
-
-                            {/* Beğen */}
-                            <ActionButton
-                                icon="heart"
-                                isActive={!!playlistDetails.isLiked}
-                                activeColor={`${Colors.accentPink}66`}
-                                onPress={toggleLike}
-                            />
-
-                            {/* Puanla / Yorum Yap */}
-                            <ActionButton
-                                icon="star"
-                                isActive={hasUserInteraction}
-                                activeColor={`${Colors.warning}66`}
-                                onPress={onCommentPress}
-                            />
-                        </View>
-                    </View>
-                </View>
-            </View>
-
-            {/* Description */}
-            {playlistDetails.description ? (
-                <View style={styles.descriptionSection}>
-                    <Text
-                        style={styles.description}
-                        numberOfLines={isDescriptionExpanded ? undefined : 2}
-                        onTextLayout={handleTextLayout}>
-                        {playlistDetails.description}
-                    </Text>
-
-                    {(isDescriptionTruncated || isDescriptionExpanded) && (
+            <DetailHero
+                bannerImageUri={bannerImageUri}
+                cover={heroCoverContent}
+                title={playlistDetails.title}
+                subtitle={
+                    creator ? (
                         <TouchableOpacity
-                            onPress={() => setIsDescriptionExpanded((prev) => !prev)}
-                            activeOpacity={0.7}
-                            style={styles.readMoreButton}>
-                            <Text style={styles.readMoreText}>{isDescriptionExpanded ? "Daha Az" : "Daha Fazla"}</Text>
+                            style={styles.creatorContainer}
+                            onPress={() => setIsOwnersSheetVisible(true)}
+                            activeOpacity={0.8}>
+                            {creator.avatar ? (
+                                <Image source={{ uri: creator.avatar.toString() }} style={styles.avatar} />
+                            ) : (
+                                <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                                    <Text style={styles.avatarLetter}>
+                                        {(creatorName || "U").charAt(0).toUpperCase()}
+                                    </Text>
+                                </View>
+                            )}
+                            <Text style={styles.creatorName} numberOfLines={1}>
+                                {ownerText}
+                            </Text>
                         </TouchableOpacity>
-                    )}
-                </View>
-            ) : null}
+                    ) : null
+                }
+                stats={
+                    <>
+                        <Badge
+                            icon={<Ionicons name="musical-note-outline" size={12} color="#FF8000" />}
+                            value={playlistDetails.songCount ?? tracksCount}
+                        />
+                        <Badge icon={<Ionicons name="heart" size={12} color="#FF8000" />} value={likesCount} />
+                        <Badge icon={<Entypo name="text" size={12} color="#FF8000" />} value={commentsCount ?? 0} />
+                        <Badge
+                            icon={<Ionicons name="bookmark" size={12} color="#FF8000" />}
+                            value={playlistDetails.savesCount ?? 0}
+                        />
+                    </>
+                }
+                actions={
+                    <>
+                        {/* 1. Yer İmi (Kaydet) */}
+                        <ActionButton
+                            icon={isSaved ? "bookmark" : "bookmark-outline"}
+                            isActive={isSaved}
+                            activeColor={`${Colors.warning}66`}
+                            onPress={toggleSave}
+                        />
+
+                        {/* Paylaş */}
+                        <ActionButton
+                            icon="share-social-outline"
+                            isActive={false}
+                            activeColor={`${Colors.primary}66`}
+                            onPress={handleShare}
+                        />
+
+                        {/* Beğen */}
+                        <ActionButton
+                            icon="heart"
+                            isActive={!!playlistDetails.isLiked}
+                            activeColor={`${Colors.accentPink}66`}
+                            onPress={toggleLike}
+                        />
+
+                        {/* Puanla / Yorum Yap */}
+                        <ActionButton
+                            icon="star"
+                            isActive={hasUserInteraction}
+                            activeColor={`${Colors.warning}66`}
+                            onPress={onCommentPress}
+                        />
+                    </>
+                }
+                description={playlistDetails.description}
+            />
 
             <PlaylistOwnersBottomSheet
                 isVisible={isOwnersSheetVisible}

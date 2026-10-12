@@ -3,13 +3,8 @@ import {
     View,
     Text,
     Image,
-    ImageBackground,
     TouchableOpacity,
-    NativeSyntheticEvent,
-    TextLayoutEventData,
-    Share,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 
 import ActionButton from "@/components/Movies/ActionButton";
@@ -19,6 +14,7 @@ import { styles } from "./styles";
 import { IMovieListHeroProps } from "./types";
 import { shareMovieList } from "@/utils/share";
 import { Colors } from "@/constants/colors";
+import DetailHero from "@/components/DetailHero";
 
 export default function MovieListHero({
     listDetails,
@@ -31,8 +27,6 @@ export default function MovieListHero({
     onSharePress,
 }: IMovieListHeroProps) {
     const [isOwnersSheetVisible, setIsOwnersSheetVisible] = useState(false);
-    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-    const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);
 
     if (!listDetails) return null;
 
@@ -54,12 +48,6 @@ export default function MovieListHero({
         (listDetails.image ? listDetails.image.toString() : null) ||
         (moviePosters.length > 0 ? moviePosters[0] : null);
 
-    const handleTextLayout = (e: NativeSyntheticEvent<TextLayoutEventData>) => {
-        if (e.nativeEvent.lines.length > 2 && !isDescriptionTruncated) {
-            setIsDescriptionTruncated(true);
-        }
-    };
-
     const handleShare = async () => {
         if (onSharePress) {
             onSharePress();
@@ -77,157 +65,115 @@ export default function MovieListHero({
     let heroCoverContent: React.ReactNode = null;
     if (listDetails.image) {
         heroCoverContent = (
-            <Image
-                source={{ uri: listDetails.image.toString() }}
-                style={styles.poster}
-                resizeMode="cover"
+            <DetailHero.Cover
+                imageUri={listDetails.image.toString()}
+                aspectRatio={2 / 3}
             />
         );
     } else if (moviePosters.length === 0) {
         heroCoverContent = (
-            <View style={[styles.poster, styles.posterPlaceholder]}>
-                <Ionicons name="film-outline" size={36} color={Colors.textSecondary} />
-            </View>
+            <DetailHero.Cover
+                placeholderIcon="film-outline"
+                aspectRatio={2 / 3}
+            />
         );
     } else if (moviePosters.length < 4) {
         heroCoverContent = (
-            <Image
-                source={{ uri: moviePosters[0] }}
-                style={styles.poster}
-                resizeMode="cover"
+            <DetailHero.Cover
+                imageUri={moviePosters[0]}
+                aspectRatio={2 / 3}
             />
         );
     } else {
         heroCoverContent = (
-            <View style={[styles.poster, { flexDirection: "row", flexWrap: "wrap", overflow: "hidden" }]}>
-                {moviePosters.slice(0, 4).map((posterUri, idx) => (
-                    <Image key={idx} source={{ uri: posterUri }} style={{ width: "50%", height: "50%" }} resizeMode="cover" />
-                ))}
-            </View>
+            <DetailHero.Cover aspectRatio={2 / 3}>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%", height: "100%", overflow: "hidden" }}>
+                    {moviePosters.slice(0, 4).map((posterUri, idx) => (
+                        <Image key={idx} source={{ uri: posterUri }} style={{ width: "50%", height: "50%" }} resizeMode="cover" />
+                    ))}
+                </View>
+            </DetailHero.Cover>
         );
     }
 
     return (
         <>
-            <View style={styles.heroBanner}>
-                {bannerImageUri ? (
-                    <ImageBackground style={styles.bannerBackgroundImg} source={{ uri: bannerImageUri }}>
-                        <LinearGradient
-                            colors={["transparent", "rgba(8, 12, 18, 0.8)", Colors.background]}
-                            style={styles.bannerGradient}
-                        />
-                    </ImageBackground>
-                ) : (
-                    <View style={[styles.bannerBackgroundImg, { backgroundColor: Colors.surface }]}>
-                        <LinearGradient
-                            colors={["transparent", "rgba(8, 12, 18, 0.8)", Colors.background]}
-                            style={styles.bannerGradient}
-                        />
-                    </View>
-                )}
-
-                <View style={styles.bannerContent}>
-                    <View style={styles.posterWrapper}>
-                        {heroCoverContent}
-                    </View>
-
-                    <View style={styles.infoContainer}>
-                        <View style={styles.titleWrapper}>
-                            <Text style={styles.movieTitle} numberOfLines={2}>
-                                {listDetails.title}
-                            </Text>
-                        </View>
-
-                        {creator && (
-                            <TouchableOpacity
-                                style={styles.creatorContainer}
-                                onPress={() => setIsOwnersSheetVisible(true)}
-                                activeOpacity={0.8}>
-                                {creator.avatar ? (
-                                    <Image source={{ uri: creator.avatar.toString() }} style={styles.avatar} />
-                                ) : (
-                                    <View style={[styles.avatar, styles.avatarPlaceholder]}>
-                                        <Text style={styles.avatarLetter}>
-                                            {(creatorName || "U").charAt(0).toUpperCase()}
-                                        </Text>
-                                    </View>
-                                )}
-                                <Text style={styles.creatorName} numberOfLines={1}>
-                                    {ownerText}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-
-                        <View style={styles.movieStats}>
-                            <Badge
-                                icon={<Ionicons name="film-outline" size={12} color="#FF8000" />}
-                                value={listDetails.movieCount ?? moviesCount}
-                            />
-                            <Badge icon={<Ionicons name="heart" size={12} color="#FF8000" />} value={likesCount} />
-                            <Badge icon={<Entypo name="text" size={12} color="#FF8000" />} value={commentsCount ?? 0} />
-                            <Badge
-                                icon={<Ionicons name="bookmark" size={12} color="#FF8000" />}
-                                value={listDetails.savesCount ?? 0}
-                            />
-                        </View>
-
-                        <View style={styles.actionBar}>
-                            {/* 1. Yer İmi (Kaydet) */}
-                            <ActionButton
-                                icon={isSaved ? "bookmark" : "bookmark-outline"}
-                                isActive={isSaved}
-                                activeColor={`${Colors.warning}66`}
-                                onPress={toggleSave}
-                            />
-
-                            {/* 2. Paylaş */}
-                            <ActionButton
-                                icon="share-social-outline"
-                                isActive={false}
-                                activeColor={`${Colors.primary}66`}
-                                onPress={handleShare}
-                            />
-
-                            {/* 3. Beğen */}
-                            <ActionButton
-                                icon="heart"
-                                isActive={!!listDetails.isLiked}
-                                activeColor={`${Colors.accentPink}66`}
-                                onPress={toggleLike}
-                            />
-
-                            {/* 4. Listeyi Puanla */}
-                            <ActionButton
-                                icon="star"
-                                isActive={hasUserInteraction}
-                                activeColor={`${Colors.warning}66`}
-                                onPress={onCommentPress}
-                            />
-                        </View>
-                    </View>
-                </View>
-            </View>
-
-            {/* List Description below Hero Banner */}
-            {listDetails.description ? (
-                <View style={styles.descriptionSection}>
-                    <Text
-                        style={styles.description}
-                        numberOfLines={isDescriptionExpanded ? undefined : 2}
-                        onTextLayout={handleTextLayout}>
-                        {listDetails.description}
-                    </Text>
-
-                    {(isDescriptionTruncated || isDescriptionExpanded) && (
+            <DetailHero
+                bannerImageUri={bannerImageUri}
+                cover={heroCoverContent}
+                title={listDetails.title}
+                subtitle={
+                    creator ? (
                         <TouchableOpacity
-                            onPress={() => setIsDescriptionExpanded((prev) => !prev)}
-                            activeOpacity={0.7}
-                            style={styles.readMoreButton}>
-                            <Text style={styles.readMoreText}>{isDescriptionExpanded ? "Daha Az" : "Daha Fazla"}</Text>
+                            style={styles.creatorContainer}
+                            onPress={() => setIsOwnersSheetVisible(true)}
+                            activeOpacity={0.8}>
+                            {creator.avatar ? (
+                                <Image source={{ uri: creator.avatar.toString() }} style={styles.avatar} />
+                            ) : (
+                                <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                                    <Text style={styles.avatarLetter}>
+                                        {(creatorName || "U").charAt(0).toUpperCase()}
+                                    </Text>
+                                </View>
+                            )}
+                            <Text style={styles.creatorName} numberOfLines={1}>
+                                {ownerText}
+                            </Text>
                         </TouchableOpacity>
-                    )}
-                </View>
-            ) : null}
+                    ) : null
+                }
+                stats={
+                    <>
+                        <Badge
+                            icon={<Ionicons name="film-outline" size={12} color="#FF8000" />}
+                            value={listDetails.movieCount ?? moviesCount}
+                        />
+                        <Badge icon={<Ionicons name="heart" size={12} color="#FF8000" />} value={likesCount} />
+                        <Badge icon={<Entypo name="text" size={12} color="#FF8000" />} value={commentsCount ?? 0} />
+                        <Badge
+                            icon={<Ionicons name="bookmark" size={12} color="#FF8000" />}
+                            value={listDetails.savesCount ?? 0}
+                        />
+                    </>
+                }
+                actions={
+                    <>
+                        {/* 1. Yer İmi (Kaydet) */}
+                        <ActionButton
+                            icon={isSaved ? "bookmark" : "bookmark-outline"}
+                            isActive={isSaved}
+                            activeColor={`${Colors.warning}66`}
+                            onPress={toggleSave}
+                        />
+
+                        {/* 2. Paylaş */}
+                        <ActionButton
+                            icon="share-social-outline"
+                            isActive={false}
+                            activeColor={`${Colors.primary}66`}
+                            onPress={handleShare}
+                        />
+
+                        {/* 3. Beğen */}
+                        <ActionButton
+                            icon="heart"
+                            isActive={!!listDetails.isLiked}
+                            activeColor={`${Colors.accentPink}66`}
+                            onPress={toggleLike}
+                        />
+
+                        {/* 4. Listeyi Puanla */}
+                        <ActionButton
+                            icon="star"
+                            isActive={hasUserInteraction}
+                            activeColor={`${Colors.warning}66`}
+                            onPress={onCommentPress}
+                        />
+                    </>
+                }
+                description={listDetails.description}
+            />
 
             <MovieListOwnersBottomSheet
                 isVisible={isOwnersSheetVisible}

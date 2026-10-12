@@ -2,7 +2,9 @@ import { Colors } from "@/constants/colors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-    posterWrapper: { width: 120 },
+    posterWrapper: {
+        width: 120,
+    },
     poster: {
         width: "100%",
         aspectRatio: 2 / 3,
@@ -16,6 +18,7 @@ export const styles = StyleSheet.create({
         backgroundColor: Colors.surfaceLight,
     },
     heroBanner: {
+        minHeight: 320,
         height: 320,
         width: "100%",
         position: "relative",
@@ -36,22 +39,72 @@ export const styles = StyleSheet.create({
         alignItems: "flex-end",
         gap: 16,
     },
-    infoContainer: { flex: 1, gap: 1 },
-    titleWrapper: { flexDirection: "row", alignItems: "center", gap: 8 },
-    movieTitle: { color: Colors.textPrimary, fontSize: 22, fontWeight: "bold" },
-    releaseDate: { color: Colors.textSecondary, fontSize: 14 },
-    metaWrapper: { flexDirection: "row", alignItems: "center", gap: 8 },
-    duration: { color: Colors.textSecondary, fontSize: 14 },
-    dot: { color: Colors.textSecondary, fontSize: 16 },
-    genres: { color: Colors.textSecondary, fontSize: 14 },
-    movieStats: { flexDirection: "row", marginTop: 8, gap: 4 },
-    actionBar: { flexDirection: "row", gap: 8, marginTop: 8 },
+    infoContainer: {
+        flex: 1,
+        gap: 2,
+        minWidth: 0,
+    },
+    titleWrapper: {
+        flexDirection: "row",
+        alignItems: "baseline",
+        flexWrap: "wrap",
+        gap: 6,
+        width: "100%",
+    },
+    movieTitle: {
+        color: Colors.textPrimary,
+        fontSize: 20,
+        fontWeight: "bold",
+        flexShrink: 1,
+    },
+    releaseDate: {
+        color: Colors.textSecondary,
+        fontSize: 14,
+        fontWeight: "normal",
+        flexShrink: 0,
+    },
+    metaWrapper: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+        width: "100%",
+    },
+    duration: {
+        color: Colors.textSecondary,
+        fontSize: 13,
+        flexShrink: 0,
+    },
+    dot: {
+        color: Colors.textSecondary,
+        fontSize: 14,
+        flexShrink: 0,
+    },
+    genres: {
+        color: Colors.textSecondary,
+        fontSize: 13,
+        flex: 1,
+    },
+    movieStats: {
+        flexDirection: "row",
+        marginTop: 6,
+        gap: 4,
+        flexWrap: "wrap",
+        alignItems: "center",
+    },
+    actionBar: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+        marginTop: 8,
+        width: "100%",
+    },
     actionBtn: {
         alignItems: "center",
         justifyContent: "center",
-        width: 48,
-        height: 48,
-        borderRadius: 32,
+        flex: 1,
+        maxWidth: 48,
+        aspectRatio: 1,
+        borderRadius: 999,
         backgroundColor: Colors.surface,
     },
     actionBtnIcon: { color: Colors.textPrimary, fontSize: 18 },
@@ -99,6 +152,7 @@ export const styles = StyleSheet.create({
     },
     listContainer: {
         paddingVertical: 8,
+        flexShrink: 1,
     },
     sheetError: {
         color: Colors.danger,
