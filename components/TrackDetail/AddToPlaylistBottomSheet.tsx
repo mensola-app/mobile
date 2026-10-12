@@ -37,7 +37,12 @@ export default function AddToPlaylistBottomSheet({ isVisible, onClose, trackId }
     }, [hasMore, isLoadingMore, loadMore]);
 
     return (
-        <BottomSheet isVisible={isVisible} onClose={onClose} title={t("tracks.detail.addToPlaylist")} showCloseButton>
+        <BottomSheet
+            isVisible={isVisible}
+            onClose={onClose}
+            title={t("tracks.detail.addToPlaylist")}
+            showCloseButton
+            scrollable={false}>
             <View style={styles.listContainer}>
                 {error ? <Text style={styles.sheetError}>{error}</Text> : null}
 

@@ -12,9 +12,8 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         paddingHorizontal: 20,
-        paddingBottom: 32,
         paddingTop: 12,
-        maxHeight: "85%",
+        // maxHeight ve paddingBottom, pencere boyutu/klavye/safe-area'ya göre runtime'da hesaplanır
         width: "100%",
         shadowColor: "#000",
         shadowOffset: {
@@ -57,6 +56,13 @@ const styles = StyleSheet.create({
     },
     content: {
         width: "100%",
+    },
+    scrollArea: {
+        flexGrow: 0,
+        flexShrink: 1,
+    },
+    staticArea: {
+        flexShrink: 1,
     },
 });
 

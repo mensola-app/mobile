@@ -90,7 +90,7 @@ export default function PlaylistOwnersBottomSheet({
     };
 
     return (
-        <BottomSheet isVisible={isVisible} onClose={onClose} title={t("owners.title")}>
+        <BottomSheet isVisible={isVisible} onClose={onClose} title={t("owners.title")} scrollable={false}>
             <FlatList
                 data={owners}
                 keyExtractor={(item) => item.id}

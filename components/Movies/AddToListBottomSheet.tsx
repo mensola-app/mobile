@@ -42,7 +42,12 @@ export default function AddToListBottomSheet({
     }, [hasMore, isLoadingMore, loadMore]);
 
     return (
-        <BottomSheet isVisible={isVisible} onClose={onClose} title={t("movies.detail.addToList")} showCloseButton>
+        <BottomSheet
+            isVisible={isVisible}
+            onClose={onClose}
+            title={t("movies.detail.addToList")}
+            showCloseButton
+            scrollable={false}>
             <View style={styles.listContainer}>
                 {error ? <Text style={styles.sheetError}>{error}</Text> : null}
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
     Animated,
     Dimensions,
@@ -7,16 +7,22 @@ import {
     PanResponder,
     Platform,
     Pressable,
+    ScrollView,
     Text,
     TouchableOpacity,
     View,
+    useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 import { styles } from "./styles";
 import { IBottomSheetProps } from "./types";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
+const DEFAULT_INSETS = { top: 0, bottom: 0, left: 0, right: 0 };
+const MAX_HEIGHT_RATIO = 0.9;
+const TOP_GAP = 24;
 
 export default function BottomSheet({
     isVisible,
@@ -29,11 +35,23 @@ export default function BottomSheet({
     contentStyle,
     titleStyle,
     testID = "bottom-sheet",
+    scrollable = true,
 }: IBottomSheetProps) {
     const [modalVisible, setModalVisible] = useState(isVisible);
     const [keyboardPadding, setKeyboardPadding] = useState(0);
     const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
     const backdropOpacity = useRef(new Animated.Value(0)).current;
+
+    // Context okunuyor (hook değil) ki SafeAreaProvider olmayan ortamlarda (testler) da çalışsın
+    const insets = useContext(SafeAreaInsetsContext) ?? DEFAULT_INSETS;
+    const { height: windowHeight } = useWindowDimensions();
+
+    const isKeyboardOpen = keyboardPadding > 0;
+    const maxSheetHeight = Math.min(
+        windowHeight * MAX_HEIGHT_RATIO,
+        windowHeight - keyboardPadding - insets.top - TOP_GAP,
+    );
+    const bottomPadding = isKeyboardOpen ? 16 : Math.max(insets.bottom, 12) + 16;
 
     // Klavye listener'ı: Klavye açıldığında yüksekliği alıp padding ekler
     useEffect(() => {
@@ -146,7 +164,8 @@ export default function BottomSheet({
                 <Animated.View
                     style={[
                         styles.sheetContainer,
-                        height ? { height } : undefined,
+                        { maxHeight: maxSheetHeight, paddingBottom: bottomPadding },
+                        height ? { height: Math.min(height, maxSheetHeight) } : undefined,
                         containerStyle,
                         { transform: [{ translateY }] },
                     ]}>
@@ -169,7 +188,19 @@ export default function BottomSheet({
                         </View>
                     )}
 
-                    <View style={[styles.content, contentStyle]}>{children}</View>
+                    {scrollable ? (
+                        <ScrollView
+                            style={styles.scrollArea}
+                            contentContainerStyle={[styles.content, contentStyle]}
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator={false}
+                            bounces={false}
+                            testID={`${testID}-scroll`}>
+                            {children}
+                        </ScrollView>
+                    ) : (
+                        <View style={[styles.content, styles.staticArea, contentStyle]}>{children}</View>
+                    )}
                 </Animated.View>
             </Animated.View>
         </Modal>

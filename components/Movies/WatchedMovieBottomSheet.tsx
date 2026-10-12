@@ -131,7 +131,8 @@ export default function WatchedMovieBottomSheet({
             isVisible={isVisible}
             onClose={onClose}
             title={movieTitle ? `${movieTitle}` : t("movies.detail.watchedHistory.sheetTitle")}
-            showCloseButton>
+            showCloseButton
+            scrollable={false}>
             <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                 {/* Geçmiş Kayıtlar */}
                 <View style={styles.historySection}>
