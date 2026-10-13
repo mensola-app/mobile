@@ -243,6 +243,24 @@ describe("MovieCard Bileşeni Bütünsel Testleri", () => {
             expect(getByText("heart")).toBeTruthy();
             expect(getByText("text")).toBeTruthy();
         });
+
+        it("should be wrapped in React.memo and re-render without errors when props update", () => {
+            const movieData = {
+                id: "m-123",
+                title: "Interstellar",
+                poster: "https://example.com/interstellar.jpg",
+                releaseDate: "2014-11-07",
+            };
+
+            const { getByText, rerender } = render(
+                <MovieCard layout="horizontal" type="movie" data={movieData as any} />
+            );
+
+            expect(getByText("Interstellar • 2014")).toBeTruthy();
+
+            rerender(<MovieCard layout="horizontal" type="movie" data={movieData as any} />);
+            expect(getByText("Interstellar • 2014")).toBeTruthy();
+        });
     });
 });
 

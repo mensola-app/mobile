@@ -1,3 +1,4 @@
+import React, { memo } from "react";
 import { View } from "react-native";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 
@@ -5,7 +6,7 @@ import Badge from "@/components/Badge";
 import { styles } from "./styles";
 import { IMovieCardFooterProps } from "./types";
 
-export default function MovieCardFooter({ interactions, variant = "profile" }: IMovieCardFooterProps) {
+export default memo(function MovieCardFooter({ interactions, variant = "profile" }: IMovieCardFooterProps) {
     const isProfile = variant === "profile";
 
     return (
@@ -46,4 +47,4 @@ export default function MovieCardFooter({ interactions, variant = "profile" }: I
             ) : null}
         </View>
     );
-}
+});

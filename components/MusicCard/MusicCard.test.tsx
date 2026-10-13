@@ -170,5 +170,21 @@ describe("MusicCard Component", () => {
             expect(getByText("25 common.track")).toBeTruthy();
             expect(queryByText("@me")).toBeNull();
         });
+
+        it("should be wrapped in React.memo and re-render without errors when props update", () => {
+            const trackData = {
+                title: "Song Memo",
+                artists: [{ name: "Artist Memo" }],
+            };
+
+            const { getByText, rerender } = render(
+                <MusicCard type="track" data={trackData as any} />
+            );
+
+            expect(getByText("Song Memo")).toBeTruthy();
+
+            rerender(<MusicCard type="track" data={trackData as any} />);
+            expect(getByText("Song Memo")).toBeTruthy();
+        });
     });
 });

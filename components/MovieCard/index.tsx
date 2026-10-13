@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { TouchableOpacity, View, Text } from "react-native";
 import { Image } from "expo-image";
 import { styles } from "./styles";
@@ -10,7 +10,19 @@ import { Colors } from "@/constants/colors";
 import { useTranslation } from "react-i18next";
 import { IMovie, IMovieList } from "@/types/movie.types";
 
-export default function MovieCard<
+const formatRating = (rating?: number | string | null): string => {
+    if (rating === undefined || rating === null) return "";
+    const num = typeof rating === "string" ? parseFloat(rating) : rating;
+    if (isNaN(num) || num === 0) return "";
+    return num.toFixed(1);
+};
+
+const formatReleaseYear = (dateStr?: string): string => {
+    if (!dateStr) return "";
+    return dateStr.slice(0, 4);
+};
+
+function MovieCardComponent<
     TMovie extends Omit<IMovie, "id"> = Omit<IMovie, "id">,
     TMovieList extends Omit<IMovieList, "id"> = Omit<IMovieList, "id">,
 >({ layout = "vertical", variant = "profile", compact = false, ...props }: IMovieCardProps<TMovie, TMovieList>) {
@@ -19,79 +31,140 @@ export default function MovieCard<
     const type = props.type ?? "movie";
     const { onPress, style } = props;
 
-    let displayTitle = "";
-    let coverContent: React.ReactNode = null;
-    let interactions: any = null;
-    let subtitle: string | null = null;
-    let secondaryInfo: string | null = null;
-    let ratingAverage: number | undefined = undefined;
-    let watchCount: number | undefined = undefined;
+    const {
+        displayTitle,
+        subtitle,
+        secondaryInfo,
+        rawCoverImage,
+        moviePosters,
+        posterUri,
+        interactions,
+        ratingAverage,
+        watchCount,
+    } = useMemo(() => {
+        if (type === "movie-list") {
+            const listProps = props as Extract<IMovieCardProps, { type: "movie-list" }>;
+            const listData = (listProps.data || {}) as any;
 
-    if (type === "movie-list") {
-        const listProps = props as Extract<IMovieCardProps, { type: "movie-list" }>;
-        const listData = (listProps.data || {}) as any;
+            const dispTitle = listData.listTitle || listData.title || listProps.title || "";
+            const rawCover =
+                (typeof listData.image === "string" ? listData.image : listData.image?.toString()) ||
+                listProps.poster ||
+                null;
 
-        displayTitle = listData.listTitle || listData.title || listProps.title || "";
-        const rawCoverImage =
-            (typeof listData.image === "string" ? listData.image : listData.image?.toString()) ||
-            listProps.poster ||
-            null;
+            const posters: string[] = (
+                (Array.isArray(listData.previewImages) && listData.previewImages.length > 0
+                    ? listData.previewImages
+                    : null) ||
+                listData.previewMovies?.map((m: any) => m.poster).filter(Boolean) ||
+                listData.movies?.map((m: any) => m.poster).filter(Boolean) ||
+                []
+            ).filter(Boolean);
 
-        const moviePosters: string[] = (
-            (Array.isArray(listData.previewImages) && listData.previewImages.length > 0
-                ? listData.previewImages
-                : null) ||
-            listData.previewMovies?.map((m: any) => m.poster).filter(Boolean) ||
-            listData.movies?.map((m: any) => m.poster).filter(Boolean) ||
-            []
-        ).filter(Boolean);
+            const creatorUsername = listData.creator?.username || listData.owners?.[0]?.username;
+            const sub = listProps.hideCreator || !creatorUsername ? null : `@${creatorUsername}`;
 
-        const creatorUsername = listData.creator?.username || listData.owners?.[0]?.username;
-        subtitle = listProps.hideCreator || !creatorUsername ? null : `@${creatorUsername}`;
+            const movieCount =
+                listData.movieCount ??
+                (listData.previewImages ? listData.previewImages.length : undefined) ??
+                (listData.previewMovies ? listData.previewMovies.length : undefined) ??
+                (listData.movies ? listData.movies.length : undefined);
+            const secInfo = movieCount !== undefined && movieCount !== null ? `${movieCount} ${t("common.movie")}` : null;
 
-        const movieCount =
-            listData.movieCount ??
-            (listData.previewImages ? listData.previewImages.length : undefined) ??
-            (listData.previewMovies ? listData.previewMovies.length : undefined) ??
-            (listData.movies ? listData.movies.length : undefined);
-        secondaryInfo = movieCount !== undefined && movieCount !== null ? `${movieCount} ${t("common.movie")}` : null;
-        interactions = listProps.interactions;
-
-        if (rawCoverImage) {
-            coverContent = (
-                <Image
-                    source={{ uri: rawCoverImage }}
-                    style={styles.poster}
-                    contentFit="cover"
-                    cachePolicy="memory-disk"
-                    transition={150}
-                    accessibilityLabel={displayTitle}
-                />
-            );
-        } else if (moviePosters.length === 0) {
-            coverContent = (
-                <View style={styles.placeholderContainer}>
-                    <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
-                </View>
-            );
-        } else if (moviePosters.length < 4) {
-            coverContent = (
-                <Image
-                    source={{ uri: moviePosters[0] }}
-                    style={styles.poster}
-                    contentFit="cover"
-                    cachePolicy="memory-disk"
-                    transition={150}
-                    accessibilityLabel={displayTitle}
-                />
-            );
+            return {
+                displayTitle: dispTitle,
+                subtitle: sub,
+                secondaryInfo: secInfo,
+                rawCoverImage: rawCover,
+                moviePosters: posters,
+                posterUri: null,
+                interactions: listProps.interactions ?? null,
+                ratingAverage: undefined,
+                watchCount: undefined,
+            };
         } else {
-            coverContent = (
+            const movieProps = props as Extract<IMovieCardProps, { type?: "movie" }>;
+            const movieData = (movieProps.data || {}) as any;
+
+            const rawTitle = movieData.title || movieProps.title || "";
+            const releaseDate = movieData.releaseDate || movieProps.releaseDate;
+            const genres = movieData.genres || movieProps.genres;
+            const avgRating = movieData.ratingAverage ?? movieProps.ratingAverage;
+            const wCount = movieData.watchCount ?? (movieProps as any).watchCount;
+
+            const dispTitle = [rawTitle, formatReleaseYear(releaseDate)].filter(Boolean).join(" • ");
+            const postUri = movieData.poster || movieProps.poster || null;
+            const sub = genres?.filter(Boolean).join(", ") ?? null;
+
+            const inter =
+                movieProps.interactions ||
+                (movieData.interactions
+                    ? { ...movieData.interactions, watchCount: wCount }
+                    : movieData.rating !== undefined ||
+                        movieData.isLiked !== undefined ||
+                        movieData.hasReview !== undefined ||
+                        wCount !== undefined
+                      ? {
+                            rating: movieData.rating,
+                            isLiked: movieData.isLiked,
+                            hasReview: movieData.hasReview,
+                            watchCount: wCount,
+                        }
+                      : null);
+
+            return {
+                displayTitle: dispTitle,
+                subtitle: sub,
+                secondaryInfo: null,
+                rawCoverImage: null,
+                moviePosters: [],
+                posterUri: postUri,
+                interactions: inter,
+                ratingAverage: avgRating,
+                watchCount: wCount,
+            };
+        }
+    }, [props, type, t]);
+
+    const coverContent = useMemo(() => {
+        if (type === "movie-list") {
+            if (rawCoverImage) {
+                return (
+                    <Image
+                        source={{ uri: rawCoverImage }}
+                        style={styles.poster}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={150}
+                        accessibilityLabel={displayTitle}
+                    />
+                );
+            }
+            if (moviePosters.length === 0) {
+                return (
+                    <View style={styles.placeholderContainer}>
+                        <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
+                    </View>
+                );
+            }
+            if (moviePosters.length < 4) {
+                return (
+                    <Image
+                        source={{ uri: moviePosters[0] }}
+                        style={styles.poster}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={150}
+                        accessibilityLabel={displayTitle}
+                    />
+                );
+            }
+            return (
                 <View style={styles.gridContainer}>
-                    {moviePosters.slice(0, 4).map((posterUri, idx) => (
+                    {moviePosters.slice(0, 4).map((posterUriItem, idx) => (
                         <Image
                             key={idx}
-                            source={{ uri: posterUri }}
+                            source={{ uri: posterUriItem }}
                             style={styles.gridImage}
                             contentFit="cover"
                             cachePolicy="memory-disk"
@@ -101,43 +174,9 @@ export default function MovieCard<
                 </View>
             );
         }
-    } else {
-        const movieProps = props as Extract<IMovieCardProps, { type?: "movie" }>;
-        const movieData = (movieProps.data || {}) as any;
-
-        const rawTitle = movieData.title || movieProps.title || "";
-        const releaseDate = movieData.releaseDate || movieProps.releaseDate;
-        const genres = movieData.genres || movieProps.genres;
-        ratingAverage = movieData.ratingAverage ?? movieProps.ratingAverage;
-        watchCount = movieData.watchCount ?? (movieProps as any).watchCount;
-
-        const formatReleaseYear = (dateStr?: string): string => {
-            if (!dateStr) return "";
-            return dateStr.slice(0, 4);
-        };
-
-        displayTitle = [rawTitle, formatReleaseYear(releaseDate)].filter(Boolean).join(" • ");
-        const posterUri = movieData.poster || movieProps.poster || null;
-
-        subtitle = genres?.filter(Boolean).join(", ") ?? null;
-        interactions =
-            movieProps.interactions ||
-            (movieData.interactions
-                ? { ...movieData.interactions, watchCount }
-                : movieData.rating !== undefined ||
-                    movieData.isLiked !== undefined ||
-                    movieData.hasReview !== undefined ||
-                    watchCount !== undefined
-                  ? {
-                        rating: movieData.rating,
-                        isLiked: movieData.isLiked,
-                        hasReview: movieData.hasReview,
-                        watchCount,
-                    }
-                  : null);
 
         if (posterUri) {
-            coverContent = (
+            return (
                 <Image
                     source={{ uri: posterUri }}
                     style={styles.poster}
@@ -147,23 +186,18 @@ export default function MovieCard<
                     accessibilityLabel={displayTitle}
                 />
             );
-        } else {
-            coverContent = (
-                <View style={styles.placeholderContainer}>
-                    <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
-                </View>
-            );
         }
-    }
 
-    const formatRating = (rating?: number | string | null): string => {
-        if (rating === undefined || rating === null) return "";
-        const num = typeof rating === "string" ? parseFloat(rating) : rating;
-        if (isNaN(num) || num === 0) return "";
-        return num.toFixed(1);
-    };
+        return (
+            <View style={styles.placeholderContainer}>
+                <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
+            </View>
+        );
+    }, [type, rawCoverImage, moviePosters, displayTitle, posterUri]);
 
-    const fullSubtitle = type === "movie-list" ? [subtitle, secondaryInfo].filter(Boolean).join(" • ") : subtitle;
+    const fullSubtitle = useMemo(() => {
+        return type === "movie-list" ? [subtitle, secondaryInfo].filter(Boolean).join(" • ") : subtitle;
+    }, [type, subtitle, secondaryInfo]);
 
     const isProfile = variant === "profile";
     const ratingValue = interactions?.rating ?? ratingAverage;
@@ -173,6 +207,14 @@ export default function MovieCard<
     const hasReviews = isProfile ? !!interactions?.hasReview : !!(interactions?.totalReviews && interactions.totalReviews > 0);
     const hasWatchCount = type === "movie" && watchCount !== undefined && watchCount > 1;
     const hasHorizontalBadges = hasRating || hasLikes || hasReviews || hasWatchCount;
+
+    const footerInteractions = useMemo(() => {
+        if (!interactions) return null;
+        return {
+            ...interactions,
+            rating: Number(formatRating(interactions.rating)),
+        };
+    }, [interactions]);
 
     return (
         <TouchableOpacity
@@ -185,9 +227,9 @@ export default function MovieCard<
                     isHorizontal ? styles.horizontalPosterContainer : styles.verticalPosterContainer,
                 ]}>
                 {coverContent}
-                {!isHorizontal && interactions && (
+                {!isHorizontal && footerInteractions && (
                     <MovieCardFooter
-                        interactions={{ ...interactions, rating: Number(formatRating(interactions.rating)) }}
+                        interactions={footerInteractions}
                         variant={variant}
                     />
                 )}
@@ -256,3 +298,6 @@ export default function MovieCard<
         </TouchableOpacity>
     );
 }
+
+const MovieCard = React.memo(MovieCardComponent) as typeof MovieCardComponent;
+export default MovieCard;
