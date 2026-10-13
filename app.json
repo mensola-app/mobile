@@ -104,7 +104,14 @@
             ],
             "@react-native-google-signin/google-signin",
             "@react-native-community/datetimepicker",
-            "@sentry/react-native"
+            [
+                "@sentry/react-native",
+                {
+                    "url": "https://de.sentry.io/",
+                    "organization": "mensola",
+                    "project": "react-native"
+                }
+            ]
         ],
         "experiments": {
             "typedRoutes": true,
