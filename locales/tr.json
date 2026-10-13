@@ -531,6 +531,8 @@
         "networkErrorTitle": "Bağlantı Hatası",
         "networkErrorMessage": "Lütfen internet bağlantınızı kontrol edin.",
         "rateLimitedMessage": "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
+        "errorBoundaryTitle": "Bir şeyler ters gitti",
+        "errorBoundaryMessage": "Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.",
         "loginRequired": "Giriş Yapmalısınız",
         "loginRequiredMessage": "Beğeni yapmak için lütfen giriş yapın.",
         "login": "Giriş Yap",

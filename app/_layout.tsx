@@ -7,7 +7,14 @@ import { Colors } from "../constants/colors";
 import { configureGoogleSignIn } from "../services/googleAuth.service";
 import { shouldRetryQuery, queryRetryDelay } from "../api/retry";
 import * as Notifications from "expo-notifications";
+import ErrorFallback from "../components/ErrorFallback";
+import { initMonitoring, wrapRootComponent } from "../utils/monitoring";
 import "../i18n";
+
+initMonitoring();
+
+// expo-router renders this instead of the app when a render error bubbles up to the root.
+export { ErrorFallback as ErrorBoundary };
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -20,7 +27,7 @@ const queryClient = new QueryClient({
     },
 });
 
-export default function RootLayout() {
+function RootLayout() {
     useEffect(() => {
         Notifications.getLastNotificationResponseAsync().then((response) => {
             const data = response?.notification?.request?.content?.data;
@@ -69,3 +76,5 @@ export default function RootLayout() {
         </QueryClientProvider>
     );
 }
+
+export default wrapRootComponent(RootLayout);

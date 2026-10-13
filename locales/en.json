@@ -531,6 +531,8 @@
         "networkErrorTitle": "Connection Error",
         "networkErrorMessage": "Please check your internet connection.",
         "rateLimitedMessage": "Too many requests. Please wait a moment and try again.",
+        "errorBoundaryTitle": "Something went wrong",
+        "errorBoundaryMessage": "An unexpected error occurred. Please try again.",
         "loginRequired": "Login Required",
         "loginRequiredMessage": "Please sign in to like this comment.",
         "login": "Sign In",
