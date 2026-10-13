@@ -107,6 +107,27 @@ describe("HttpClient Infrastructure Tests", () => {
         expect(result).toEqual({ success: true, data: "profile" });
     });
 
+    it("should NOT refresh the token or redirect to /login on a 403 error", async () => {
+        const { router } = require("expo-router");
+
+        (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("some-token");
+
+        (global.fetch as jest.Mock).mockResolvedValueOnce({
+            ok: false,
+            status: 403,
+            headers: {
+                get: (h: string) => (h === "content-type" ? "application/json" : null)
+            },
+            json: async () => ({ success: false, message: "Forbidden" })
+        });
+
+        await expect(client.get("/users/private", { auth: true })).rejects.toBeTruthy();
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(SecureStore.deleteItemAsync).not.toHaveBeenCalled();
+        expect(router.replace).not.toHaveBeenCalled();
+    });
+
     it("should clear tokens and redirect to /login if the refresh token request fails", async () => {
         const { router } = require("expo-router");
 

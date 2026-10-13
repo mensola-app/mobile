@@ -171,7 +171,7 @@ async function httpClient<T = any>(url: string, options: RequestOptions = {}): P
         const isJson = response.headers.get("content-type")?.includes("application/json");
         const responseData = isJson ? await response.json() : null;
 
-        if (options.auth && (response.status === 401 || response.status === 403)) {
+        if (options.auth && response.status === 401) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject, url: targetUrl, config });
