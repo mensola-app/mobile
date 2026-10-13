@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
@@ -39,7 +40,13 @@ export default function FollowRequestRow({
             {/* Avatar with Request Badge */}
             <View style={styles.avatarContainer}>
                 {actor.avatar ? (
-                    <Image source={{ uri: actor.avatar }} style={styles.avatar} />
+                    <Image
+                        source={{ uri: actor.avatar }}
+                        style={styles.avatar}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={150}
+                    />
                 ) : (
                     <View style={styles.avatarFallback}>
                         <Text style={styles.avatarFallbackText}>

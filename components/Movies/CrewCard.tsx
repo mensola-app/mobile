@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { MovieCreditPerson } from "@/types/movie.types";
@@ -15,7 +16,13 @@ export default function CrewCard({ person, role }: CrewCardProps) {
         <View style={styles.card}>
             <View style={styles.imageWrapper}>
                 {hasImage ? (
-                    <Image source={{ uri: person.profilePath }} style={styles.image} />
+                    <Image
+                        source={{ uri: person.profilePath }}
+                        style={styles.image}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={150}
+                    />
                 ) : (
                     <View style={[styles.image, styles.placeholder]}>
                         <Ionicons name="person" size={18} color={Colors.textMuted} />

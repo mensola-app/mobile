@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { ActivityIndicator, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 
 import BottomSheet from "@/components/BottomSheet";
@@ -84,7 +85,15 @@ export default function InteractionSheet({
             <View style={styles.container}>
                 {/* Media Header */}
                 <View style={styles.headerRow}>
-                    {mediaPoster ? <Image source={{ uri: mediaPoster.toString() }} style={posterStyle} /> : null}
+                    {mediaPoster ? (
+                        <Image
+                            source={{ uri: mediaPoster.toString() }}
+                            style={posterStyle}
+                            contentFit="cover"
+                            cachePolicy="memory-disk"
+                            transition={150}
+                        />
+                    ) : null}
                     <View style={styles.headerInfo}>
                         <Text style={styles.mediaTitle} numberOfLines={1}>
                             {mediaTitle}

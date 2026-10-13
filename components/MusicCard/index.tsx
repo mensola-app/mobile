@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 
@@ -88,7 +89,15 @@ export default function MusicCard<
         ).filter(Boolean);
 
         if (rawCoverImage) {
-            coverContent = <Image source={{ uri: rawCoverImage }} style={styles.fullImage} />;
+            coverContent = (
+                <Image
+                    source={{ uri: rawCoverImage }}
+                    style={styles.fullImage}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                />
+            );
         } else if (trackImages.length === 0) {
             coverContent = (
                 <View style={styles.placeholderContainer}>
@@ -96,12 +105,27 @@ export default function MusicCard<
                 </View>
             );
         } else if (trackImages.length < 4) {
-            coverContent = <Image source={{ uri: trackImages[0] }} style={styles.fullImage} />;
+            coverContent = (
+                <Image
+                    source={{ uri: trackImages[0] }}
+                    style={styles.fullImage}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                />
+            );
         } else {
             coverContent = (
                 <View style={styles.gridContainer}>
                     {trackImages.slice(0, 4).map((imgUri: string, idx: number) => (
-                        <Image key={idx} source={{ uri: imgUri }} style={styles.gridImage} resizeMode="cover" />
+                        <Image
+                            key={idx}
+                            source={{ uri: imgUri }}
+                            style={styles.gridImage}
+                            contentFit="cover"
+                            cachePolicy="memory-disk"
+                            transition={150}
+                        />
                     ))}
                 </View>
             );
@@ -109,7 +133,15 @@ export default function MusicCard<
     } else {
         const rawImage = data.image ? data.image.toString() : null;
         if (rawImage) {
-            coverContent = <Image source={{ uri: rawImage }} style={styles.fullImage} />;
+            coverContent = (
+                <Image
+                    source={{ uri: rawImage }}
+                    style={styles.fullImage}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                />
+            );
         } else {
             coverContent = (
                 <View style={styles.placeholderContainer}>

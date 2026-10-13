@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { IMovieListOption } from "@/hooks/movie/useMovieLists";
 import { MovieId, MovieListId } from "@/types/common.types";
-import { MovieDetails } from "@/types/movie.types";
+import { MovieDetails, WatchedMovie } from "@/types/movie.types";
 
 export interface IActionBtnProps {
     icon?: keyof typeof Ionicons.glyphMap;

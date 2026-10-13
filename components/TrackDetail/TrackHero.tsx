@@ -1,10 +1,10 @@
 import {
     View,
     Text,
-    Image,
     TouchableOpacity,
     Linking,
 } from "react-native";
+import { Image } from "expo-image";
 import { Entypo, FontAwesome, Ionicons } from "@expo/vector-icons";
 
 import ActionButton from "@/components/Movies/ActionButton";
@@ -74,6 +74,9 @@ export default function TrackHero({
                             <Image
                                 source={{ uri: trackDetails.artists[0].avatar.toString() }}
                                 style={styles.avatar}
+                                contentFit="cover"
+                                cachePolicy="memory-disk"
+                                transition={150}
                             />
                         ) : (
                             <View style={[styles.avatar, styles.avatarPlaceholder]}>

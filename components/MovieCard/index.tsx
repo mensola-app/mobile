@@ -1,5 +1,6 @@
 import React from "react";
-import { TouchableOpacity, Image, View, Text } from "react-native";
+import { TouchableOpacity, View, Text } from "react-native";
+import { Image } from "expo-image";
 import { styles } from "./styles";
 import { IMovieCardProps } from "./types";
 import MovieCardFooter from "./MovieCardFooter";
@@ -58,7 +59,14 @@ export default function MovieCard<
 
         if (rawCoverImage) {
             coverContent = (
-                <Image source={{ uri: rawCoverImage }} style={styles.poster} accessibilityLabel={displayTitle} />
+                <Image
+                    source={{ uri: rawCoverImage }}
+                    style={styles.poster}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                    accessibilityLabel={displayTitle}
+                />
             );
         } else if (moviePosters.length === 0) {
             coverContent = (
@@ -68,13 +76,27 @@ export default function MovieCard<
             );
         } else if (moviePosters.length < 4) {
             coverContent = (
-                <Image source={{ uri: moviePosters[0] }} style={styles.poster} accessibilityLabel={displayTitle} />
+                <Image
+                    source={{ uri: moviePosters[0] }}
+                    style={styles.poster}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                    accessibilityLabel={displayTitle}
+                />
             );
         } else {
             coverContent = (
                 <View style={styles.gridContainer}>
                     {moviePosters.slice(0, 4).map((posterUri, idx) => (
-                        <Image key={idx} source={{ uri: posterUri }} style={styles.gridImage} resizeMode="cover" />
+                        <Image
+                            key={idx}
+                            source={{ uri: posterUri }}
+                            style={styles.gridImage}
+                            contentFit="cover"
+                            cachePolicy="memory-disk"
+                            transition={150}
+                        />
                     ))}
                 </View>
             );
@@ -116,7 +138,14 @@ export default function MovieCard<
 
         if (posterUri) {
             coverContent = (
-                <Image source={{ uri: posterUri }} style={styles.poster} accessibilityLabel={displayTitle} />
+                <Image
+                    source={{ uri: posterUri }}
+                    style={styles.poster}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                    accessibilityLabel={displayTitle}
+                />
             );
         } else {
             coverContent = (

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
@@ -138,6 +139,9 @@ export default function ReplaceFavoriteBottomSheet({
                                 <Image
                                     source={item.image ? { uri: item.image } : require("../../assets/images/icon.png")}
                                     style={styles.itemImage}
+                                    contentFit="cover"
+                                    cachePolicy="memory-disk"
+                                    transition={150}
                                 />
                                 <View style={styles.itemInfo}>
                                     <Text style={styles.itemTitle} numberOfLines={1}>

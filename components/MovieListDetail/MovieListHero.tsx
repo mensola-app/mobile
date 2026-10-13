@@ -2,9 +2,9 @@ import { useState } from "react";
 import {
     View,
     Text,
-    Image,
     TouchableOpacity,
 } from "react-native";
+import { Image } from "expo-image";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 
 import ActionButton from "@/components/Movies/ActionButton";
@@ -89,7 +89,14 @@ export default function MovieListHero({
             <DetailHero.Cover aspectRatio={2 / 3}>
                 <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%", height: "100%", overflow: "hidden" }}>
                     {moviePosters.slice(0, 4).map((posterUri, idx) => (
-                        <Image key={idx} source={{ uri: posterUri }} style={{ width: "50%", height: "50%" }} resizeMode="cover" />
+                        <Image
+                            key={idx}
+                            source={{ uri: posterUri }}
+                            style={{ width: "50%", height: "50%" }}
+                            contentFit="cover"
+                            cachePolicy="memory-disk"
+                            transition={150}
+                        />
                     ))}
                 </View>
             </DetailHero.Cover>
@@ -109,7 +116,13 @@ export default function MovieListHero({
                             onPress={() => setIsOwnersSheetVisible(true)}
                             activeOpacity={0.8}>
                             {creator.avatar ? (
-                                <Image source={{ uri: creator.avatar.toString() }} style={styles.avatar} />
+                                <Image
+                                    source={{ uri: creator.avatar.toString() }}
+                                    style={styles.avatar}
+                                    contentFit="cover"
+                                    cachePolicy="memory-disk"
+                                    transition={150}
+                                />
                             ) : (
                                 <View style={[styles.avatar, styles.avatarPlaceholder]}>
                                     <Text style={styles.avatarLetter}>

@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
@@ -83,7 +84,13 @@ export default function NotificationRow({ item, onPress, onPressActor }: Notific
             {/* Actor Avatar with Type Badge */}
             <TouchableOpacity onPress={handleActorPress} activeOpacity={0.7} style={styles.avatarContainer}>
                 {actor.avatar ? (
-                    <Image source={{ uri: actor.avatar }} style={styles.avatar} />
+                    <Image
+                        source={{ uri: actor.avatar }}
+                        style={styles.avatar}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={150}
+                    />
                 ) : (
                     <View style={styles.avatarFallback}>
                         <Text style={styles.avatarFallbackText}>
@@ -105,7 +112,13 @@ export default function NotificationRow({ item, onPress, onPressActor }: Notific
 
             {/* Target Media Thumbnail or Placeholder Icon (if applicable) */}
             {target?.image ? (
-                <Image source={{ uri: target.image }} style={styles.targetThumbnail} />
+                <Image
+                    source={{ uri: target.image }}
+                    style={styles.targetThumbnail}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                />
             ) : target?.type === "movie_list" ? (
                 <View style={[styles.targetThumbnail, styles.targetPlaceholder]}>
                     <Ionicons name="film-outline" size={18} color={Colors.textMuted} />

@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
     View,
     Text,
-    Image,
     ImageBackground,
     ScrollView,
     TouchableOpacity,
@@ -12,6 +11,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
@@ -138,7 +138,9 @@ export default function ArtistDetailView({
                             <Image
                                 source={{ uri: artistDetails.image }}
                                 style={styles.poster}
-                                resizeMode="cover"
+                                contentFit="cover"
+                                cachePolicy="memory-disk"
+                                transition={150}
                             />
                         ) : (
                             <View style={[styles.poster, styles.posterPlaceholder]}>
@@ -233,7 +235,13 @@ export default function ArtistDetailView({
                         >
                             <Text style={styles.trackIndexText}>{index + 1}</Text>
                             {track.image ? (
-                                <Image source={{ uri: track.image }} style={styles.trackImage} resizeMode="cover" />
+                                <Image
+                                    source={{ uri: track.image }}
+                                    style={styles.trackImage}
+                                    contentFit="cover"
+                                    cachePolicy="memory-disk"
+                                    transition={150}
+                                />
                             ) : (
                                 <View style={styles.trackImage} />
                             )}

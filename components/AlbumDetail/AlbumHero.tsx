@@ -1,10 +1,10 @@
 import {
     View,
     Text,
-    Image,
     TouchableOpacity,
     Linking,
 } from "react-native";
+import { Image } from "expo-image";
 import { Entypo, FontAwesome, Ionicons } from "@expo/vector-icons";
 
 import ActionButton from "@/components/Movies/ActionButton";
@@ -85,7 +85,13 @@ export default function AlbumHero({
                         }}
                     >
                         {artist.avatar ? (
-                            <Image source={{ uri: artist.avatar.toString() }} style={styles.avatar} />
+                            <Image
+                                source={{ uri: artist.avatar.toString() }}
+                                style={styles.avatar}
+                                contentFit="cover"
+                                cachePolicy="memory-disk"
+                                transition={150}
+                            />
                         ) : (
                             <View style={[styles.avatar, styles.avatarPlaceholder]}>
                                 <Text style={styles.avatarLetter}>

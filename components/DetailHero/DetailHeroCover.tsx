@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Image } from "react-native";
+import { View } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "./styles";
 import { IDetailHeroCoverProps } from "./types";
@@ -38,7 +39,9 @@ export default function DetailHeroCover({
                     { aspectRatio, borderRadius },
                     style as any,
                 ]}
-                resizeMode="cover"
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={150}
                 testID={testID}
             />
         );

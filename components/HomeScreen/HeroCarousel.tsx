@@ -2,12 +2,12 @@ import React, { useRef, useState, useCallback } from "react";
 import {
     Animated,
     FlatList,
-    Image,
     Text,
     TouchableOpacity,
     View,
     ViewToken,
 } from "react-native";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -25,7 +25,9 @@ function HeroCard({ item, onPress }: { item: HeroMovie; onPress: () => void }) {
             <Image
                 source={{ uri: item.backdropUrl || item.posterUrl }}
                 style={heroStyles.heroImage}
-                resizeMode="cover"
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={150}
             />
             <LinearGradient
                 colors={["transparent", "rgba(8,12,18,0.55)", "rgba(8,12,18,0.97)"]}
