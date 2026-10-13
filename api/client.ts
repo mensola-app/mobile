@@ -11,13 +11,6 @@ export interface RequestOptions extends RequestInit {
     silentNetworkError?: boolean;
 }
 
-interface RefreshQueueItem {
-    resolve: (value: any) => void;
-    reject: (error: any) => void;
-    url: string;
-    config: RequestInit;
-}
-
 export class NetworkError extends Error {
     success: false = false;
     isNetworkError: true = true;
@@ -92,29 +85,110 @@ export const isNetworkFailure = (error: any): boolean => {
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://api.mensola.app";
 
-let isRefreshing = false;
-let failedQueue: RefreshQueueItem[] = [];
+const REFRESH_TIMEOUT_MS = 10000;
 
-const processQueue = (error: any, token: string | null = null) => {
-    failedQueue.forEach((item) => {
-        if (error) {
-            item.reject(error);
-        } else if (token) {
-            const updatedConfig = {
-                ...item.config,
-                headers: {
-                    ...item.config.headers,
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            fetch(`${BASE_URL}${item.url}`, updatedConfig)
-                .then((res) => (res.headers.get("content-type")?.includes("application/json") ? res.json() : res))
-                .then((data) => item.resolve(data))
-                .catch((err) => item.reject(err));
+class SessionExpiredError extends Error {
+    constructor() {
+        super("Session expired");
+        this.name = "SessionExpiredError";
+        Object.setPrototypeOf(this, SessionExpiredError.prototype);
+    }
+}
+
+/**
+ * fetch with its own timeout and (optional) caller abort signal.
+ * Timer and listener are always cleaned up, so nothing leaks on error paths.
+ */
+const fetchWithTimeout = async (
+    input: string,
+    init: RequestInit,
+    timeoutMs: number,
+    callerSignal?: AbortSignal,
+): Promise<Response> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const onCallerAbort = () => controller.abort();
+
+    if (callerSignal) {
+        if (callerSignal.aborted) {
+            controller.abort();
+        } else {
+            callerSignal.addEventListener("abort", onCallerAbort, { once: true });
         }
-    });
-    failedQueue = [];
+    }
+
+    try {
+        return await fetch(input, { ...init, signal: controller.signal });
+    } finally {
+        clearTimeout(timeoutId);
+        callerSignal?.removeEventListener("abort", onCallerAbort);
+    }
 };
+
+const clearSession = async () => {
+    await SecureStore.deleteItemAsync("token");
+    await SecureStore.deleteItemAsync("refreshToken");
+    await SecureStore.deleteItemAsync("user_data");
+    router.replace("/login");
+};
+
+let refreshPromise: Promise<string> | null = null;
+
+/**
+ * Refreshes the access token. All concurrent callers share a single in-flight request.
+ * - Resolves with the new access token.
+ * - Rejects with SessionExpiredError (after wiping the session) only if the server rejects the refresh token (4xx).
+ * - Rejects with the underlying error (network/timeout/5xx) WITHOUT logging the user out.
+ */
+const refreshAccessToken = (activeLang: string): Promise<string> => {
+    if (refreshPromise) return refreshPromise;
+
+    refreshPromise = (async () => {
+        const storedRefreshToken = await SecureStore.getItemAsync("refreshToken");
+
+        const refreshResponse = await fetchWithTimeout(
+            `${BASE_URL}/v1/auth/refresh`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept-Language": activeLang,
+                },
+                body: JSON.stringify({ refreshToken: storedRefreshToken }),
+            },
+            REFRESH_TIMEOUT_MS,
+        );
+
+        let refreshData: any = null;
+        try {
+            refreshData = await refreshResponse.json();
+        } catch {
+            // non-JSON body; handled by status below
+        }
+
+        if (refreshResponse.ok && refreshData?.success) {
+            const newToken: string = refreshData.data.accessToken;
+            await SecureStore.setItemAsync("token", newToken);
+            return newToken;
+        }
+
+        if (refreshResponse.status >= 400 && refreshResponse.status < 500) {
+            await clearSession();
+            throw new SessionExpiredError();
+        }
+
+        throw {
+            success: false,
+            error: { message: "Token refresh failed" },
+            status: refreshResponse.status,
+        };
+    })().finally(() => {
+        refreshPromise = null;
+    });
+
+    return refreshPromise;
+};
+
 
 async function httpClient<T = any>(url: string, options: RequestOptions = {}): Promise<T> {
     const activeLang = getActiveLanguage();
@@ -157,76 +231,45 @@ async function httpClient<T = any>(url: string, options: RequestOptions = {}): P
     }
 
     const timeoutMs = options.timeout ?? 15000;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const callerSignal = options.signal ?? undefined;
 
-    if (options.signal) {
-        options.signal.addEventListener("abort", () => controller.abort());
-    }
-    config.signal = controller.signal;
+    const execute = async (requestConfig: RequestInit) => {
+        const response = await fetchWithTimeout(`${BASE_URL}${targetUrl}`, requestConfig, timeoutMs, callerSignal);
+        const isJson = response.headers.get("content-type")?.includes("application/json");
+        const data = isJson ? await response.json() : null;
+        return { response, data };
+    };
 
     try {
-        const response = await fetch(`${BASE_URL}${targetUrl}`, config);
-        clearTimeout(timeoutId);
-        const isJson = response.headers.get("content-type")?.includes("application/json");
-        const responseData = isJson ? await response.json() : null;
+        let { response, data: responseData } = await execute(config);
 
         if (options.auth && response.status === 401) {
-            if (isRefreshing) {
-                return new Promise((resolve, reject) => {
-                    failedQueue.push({ resolve, reject, url: targetUrl, config });
-                });
-            }
-
-            isRefreshing = true;
-
+            let newToken: string;
             try {
-                const storedRefreshToken = await SecureStore.getItemAsync("refreshToken");
-
-                const refreshResponse = await fetch(`${BASE_URL}/v1/auth/refresh`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept-Language": activeLang,
-                    },
-                    body: JSON.stringify({
-                        refreshToken: storedRefreshToken,
-                    }),
-                });
-
-                const refreshData = await refreshResponse.json();
-
-                if (refreshResponse.ok && refreshData.success) {
-                    const newToken = refreshData.data.accessToken;
-                    await SecureStore.setItemAsync("token", newToken);
-
-                    isRefreshing = false;
-                    processQueue(null, newToken);
-
-                    (config.headers as Record<string, string>)["Authorization"] = `Bearer ${newToken}`;
-                    const retryResponse = await fetch(`${BASE_URL}${targetUrl}`, config);
-                    return isJson ? await retryResponse.json() : (null as unknown as T);
-                } else {
-                    processQueue(refreshData, null);
-                }
+                newToken = await refreshAccessToken(activeLang);
             } catch (refreshError) {
-                processQueue(refreshError, null);
+                if (refreshError instanceof SessionExpiredError) {
+                    throw (
+                        responseData || {
+                            success: false,
+                            error: { message: "Oturum süresi doldu." },
+                        }
+                    );
+                }
+                throw refreshError;
             }
 
-            isRefreshing = false;
-            await SecureStore.deleteItemAsync("token");
-            await SecureStore.deleteItemAsync("refreshToken");
-            await SecureStore.deleteItemAsync("user_data");
-
-            router.replace("/login");
-
-            throw (
-                responseData || {
-                    success: false,
-                    error: { message: "Oturum süresi doldu." },
-                }
-            );
+            // Retry exactly once with the fresh token, through the same path as a normal request
+            // (fresh timeout/signal, same error normalization). A second 401 is surfaced as an error.
+            ({ response, data: responseData } = await execute({
+                ...config,
+                headers: {
+                    ...(config.headers as Record<string, string>),
+                    Authorization: `Bearer ${newToken}`,
+                },
+            }));
         }
+
 
         if (!response.ok || (responseData && responseData.success === false)) {
             const isRateLimited = response.status === 429;
@@ -264,7 +307,6 @@ async function httpClient<T = any>(url: string, options: RequestOptions = {}): P
 
         return responseData;
     } catch (error) {
-        clearTimeout(timeoutId);
         if (isNetworkFailure(error)) {
             const localizedMessage =
                 (typeof i18n.t === "function" &&

@@ -196,56 +196,127 @@ describe("HttpClient Infrastructure Tests", () => {
         expect(router.replace).toHaveBeenCalledWith("/login");
     });
 
-    it("should queue subsequent requests while a refresh token request is in progress and resolve them after completion", async () => {
-        (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("old-token");
+    const jsonResponse = (status: number, body: unknown) => ({
+        ok: status >= 200 && status < 300,
+        status,
+        headers: { get: (h: string) => (h === "content-type" ? "application/json" : null) },
+        json: async () => body
+    });
 
-        (global.fetch as jest.Mock)
-            .mockResolvedValueOnce({
-                ok: false,
-                status: 401,
-                headers: { get: h => "application/json" },
-                json: async () => ({ success: false })
-            })
-            .mockResolvedValueOnce({
-                ok: false,
-                status: 401,
-                headers: { get: h => "application/json" },
-                json: async () => ({ success: false })
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                status: 200,
-                headers: { get: h => "application/json" },
-                json: async () => ({
-                    success: true,
-                    data: { accessToken: "yeni-token" }
-                })
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                status: 200,
-                headers: { get: h => "application/json" },
-                json: async () => ({ success: true, data: "request-2-data" })
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                status: 200,
-                headers: { get: h => "application/json" },
-                json: async () => ({ success: true, data: "request-1-data" })
-            });
+    /** Routes fetch by URL. Requests to protected endpoints 401 until the refreshed token is used. */
+    const mockAuthBackend = (refreshImpl: () => Promise<unknown>) => {
+        (global.fetch as jest.Mock).mockImplementation(async (url: string, init: RequestInit) => {
+            if (url.includes("/auth/refresh")) return refreshImpl();
+            const auth = (init.headers as Record<string, string>)?.Authorization;
+            if (auth !== "Bearer yeni-token") return jsonResponse(401, { success: false });
+            return jsonResponse(200, { success: true, data: `data:${url.split("/").pop()}` });
+        });
+    };
+
+    it("should share one refresh request between concurrent 401s and resolve all of them", async () => {
+        (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("old-token");
+        mockAuthBackend(async () => jsonResponse(200, { success: true, data: { accessToken: "yeni-token" } }));
 
         const [res1, res2] = await Promise.all([
             client.get("/endpoint1", { auth: true }),
             client.get("/endpoint2", { auth: true })
         ]);
 
-        const refreshCalls = (global.fetch as jest.Mock).mock.calls.filter(
-            call => call[0].includes("/auth/refresh")
-        );
+        const refreshCalls = (global.fetch as jest.Mock).mock.calls.filter(call => call[0].includes("/auth/refresh"));
         expect(refreshCalls.length).toBe(1);
 
-        expect(res1).toEqual({ success: true, data: "request-1-data" });
-        expect(res2).toEqual({ success: true, data: "request-2-data" });
+        expect(res1).toEqual({ success: true, data: "data:endpoint1" });
+        expect(res2).toEqual({ success: true, data: "data:endpoint2" });
+    });
+
+    it("should NOT log the user out when the refresh request fails due to a network error", async () => {
+        const { router } = require("expo-router");
+        (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("old-token");
+        mockAuthBackend(async () => {
+            throw new TypeError("Network request failed");
+        });
+
+        await expect(client.get("/endpoint1", { auth: true, silentNetworkError: true })).rejects.toMatchObject({
+            isNetworkError: true
+        });
+
+        expect(SecureStore.deleteItemAsync).not.toHaveBeenCalled();
+        expect(router.replace).not.toHaveBeenCalled();
+    });
+
+    it("should NOT log the user out when the refresh endpoint returns a 5xx", async () => {
+        const { router } = require("expo-router");
+        (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("old-token");
+        mockAuthBackend(async () => jsonResponse(503, { success: false }));
+
+        await expect(client.get("/endpoint1", { auth: true })).rejects.toMatchObject({ status: 503 });
+
+        expect(SecureStore.deleteItemAsync).not.toHaveBeenCalled();
+        expect(router.replace).not.toHaveBeenCalled();
+    });
+
+    it("should allow a new refresh after a previous refresh attempt failed (no stuck state)", async () => {
+        (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("old-token");
+
+        mockAuthBackend(async () => {
+            throw new TypeError("Network request failed");
+        });
+        await client.get("/endpoint1", { auth: true, silentNetworkError: true }).catch(() => undefined);
+
+        mockAuthBackend(async () => jsonResponse(200, { success: true, data: { accessToken: "yeni-token" } }));
+        const result = await client.get("/endpoint1", { auth: true });
+
+        expect(result).toEqual({ success: true, data: "data:endpoint1" });
+    });
+
+    it("should abort a hanging refresh request via timeout and not leave refresh stuck", async () => {
+        jest.useFakeTimers();
+        try {
+            (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("old-token");
+
+            (global.fetch as jest.Mock).mockImplementation((url: string, init: RequestInit) => {
+                if (url.includes("/auth/refresh")) {
+                    return new Promise((_, reject) => {
+                        init.signal?.addEventListener("abort", () => {
+                            const err = new Error("Aborted");
+                            err.name = "AbortError";
+                            reject(err);
+                        });
+                    });
+                }
+                return Promise.resolve(jsonResponse(401, { success: false }));
+            });
+
+            const pending = client.get("/endpoint1", { auth: true, silentNetworkError: true });
+            const assertion = expect(pending).rejects.toMatchObject({ isNetworkError: true });
+
+            await jest.advanceTimersByTimeAsync(10001);
+            await assertion;
+        } finally {
+            jest.useRealTimers();
+        }
+
+        mockAuthBackend(async () => jsonResponse(200, { success: true, data: { accessToken: "yeni-token" } }));
+        await expect(client.get("/endpoint1", { auth: true })).resolves.toEqual({
+            success: true,
+            data: "data:endpoint1"
+        });
+    });
+
+    it("should normalize errors of the retried request after a successful refresh", async () => {
+        (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("old-token");
+
+        (global.fetch as jest.Mock).mockImplementation(async (url: string, init: RequestInit) => {
+            if (url.includes("/auth/refresh")) {
+                return jsonResponse(200, { success: true, data: { accessToken: "yeni-token" } });
+            }
+            const auth = (init.headers as Record<string, string>)?.Authorization;
+            return auth === "Bearer yeni-token"
+                ? jsonResponse(500, { success: false, message: "boom" })
+                : jsonResponse(401, { success: false });
+        });
+
+        await expect(client.get("/endpoint1", { auth: true })).rejects.toMatchObject({ message: "boom", status: 500 });
     });
 
     it("should include Accept-Language header on outgoing requests", async () => {
