@@ -76,4 +76,32 @@ describe("DynamicList Component Unit Tests", () => {
         const flatList = UNSAFE_getByType(require("react-native").FlatList);
         expect(flatList.props.ItemSeparatorComponent).toBe(CustomSeparator);
     });
+
+    it("should extract key using item.id by default instead of array index", () => {
+        const { UNSAFE_getByType } = render(
+            <DynamicList
+                data={mockData}
+                renderItem={renderItem}
+            />
+        );
+
+        const flatList = UNSAFE_getByType(require("react-native").FlatList);
+        expect(flatList.props.keyExtractor(mockData[0], 0)).toBe("1");
+        expect(flatList.props.keyExtractor(mockData[1], 1)).toBe("2");
+    });
+
+    it("should apply optimized windowSize and initialNumToRender defaults", () => {
+        const { UNSAFE_getByType } = render(
+            <DynamicList
+                data={mockData}
+                renderItem={renderItem}
+                variant="vertical"
+            />
+        );
+
+        const flatList = UNSAFE_getByType(require("react-native").FlatList);
+        expect(flatList.props.initialNumToRender).toBe(8);
+        expect(flatList.props.windowSize).toBe(7);
+        expect(flatList.props.maxToRenderPerBatch).toBe(8);
+    });
 });

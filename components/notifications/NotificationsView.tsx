@@ -57,6 +57,9 @@ export default function NotificationsView({
                         />
                     ) : undefined
                 }
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={7}
                 testID="notifications-flatlist"
             />
         </View>

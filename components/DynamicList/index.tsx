@@ -1,8 +1,16 @@
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { styles } from "./styles";
 import { IDynamicListProps } from "./types";
+
+const defaultKeyExtractor = (item: any, index: number): string => {
+    if (!item) return index.toString();
+    if (typeof item === "string" || typeof item === "number") return item.toString();
+    const id = item.id ?? item.tmdbId ?? item.spotifyId ?? item.commentId ?? item.key;
+    if (id !== undefined && id !== null) return String(id);
+    return index.toString();
+};
 
 export default function DynamicList<T>({
     title,
@@ -14,6 +22,11 @@ export default function DynamicList<T>({
     ItemSeparatorComponent,
     style,
     contentContainerStyle,
+    keyExtractor = defaultKeyExtractor,
+    initialNumToRender,
+    maxToRenderPerBatch,
+    windowSize,
+    removeClippedSubviews = Platform.OS === "android",
     ...restProps
 }: IDynamicListProps<T>) {
     const { t } = useTranslation();
@@ -37,10 +50,14 @@ export default function DynamicList<T>({
             <FlatList
                 data={data}
                 renderItem={renderItem}
-                keyExtractor={(_, index) => index.toString()}
+                keyExtractor={keyExtractor}
                 horizontal={isHorizontal}
                 showsHorizontalScrollIndicator={false}
                 ItemSeparatorComponent={ItemSeparatorComponent || renderDefaultSeparator}
+                initialNumToRender={initialNumToRender ?? (isHorizontal ? 6 : 8)}
+                maxToRenderPerBatch={maxToRenderPerBatch ?? (isHorizontal ? 6 : 8)}
+                windowSize={windowSize ?? (isHorizontal ? 5 : 7)}
+                removeClippedSubviews={removeClippedSubviews}
                 contentContainerStyle={[
                     isHorizontal ? styles.horizontalContent : styles.verticalContent,
                     style,

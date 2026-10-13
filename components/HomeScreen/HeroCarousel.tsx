@@ -75,6 +75,9 @@ export default function HeroCarousel({ movies, onMoviePress }: IHeroCarouselProp
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
+                initialNumToRender={2}
+                maxToRenderPerBatch={2}
+                windowSize={3}
                 onViewableItemsChanged={onViewableItemsChanged}
                 viewabilityConfig={viewabilityConfig}
             />
