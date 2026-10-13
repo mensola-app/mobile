@@ -18,7 +18,7 @@ import { styles } from "./styles";
 export default function HomeScreen() {
     const { t } = useTranslation();
     const router = useRouter();
-    const { data, isLoading, error, refetch } = useHome();
+    const { data, isLoading, isRefetching, error, refetch } = useHome();
 
     const handleHeroPress = (movie: HeroMovie) => {
         router.push(`/movies/${movie.tmdbId}?type=tmdb`);
@@ -63,7 +63,7 @@ export default function HomeScreen() {
                 showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl
-                        refreshing={isLoading}
+                        refreshing={isRefetching}
                         onRefresh={refetch}
                         tintColor={Colors.primary}
                         colors={[Colors.primary]}

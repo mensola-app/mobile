@@ -2,6 +2,7 @@ import React from "react";
 import { Text, View } from "react-native";
 import { render, fireEvent } from "@testing-library/react-native";
 import DynamicList from "./index";
+import { Colors } from "@/constants/colors";
 
 describe("DynamicList Component Unit Tests", () => {
     const mockData = [
@@ -103,5 +104,24 @@ describe("DynamicList Component Unit Tests", () => {
         expect(flatList.props.initialNumToRender).toBe(8);
         expect(flatList.props.windowSize).toBe(7);
         expect(flatList.props.maxToRenderPerBatch).toBe(8);
+    });
+
+    it("should configure themed RefreshControl when onRefresh is passed to vertical list", () => {
+        const onRefreshMock = jest.fn();
+        const { UNSAFE_getByType } = render(
+            <DynamicList
+                data={mockData}
+                renderItem={renderItem}
+                variant="vertical"
+                onRefresh={onRefreshMock}
+                refreshing={true}
+            />
+        );
+
+        const flatList = UNSAFE_getByType(require("react-native").FlatList);
+        expect(flatList.props.refreshControl).toBeTruthy();
+        expect(flatList.props.refreshControl.props.refreshing).toBe(true);
+        expect(flatList.props.refreshControl.props.onRefresh).toBe(onRefreshMock);
+        expect(flatList.props.refreshControl.props.tintColor).toBe(Colors.primary);
     });
 });

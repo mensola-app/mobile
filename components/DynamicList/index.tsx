@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, FlatList, Platform } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Platform, RefreshControl } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { styles } from "./styles";
 import { IDynamicListProps } from "./types";
+import { Colors } from "@/constants/colors";
 
 const defaultKeyExtractor = (item: any, index: number): string => {
     if (!item) return index.toString();
@@ -27,12 +28,29 @@ export default function DynamicList<T>({
     maxToRenderPerBatch,
     windowSize,
     removeClippedSubviews = Platform.OS === "android",
+    onRefresh,
+    refreshing,
+    refreshControl,
     ...restProps
 }: IDynamicListProps<T>) {
     const { t } = useTranslation();
     const isHorizontal = variant === "horizontal";
 
     const renderDefaultSeparator = () => <View style={isHorizontal ? { width: 16 } : { height: 16 }} />;
+
+    const resolvedRefreshControl =
+        refreshControl !== undefined
+            ? refreshControl
+            : !isHorizontal && onRefresh
+              ? (
+                    <RefreshControl
+                        refreshing={Boolean(refreshing)}
+                        onRefresh={onRefresh}
+                        tintColor={Colors.primary}
+                        colors={[Colors.primary]}
+                    />
+                )
+              : undefined;
 
     return (
         <View style={styles.container}>
@@ -58,6 +76,7 @@ export default function DynamicList<T>({
                 maxToRenderPerBatch={maxToRenderPerBatch ?? (isHorizontal ? 6 : 8)}
                 windowSize={windowSize ?? (isHorizontal ? 5 : 7)}
                 removeClippedSubviews={removeClippedSubviews}
+                refreshControl={resolvedRefreshControl}
                 contentContainerStyle={[
                     isHorizontal ? styles.horizontalContent : styles.verticalContent,
                     style,

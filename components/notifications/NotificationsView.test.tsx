@@ -48,4 +48,20 @@ describe("NotificationsView Component", () => {
         fireEvent.press(getByTestId("notification-row-2"));
         expect(onPressNotification).toHaveBeenCalledWith(mockNotifications[1]);
     });
+
+    it("renders RefreshControl and passes refreshing and onRefresh props", () => {
+        const onRefresh = jest.fn();
+        const { getByTestId } = render(
+            <NotificationsView
+                notifications={mockNotifications}
+                onRefresh={onRefresh}
+                refreshing={true}
+            />
+        );
+
+        const flatList = getByTestId("notifications-flatlist");
+        expect(flatList.props.refreshControl).toBeTruthy();
+        expect(flatList.props.refreshControl.props.refreshing).toBe(true);
+        expect(flatList.props.refreshControl.props.onRefresh).toBe(onRefresh);
+    });
 });
