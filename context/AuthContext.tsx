@@ -9,6 +9,8 @@ import { IUser } from "@/types/user.types";
 import { registerForPushNotificationsAsync } from "@/utils/notification.utils";
 import { DeviceService } from "@/services/device.service";
 import { AuthService } from "@/services/auth.service";
+import { useQueryClient } from "@tanstack/react-query";
+import { setMonitoringUser } from "@/utils/monitoring";
 
 interface AuthContextType {
     user?: IUser;
@@ -23,6 +25,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const queryClient = useQueryClient();
     const [user, setUserState] = useState<IUser>();
     const [token, setToken] = useState<string | null>(null);
     const [pushToken, setPushToken] = useState<string | null>(null);
@@ -34,8 +37,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const storedToken = await SecureStore.getItemAsync("token");
                 const storedUser = await SecureStore.getItemAsync("user_data");
                 if (storedToken && storedUser) {
+                    const parsedUser = JSON.parse(storedUser);
                     setToken(storedToken);
-                    setUserState(JSON.parse(storedUser));
+                    setUserState(parsedUser);
+                    setMonitoringUser(parsedUser.id);
                 }
             } catch {
                 // Ignore storage read error
@@ -77,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const setUser = (u: IUser | undefined) => {
         setUserState(u);
+        setMonitoringUser(u?.id);
         if (u) {
             SecureStore.setItemAsync("user_data", JSON.stringify(u)).catch(() => {});
         } else {
@@ -93,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await SecureStore.setItemAsync("user_data", JSON.stringify(userData));
             setToken(tokens.accessToken);
             setUserState(userData);
+            setMonitoringUser(userData.id);
         } catch {
             // Silently handle save error
         }
@@ -100,6 +107,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = async (pushTokenOverride?: string) => {
         try {
+            // Clear React Query cache immediately so no stale user data persists
+            queryClient.clear();
+            setMonitoringUser(undefined);
+
             const storedPushToken = await SecureStore.getItemAsync("push_token");
             const activePushToken = pushTokenOverride || pushToken || storedPushToken || undefined;
             const refreshToken = await SecureStore.getItemAsync("refreshToken");

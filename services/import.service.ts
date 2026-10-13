@@ -3,8 +3,7 @@ import { uploadAsync, FileSystemUploadType } from "expo-file-system/legacy";
 import { client, getActiveLanguage } from "@/api/client";
 import { ApiResponse } from "@/types/api";
 import { ImportJobProgress, ImportResponseDto } from "@/types/import.types";
-
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://api.mensola.app";
+import { API_BASE_URL as BASE_URL } from "@/constants/env";
 
 export interface SelectedZipFile {
     uri: string;

@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { Alert } from "react-native";
 import i18n from "i18next";
 import { usePreferences } from "@/hooks/usePreferences";
+import { API_BASE_URL as BASE_URL } from "@/constants/env";
 
 export interface RequestOptions extends RequestInit {
     auth?: boolean;
@@ -82,8 +83,6 @@ export const isNetworkFailure = (error: any): boolean => {
         msg.includes("aborted")
     );
 };
-
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://api.mensola.app";
 
 const REFRESH_TIMEOUT_MS = 10000;
 

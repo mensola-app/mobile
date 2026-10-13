@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react-native";
+import { SENTRY_DSN } from "@/constants/env";
 
 /**
  * Crash / error reporting (Sentry).
@@ -6,8 +7,6 @@ import * as Sentry from "@sentry/react-native";
  * - Enabled only when EXPO_PUBLIC_SENTRY_DSN is set AND the app is not running in dev (__DEV__).
  * - Without a DSN every function here is a safe no-op, so local development and tests are unaffected.
  */
-const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
-
 export const isMonitoringEnabled = (): boolean => Boolean(SENTRY_DSN) && !__DEV__;
 
 export const initMonitoring = (): void => {

@@ -249,10 +249,7 @@ export default function SettingsView() {
                 // Revert state on failure
                 setUser({ ...user, isPrivate: !newValue });
 
-                Alert.alert(
-                    t("common.error"),
-                    t("settings.alerts.privacyUpdate.error")
-                );
+                Alert.alert(t("common.error"), t("settings.alerts.privacyUpdate.error"));
             }
         } else {
             setPreference(itemId as any, newValue);
@@ -296,60 +293,39 @@ export default function SettingsView() {
             setIsImportModalVisible(true);
         } else if (actionKey === "IMPORT_SPOTIFY") {
             setIsSpotifyModalVisible(true);
-        } else if (actionKey === "EXPORT_USER_DATA") {
-            Alert.alert(
-                t("settings.alerts.exportData.title"),
-                t("settings.alerts.exportData.body"),
-                [
-                    { text: t("common.cancel"), style: "cancel" },
-                    {
-                        text: t("common.ok"),
-                        onPress: () => {
-                            Alert.alert(t("common.success"), t("settings.alerts.exportData.success"));
-                        },
-                    },
-                ]
-            );
         } else if (actionKey === "LOGOUT") {
-            Alert.alert(
-                t("settings.alerts.logout.title"),
-                t("settings.alerts.logout.body"),
-                [
-                    { text: t("common.cancel"), style: "cancel" },
-                    {
-                        text: t("settings.alerts.logout.button"),
-                        style: "destructive",
-                        onPress: async () => {
-                            try {
-                                await logout();
-                            } catch (e) {
-                                console.error("Error signing out:", e);
-                            }
-                        },
+            Alert.alert(t("settings.alerts.logout.title"), t("settings.alerts.logout.body"), [
+                { text: t("common.cancel"), style: "cancel" },
+                {
+                    text: t("settings.alerts.logout.button"),
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await logout();
+                        } catch (e) {
+                            console.error("Error signing out:", e);
+                        }
                     },
-                ]
-            );
+                },
+            ]);
         } else if (actionKey === "DELETE_USER_ACCOUNT") {
-            Alert.alert(
-                t("settings.alerts.deleteAccount.title"),
-                t("settings.alerts.deleteAccount.body"),
-                [
-                    { text: t("common.cancel"), style: "cancel" },
-                    {
-                        text: t("settings.alerts.deleteAccount.button"),
-                        style: "destructive",
-                        onPress: async () => {
-                            try {
-                                await UserService.deleteAccount();
-                                await logout();
-                            } catch (e) {
-                                console.error("Error deleting account:", e);
-                                Alert.alert(t("common.error"), t("settings.alerts.deleteAccount.error"));
-                            }
-                        },
+            Alert.alert(t("settings.alerts.deleteAccount.title"), t("settings.alerts.deleteAccount.body"), [
+                { text: t("common.cancel"), style: "cancel" },
+                {
+                    text: t("settings.alerts.deleteAccount.button"),
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await UserService.deleteAccount();
+                            await logout();
+                        } catch (e: any) {
+                            const errorMsg =
+                                e?.error?.message || e?.message || t("settings.alerts.deleteAccount.error");
+                            Alert.alert(t("common.error"), errorMsg);
+                        }
                     },
-                ]
-            );
+                },
+            ]);
         }
     };
 
@@ -381,8 +357,7 @@ export default function SettingsView() {
                 isVisible={isSheetVisible}
                 onClose={() => setIsSheetVisible(false)}
                 title={activeOptionsSetting?.label || "Select Option"}
-                showCloseButton
-            >
+                showCloseButton>
                 {activeOptionsSetting && (
                     <View style={styles.sheetOptionList}>
                         {activeOptionsSetting.options.map((option, index) => {
@@ -396,14 +371,8 @@ export default function SettingsView() {
                                     onPress={() => {
                                         handleOptionSelect(activeOptionsSetting.id, option.value);
                                         setIsSheetVisible(false);
-                                    }}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.sheetOptionText,
-                                            isSelected && styles.sheetOptionTextActive,
-                                        ]}
-                                    >
+                                    }}>
+                                    <Text style={[styles.sheetOptionText, isSelected && styles.sheetOptionTextActive]}>
                                         {option.label}
                                     </Text>
                                     {isSelected && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
@@ -414,14 +383,8 @@ export default function SettingsView() {
                 )}
             </BottomSheet>
 
-            <ImportLetterboxdModal
-                isVisible={isImportModalVisible}
-                onClose={() => setIsImportModalVisible(false)}
-            />
-            <ImportSpotifyModal
-                isVisible={isSpotifyModalVisible}
-                onClose={() => setIsSpotifyModalVisible(false)}
-            />
+            <ImportLetterboxdModal isVisible={isImportModalVisible} onClose={() => setIsImportModalVisible(false)} />
+            <ImportSpotifyModal isVisible={isSpotifyModalVisible} onClose={() => setIsSpotifyModalVisible(false)} />
         </View>
     );
 }
