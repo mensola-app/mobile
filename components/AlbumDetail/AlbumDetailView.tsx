@@ -31,7 +31,8 @@ export default function AlbumDetailView({
     error,
     refetchAll,
     toggleLike,
-}: IAlbumDetailViewProps) {
+    ...props
+}: IAlbumDetailViewProps & { refetch?: () => void }) {
     const router = useRouter();
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<"tracks" | "comments">("tracks");
@@ -158,7 +159,7 @@ export default function AlbumDetailView({
                         </View>
                     </>
                 }
-                onRefresh={refetchAll}
+                onRefresh={refetchAll || (props as any)?.refetch}
                 refreshing={isRefetching}
                 ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                 ListEmptyComponent={

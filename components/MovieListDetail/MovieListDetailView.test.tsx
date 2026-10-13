@@ -90,4 +90,32 @@ describe("MovieListDetailView Component", () => {
         fireEvent.press(getByText("Yorumlar (1)"));
         expect(getByText("Mükemmel liste!")).toBeTruthy();
     });
+
+    it("should pass refreshing and onRefresh to list and trigger refetchAll", () => {
+        const refetchAllMock = jest.fn();
+        const { UNSAFE_getByType } = render(
+            <MovieListDetailView
+                listDetails={mockListDetails as any}
+                movies={mockMovies as any}
+                interactions={mockInteractions as any}
+                isLoading={false}
+                isRefetching={true}
+                error=""
+                refetchAll={refetchAllMock}
+                toggleLike={() => {}}
+                submitInteraction={async () => {}}
+                loadMoreMovies={() => {}}
+                hasNextMoviePage={false}
+                isFetchingNextMoviePage={false}
+                loadMoreInteractions={() => {}}
+            />
+        );
+
+        const flatList = UNSAFE_getByType(require("react-native").FlatList);
+        expect(flatList.props.refreshControl).toBeTruthy();
+        expect(flatList.props.refreshControl.props.refreshing).toBe(true);
+        flatList.props.refreshControl.props.onRefresh();
+        expect(refetchAllMock).toHaveBeenCalledTimes(1);
+    });
 });
+

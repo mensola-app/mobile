@@ -31,7 +31,8 @@ export default function MovieListDetailView({
     toggleLike,
     toggleSave,
     submitInteraction,
-}: IMovieListDetailViewProps) {
+    ...props
+}: IMovieListDetailViewProps & { refetch?: () => void }) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<"movies" | "comments">("movies");
     const [isInteractionSheetOpen, setIsInteractionSheetOpen] = useState<boolean>(false);
@@ -162,7 +163,7 @@ export default function MovieListDetailView({
                         </View>
                     </>
                 }
-                onRefresh={refetchAll}
+                onRefresh={refetchAll || (props as any)?.refetch}
                 refreshing={isRefetching}
                 ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                 ListEmptyComponent={

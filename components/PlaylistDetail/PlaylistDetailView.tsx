@@ -32,7 +32,8 @@ export default function PlaylistDetailView({
     error,
     toggleLike,
     toggleSave,
-}: IPlaylistDetailViewProps) {
+    ...props
+}: IPlaylistDetailViewProps & { refetch?: () => void }) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<"tracks" | "comments">("tracks");
     const [isInteractionSheetOpen, setIsInteractionSheetOpen] = useState<boolean>(false);
@@ -162,7 +163,7 @@ export default function PlaylistDetailView({
                         </View>
                     </>
                 }
-                onRefresh={refetchAll}
+                onRefresh={refetchAll || (props as any)?.refetch}
                 refreshing={isRefetching}
                 ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                 ListEmptyComponent={
