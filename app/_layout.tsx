@@ -5,6 +5,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Colors } from "../constants/colors";
 import { configureGoogleSignIn } from "../services/googleAuth.service";
+import { shouldRetryQuery, queryRetryDelay } from "../api/retry";
 import * as Notifications from "expo-notifications";
 import "../i18n";
 
@@ -13,7 +14,8 @@ const queryClient = new QueryClient({
         queries: {
             staleTime: 1000 * 60 * 5,
             gcTime: 1000 * 60 * 10,
-            retry: 2,
+            retry: shouldRetryQuery,
+            retryDelay: queryRetryDelay,
         },
     },
 });

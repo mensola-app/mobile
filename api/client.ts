@@ -229,13 +229,38 @@ async function httpClient<T = any>(url: string, options: RequestOptions = {}): P
         }
 
         if (!response.ok || (responseData && responseData.success === false)) {
-            throw (
-                responseData || {
-                    success: false,
-                    error: { message: "Bir hata meydana geldi." },
-                }
-            );
+            const isRateLimited = response.status === 429;
+            const errorBody =
+                responseData ||
+                (isRateLimited
+                    ? {
+                          success: false,
+                          error: {
+                              code: "RATE_LIMITED",
+                              message:
+                                  (typeof i18n.t === "function" &&
+                                      i18n.t("common.rateLimitedMessage", {
+                                          defaultValue: "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
+                                      })) ||
+                                  "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
+                          },
+                      }
+                    : {
+                          success: false,
+                          error: { message: "Bir hata meydana geldi." },
+                      });
+
+            const retryAfterSeconds = Number(response.headers.get("retry-after"));
+            Object.defineProperty(errorBody, "status", { value: response.status, enumerable: false });
+            if (isRateLimited && Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+                Object.defineProperty(errorBody, "retryAfterMs", {
+                    value: retryAfterSeconds * 1000,
+                    enumerable: false,
+                });
+            }
+            throw errorBody;
         }
+
 
         return responseData;
     } catch (error) {

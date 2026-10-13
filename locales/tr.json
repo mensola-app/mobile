@@ -530,6 +530,7 @@
         "discussion": "Tartışma",
         "networkErrorTitle": "Bağlantı Hatası",
         "networkErrorMessage": "Lütfen internet bağlantınızı kontrol edin.",
+        "rateLimitedMessage": "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
         "loginRequired": "Giriş Yapmalısınız",
         "loginRequiredMessage": "Beğeni yapmak için lütfen giriş yapın.",
         "login": "Giriş Yap",

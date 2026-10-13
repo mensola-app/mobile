@@ -128,6 +128,41 @@ describe("HttpClient Infrastructure Tests", () => {
         expect(router.replace).not.toHaveBeenCalled();
     });
 
+    it("should expose status and Retry-After on a 429 with a non-JSON body", async () => {
+        (global.fetch as jest.Mock).mockResolvedValueOnce({
+            ok: false,
+            status: 429,
+            headers: {
+                get: (h: string) => (h === "retry-after" ? "7" : null)
+            }
+        });
+
+        const error = await client.get("/search").catch(e => e);
+
+        expect(error.status).toBe(429);
+        expect(error.retryAfterMs).toBe(7000);
+        expect(error.error.code).toBe("RATE_LIMITED");
+        expect(typeof error.error.message).toBe("string");
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should keep the backend error body and attach status on a JSON 429", async () => {
+        (global.fetch as jest.Mock).mockResolvedValueOnce({
+            ok: false,
+            status: 429,
+            headers: {
+                get: (h: string) => (h === "content-type" ? "application/json" : null)
+            },
+            json: async () => ({ success: false, message: "Slow down" })
+        });
+
+        const error = await client.get("/search").catch(e => e);
+
+        expect(error.status).toBe(429);
+        expect(error.message).toBe("Slow down");
+        expect(error.retryAfterMs).toBeUndefined();
+    });
+
     it("should clear tokens and redirect to /login if the refresh token request fails", async () => {
         const { router } = require("expo-router");
 
