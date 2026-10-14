@@ -438,6 +438,7 @@
             "inputNotPlaylist": "Only playlist links are supported. Track, album, or artist links cannot be imported.",
             "alreadyAdded": "This playlist is already in the list.",
             "genericError": "An error occurred while importing playlists.",
+            "rateLimited": "Too many requests. Please wait a moment and try again.",
             "retryText": "Try Again"
         },
         "letterboxdImport": {
@@ -471,6 +472,9 @@
             "errorTitle": "Error",
             "invalidZip": "Only .zip archive files are supported.",
             "fileTooLarge": "File size cannot exceed 50MB.",
+            "fileNotFound": "Selected file could not be found or read.",
+            "uploadTimeout": "Upload timed out. Please check your connection and try again.",
+            "rateLimited": "Too many requests. Please wait a moment and try again.",
             "invalidServerResponse": "Invalid response received from server.",
             "uploadFailed": "Failed to upload file.",
             "genericError": "An error occurred during import.",

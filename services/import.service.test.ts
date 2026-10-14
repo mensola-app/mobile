@@ -1,6 +1,6 @@
-import { ImportService } from "./import.service";
+import { ImportService, ImportUploadError } from "./import.service";
 import { client } from "@/api/client";
-import { uploadAsync, FileSystemUploadType } from "expo-file-system/legacy";
+import { uploadAsync, getInfoAsync, FileSystemUploadType } from "expo-file-system/legacy";
 import * as SecureStore from "expo-secure-store";
 
 jest.mock("@/api/client", () => ({
@@ -17,18 +17,29 @@ jest.mock("expo-secure-store", () => ({
 
 jest.mock("expo-file-system/legacy", () => ({
     uploadAsync: jest.fn(),
+    getInfoAsync: jest.fn().mockResolvedValue({ exists: true, size: 1024 }),
     FileSystemUploadType: {
         MULTIPART: 1,
     },
 }));
 
+jest.mock("i18next", () => ({
+    t: jest.fn((key: string, options?: any) => {
+        if (options?.defaultValue) {
+            return options.defaultValue;
+        }
+        return key;
+    }),
+}));
+
 describe("ImportService", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        (getInfoAsync as jest.Mock).mockResolvedValue({ exists: true, size: 1024 });
     });
 
     describe("uploadLetterboxdZip", () => {
-        it("should throw error if file is larger than 50MB", async () => {
+        it("should throw error if file is larger than 50MB from file object", async () => {
             const largeFile = {
                 uri: "file:///path/to/large.zip",
                 name: "large.zip",
@@ -36,7 +47,40 @@ describe("ImportService", () => {
             };
 
             await expect(ImportService.uploadLetterboxdZip(largeFile)).rejects.toThrow(
-                "FILE_TOO_LARGE",
+                "Dosya boyutu 50MB'dan büyük olamaz.",
+            );
+            expect(uploadAsync).not.toHaveBeenCalled();
+        });
+
+        it("should throw error if getInfoAsync reveals file is larger than 50MB", async () => {
+            (getInfoAsync as jest.Mock).mockResolvedValueOnce({
+                exists: true,
+                size: 55 * 1024 * 1024,
+            });
+
+            const fileWithoutSize = {
+                uri: "file:///path/to/hidden_large.zip",
+                name: "hidden_large.zip",
+            };
+
+            await expect(ImportService.uploadLetterboxdZip(fileWithoutSize)).rejects.toThrow(
+                "Dosya boyutu 50MB'dan büyük olamaz.",
+            );
+            expect(uploadAsync).not.toHaveBeenCalled();
+        });
+
+        it("should throw error if getInfoAsync reports file does not exist", async () => {
+            (getInfoAsync as jest.Mock).mockResolvedValueOnce({
+                exists: false,
+            });
+
+            const missingFile = {
+                uri: "file:///path/to/missing.zip",
+                name: "missing.zip",
+            };
+
+            await expect(ImportService.uploadLetterboxdZip(missingFile)).rejects.toThrow(
+                "Seçilen dosya bulunamadı veya okunamadı.",
             );
             expect(uploadAsync).not.toHaveBeenCalled();
         });
@@ -81,6 +125,63 @@ describe("ImportService", () => {
             expect(result.jobId).toBe("test-job-123");
             expect(result.status).toBe("queued");
             expect(result.totalItems).toBe(42);
+        });
+
+        it("should throw 413 error if server returns status 413 (Payload Too Large)", async () => {
+            const validFile = {
+                uri: "file:///path/to/export.zip",
+                name: "export.zip",
+            };
+
+            (uploadAsync as jest.Mock).mockResolvedValueOnce({
+                status: 413,
+                body: "Payload Too Large",
+            });
+
+            const errorPromise = ImportService.uploadLetterboxdZip(validFile);
+            await expect(errorPromise).rejects.toThrow("Dosya boyutu 50MB'dan büyük olamaz.");
+            await expect(errorPromise).rejects.toMatchObject({
+                status: 413,
+                code: "FILE_TOO_LARGE",
+            });
+        });
+
+        it("should throw rate limit error if server returns status 429", async () => {
+            const validFile = {
+                uri: "file:///path/to/export.zip",
+                name: "export.zip",
+            };
+
+            (uploadAsync as jest.Mock).mockResolvedValueOnce({
+                status: 429,
+                body: "Too Many Requests",
+            });
+
+            const errorPromise = ImportService.uploadLetterboxdZip(validFile);
+            await expect(errorPromise).rejects.toThrow(
+                "Çok fazla istek gönderildi. Lütfen bir süre sonra tekrar deneyin.",
+            );
+            await expect(errorPromise).rejects.toMatchObject({
+                status: 429,
+                code: "RATE_LIMITED",
+            });
+        });
+
+        it("should throw timeout error if upload exceeds timeout", async () => {
+            const validFile = {
+                uri: "file:///path/to/export.zip",
+                name: "export.zip",
+            };
+
+            // Hanging uploadAsync promise
+            (uploadAsync as jest.Mock).mockImplementationOnce(
+                () => new Promise((resolve) => setTimeout(resolve, 500)),
+            );
+
+            // Pass short timeoutMs for testing (10ms)
+            await expect(ImportService.uploadLetterboxdZip(validFile, 10)).rejects.toThrow(
+                "Yükleme zaman aşımına uğradı. Lütfen tekrar deneyin.",
+            );
         });
 
         it("should throw error if API returns failure", async () => {
@@ -192,6 +293,24 @@ describe("ImportService", () => {
                 { auth: true },
             );
             expect(result).toEqual(mockResponse);
+        });
+
+        it("should throw rate limit error if API returns 429", async () => {
+            (client.post as jest.Mock).mockRejectedValueOnce({
+                status: 429,
+                message: "Rate limit exceeded",
+            });
+
+            const errorPromise = ImportService.importSpotifyPlaylists([
+                "https://open.spotify.com/playlist/test",
+            ]);
+            await expect(errorPromise).rejects.toThrow(
+                "Çok fazla istek gönderildi. Lütfen bir süre sonra tekrar deneyin.",
+            );
+            await expect(errorPromise).rejects.toMatchObject({
+                status: 429,
+                code: "RATE_LIMITED",
+            });
         });
 
         it("should throw error if API returns unsuccessful response", async () => {

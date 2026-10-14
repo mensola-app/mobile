@@ -438,6 +438,7 @@
             "inputNotPlaylist": "Yalnızca çalma listesi bağlantıları eklenebilir. Şarkı, albüm veya sanatçı bağlantıları desteklenmez.",
             "alreadyAdded": "Bu çalma listesi zaten listeye eklendi.",
             "genericError": "Çalma listeleri içe aktarılırken bir hata oluştu.",
+            "rateLimited": "Çok fazla istek gönderildi. Lütfen bir süre sonra tekrar deneyin.",
             "retryText": "Yeniden Dene"
         },
         "letterboxdImport": {
@@ -471,6 +472,9 @@
             "errorTitle": "Hata",
             "invalidZip": "Yalnızca .zip uzantılı arşiv dosyaları desteklenir.",
             "fileTooLarge": "Dosya boyutu 50MB'dan büyük olamaz.",
+            "fileNotFound": "Seçilen dosya bulunamadı veya okunamadı.",
+            "uploadTimeout": "Yükleme zaman aşımına uğradı. Lütfen tekrar deneyin.",
+            "rateLimited": "Çok fazla istek gönderildi. Lütfen bir süre sonra tekrar deneyin.",
             "invalidServerResponse": "Sunucudan geçersiz yanıt alındı.",
             "uploadFailed": "Dosya yüklenemedi.",
             "genericError": "İçe aktarma sırasında bir hata oluştu.",
