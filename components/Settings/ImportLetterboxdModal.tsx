@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -9,16 +9,14 @@ import {
     ScrollView,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
-import { useQueryClient } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
 import BottomSheet from "@/components/BottomSheet";
 import { ImportService } from "@/services/import.service";
-import { ImportJobProgress } from "@/types/import.types";
 import { Colors } from "@/constants/colors";
+import { useImportJob } from "@/hooks/useImportJob";
+import { logger } from "@/utils/logger";
 import { styles } from "./ImportLetterboxdModal.styles";
 
 interface Props {
@@ -30,173 +28,41 @@ interface Props {
 type ModalStep = "guide" | "uploading" | "progress" | "completed";
 
 const ACTIVE_JOB_KEY = "active_import_job_id";
-const POLLING_INTERVAL_MS = 2500;
-const MAX_CONSECUTIVE_ERRORS = 3;
 
 export default function ImportLetterboxdModal({ isVisible, onClose, onSuccess }: Props) {
     const { t } = useTranslation();
-    const queryClient = useQueryClient();
-
-    const [step, setStep] = useState<ModalStep>("guide");
-    const [jobId, setJobId] = useState<string | null>(null);
-    const [progressData, setProgressData] = useState<ImportJobProgress | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
-    const [animatedProgress] = useState(() => new Animated.Value(0));
-    const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const consecutiveErrorsRef = useRef<number>(0);
-
-    const progressWidth = useMemo(
-        () =>
-            animatedProgress.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "100%"],
-            }),
-        [animatedProgress],
-    );
-
-    const stopPolling = useCallback(() => {
-        if (pollingTimerRef.current) {
-            clearInterval(pollingTimerRef.current);
-            pollingTimerRef.current = null;
-        }
-    }, []);
-
-    const startPolling = useCallback(
-        (targetJobId: string) => {
-            stopPolling();
-            consecutiveErrorsRef.current = 0;
-
-            const poll = async () => {
-                try {
-                    const data = await ImportService.getImportProgress(targetJobId);
-                    consecutiveErrorsRef.current = 0;
-                    setProgressData(data);
-
-                    if (data.status === "completed") {
-                        stopPolling();
-                        await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-                        setStep("completed");
-
-                        // Invalidate caches
-                        queryClient.invalidateQueries({ queryKey: ["profile"] });
-                        queryClient.invalidateQueries({ queryKey: ["movies"] });
-                        queryClient.invalidateQueries({ queryKey: ["user"] });
-                        queryClient.invalidateQueries({ queryKey: ["watchlist"] });
-                        queryClient.invalidateQueries({ queryKey: ["movieLists"] });
-                        onSuccess?.();
-                    } else if (data.status === "failed") {
-                        stopPolling();
-                        await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-                        setStep("guide");
-                        setError(t("settings.letterboxdImport.genericError"));
-                    }
-                } catch {
-                    consecutiveErrorsRef.current += 1;
-                    // Only surface error if 3 consecutive failures occur
-                    if (consecutiveErrorsRef.current >= MAX_CONSECUTIVE_ERRORS) {
-                        setError(t("settings.letterboxdImport.genericError"));
-                    }
-                }
-            };
-
-            // Run immediately then interval
-            poll();
-            pollingTimerRef.current = setInterval(poll, POLLING_INTERVAL_MS);
-        },
-        [onSuccess, queryClient, stopPolling, t],
-    );
-
-    // Check for existing active job when modal opens
-    useEffect(() => {
-        let isMounted = true;
-        if (isVisible) {
-            AsyncStorage.getItem(ACTIVE_JOB_KEY)
-                .then(async (savedJobId) => {
-                    if (!isMounted) return;
-                    if (savedJobId) {
-                        setJobId(savedJobId);
-                        try {
-                            const status = await ImportService.getImportProgress(savedJobId);
-                            if (!isMounted) return;
-                            setProgressData(status);
-                            if (status.status === "completed") {
-                                await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-                                setStep("completed");
-                            } else if (status.status === "failed") {
-                                await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-                                setStep("guide");
-                                setError(t("settings.letterboxdImport.genericError"));
-                            } else {
-                                setStep("progress");
-                            }
-                        } catch {
-                            if (isMounted) setStep("progress");
-                        }
-                    } else {
-                        setStep((prev) =>
-                            prev === "uploading" || prev === "progress" || prev === "completed"
-                                ? prev
-                                : "guide",
-                        );
-                    }
-                })
-                .catch(() => {
-                    if (isMounted) {
-                        setStep((prev) =>
-                            prev === "uploading" || prev === "progress" || prev === "completed"
-                                ? prev
-                                : "guide",
-                        );
-                    }
-                });
-        } else {
-            stopPolling();
-        }
-        return () => {
-            isMounted = false;
-        };
-    }, [isVisible, stopPolling, t]);
-
-    // Keep screen awake while watching progress
-    useEffect(() => {
-        if (step === "progress" && isVisible) {
-            activateKeepAwakeAsync("letterboxd-import").catch(() => {});
-        } else {
-            deactivateKeepAwake("letterboxd-import").catch(() => {});
-        }
-        return () => {
-            deactivateKeepAwake("letterboxd-import").catch(() => {});
-        };
-    }, [step, isVisible]);
-
-    // Animate progress bar fill
-    useEffect(() => {
-        if (progressData && progressData.totalItems > 0) {
-            const ratio = Math.min(1, progressData.processedItems / progressData.totalItems);
-            Animated.timing(animatedProgress, {
-                toValue: ratio,
-                duration: 400,
-                useNativeDriver: false,
-            }).start();
-        }
-    }, [animatedProgress, progressData]);
-
-    // Polling effect when on progress step
-    useEffect(() => {
-        if (step === "progress" && jobId && isVisible) {
-            startPolling(jobId);
-        } else {
-            stopPolling();
-        }
-        return () => stopPolling();
-    }, [step, jobId, isVisible, startPolling, stopPolling]);
+    const {
+        step,
+        setStep,
+        progressData,
+        error,
+        setError,
+        progressWidth,
+        percent,
+        startJob,
+    } = useImportJob<ModalStep>({
+        storageKey: ACTIVE_JOB_KEY,
+        keepAwakeTag: "letterboxd-import",
+        isVisible,
+        defaultStep: "guide",
+        genericErrorMessage: t("settings.letterboxdImport.genericError"),
+        onSuccessQueryKeys: [
+            ["profile"],
+            ["movies"],
+            ["user"],
+            ["watchlist"],
+            ["movieLists"],
+        ],
+        onSuccess,
+    });
 
     const handleOpenLetterboxd = async () => {
         try {
             await Linking.openURL("https://letterboxd.com/settings/data/");
-        } catch {
+        } catch (err) {
+            logger.error("Failed to open Letterboxd data export URL", err);
             setError(t("settings.letterboxdImport.genericError"));
         }
     };
@@ -243,20 +109,7 @@ export default function ImportLetterboxdModal({ isVisible, onClose, onSuccess }:
                 size: file.size,
             });
 
-            await AsyncStorage.setItem(ACTIVE_JOB_KEY, job.jobId);
-            setJobId(job.jobId);
-            setProgressData({
-                jobId: job.jobId,
-                userId: "",
-                status: "queued",
-                totalItems: job.totalItems,
-                processedItems: 0,
-                successCount: 0,
-                failedCount: 0,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            });
-            setStep("progress");
+            await startJob(job.jobId, job.totalItems, "letterboxd");
         } catch (err: any) {
             setStep("guide");
             const message =
@@ -277,11 +130,6 @@ export default function ImportLetterboxdModal({ isVisible, onClose, onSuccess }:
     const handleFinish = () => {
         onClose();
     };
-
-    const percent =
-        progressData && progressData.totalItems > 0
-            ? Math.round((progressData.processedItems / progressData.totalItems) * 100)
-            : 0;
 
     return (
         <BottomSheet

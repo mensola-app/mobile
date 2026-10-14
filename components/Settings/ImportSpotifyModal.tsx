@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -8,16 +8,14 @@ import {
     ActivityIndicator,
     ScrollView,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
-import { useQueryClient } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
 import BottomSheet from "@/components/BottomSheet";
 import { ImportService } from "@/services/import.service";
-import { ImportJobProgress, ImportFailedItem } from "@/types/import.types";
+import { ImportFailedItem } from "@/types/import.types";
 import { Colors } from "@/constants/colors";
+import { useImportJob } from "@/hooks/useImportJob";
 import { styles } from "./ImportSpotifyModal.styles";
 
 interface Props {
@@ -29,8 +27,6 @@ interface Props {
 type ModalStep = "input" | "uploading" | "progress" | "completed";
 
 const ACTIVE_JOB_KEY = "active_spotify_import_job_id";
-const POLLING_INTERVAL_MS = 2500;
-const MAX_CONSECUTIVE_ERRORS = 3;
 const MAX_PLAYLISTS = 10;
 
 // Client-side quick check for non-playlist Spotify URLs
@@ -38,164 +34,36 @@ const NON_PLAYLIST_PATTERN = /(?:open\.spotify\.com\/(?:intl-[a-z]{2}\/)?|spotif
 
 export default function ImportSpotifyModal({ isVisible, onClose, onSuccess }: Props) {
     const { t } = useTranslation();
-    const queryClient = useQueryClient();
 
-    const [step, setStep] = useState<ModalStep>("input");
-    const [jobId, setJobId] = useState<string | null>(null);
-    const [progressData, setProgressData] = useState<ImportJobProgress | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-    // List of entered Spotify playlist URLs / IDs
     const [urlInput, setUrlInput] = useState<string>("");
     const [playlistUrls, setPlaylistUrls] = useState<string[]>([]);
 
-    const [animatedProgress] = useState(() => new Animated.Value(0));
-    const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const consecutiveErrorsRef = useRef<number>(0);
-
-    const progressWidth = useMemo(
-        () =>
-            animatedProgress.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "100%"],
-            }),
-        [animatedProgress],
-    );
-
-    const stopPolling = useCallback(() => {
-        if (pollingTimerRef.current) {
-            clearInterval(pollingTimerRef.current);
-            pollingTimerRef.current = null;
-        }
-    }, []);
-
-    const startPolling = useCallback(
-        (targetJobId: string) => {
-            stopPolling();
-            consecutiveErrorsRef.current = 0;
-
-            const poll = async () => {
-                try {
-                    const data = await ImportService.getImportProgress(targetJobId);
-                    consecutiveErrorsRef.current = 0;
-                    setProgressData(data);
-
-                    if (data.status === "completed") {
-                        stopPolling();
-                        await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-                        setStep("completed");
-
-                        // Invalidate relevant query caches
-                        queryClient.invalidateQueries({ queryKey: ["profile"] });
-                        queryClient.invalidateQueries({ queryKey: ["playlists"] });
-                        queryClient.invalidateQueries({ queryKey: ["userPlaylists"] });
-                        queryClient.invalidateQueries({ queryKey: ["tracks"] });
-                        onSuccess?.();
-                    } else if (data.status === "failed") {
-                        stopPolling();
-                        await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-                        setStep("input");
-                        setError(t("settings.spotifyImport.genericError"));
-                    }
-                } catch {
-                    consecutiveErrorsRef.current += 1;
-                    if (consecutiveErrorsRef.current >= MAX_CONSECUTIVE_ERRORS) {
-                        setError(t("settings.spotifyImport.genericError"));
-                    }
-                }
-            };
-
-            poll();
-            pollingTimerRef.current = setInterval(poll, POLLING_INTERVAL_MS);
-        },
-        [onSuccess, queryClient, stopPolling, t],
-    );
-
-    // Check for existing active job when modal opens
-    useEffect(() => {
-        let isMounted = true;
-        if (isVisible) {
-            AsyncStorage.getItem(ACTIVE_JOB_KEY)
-                .then(async (savedJobId) => {
-                    if (!isMounted) return;
-                    if (savedJobId) {
-                        setJobId(savedJobId);
-                        try {
-                            const status = await ImportService.getImportProgress(savedJobId);
-                            if (!isMounted) return;
-                            setProgressData(status);
-                            if (status.status === "completed") {
-                                await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-                                setStep("completed");
-                            } else if (status.status === "failed") {
-                                await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-                                setStep("input");
-                                setError(t("settings.spotifyImport.genericError"));
-                            } else {
-                                setStep("progress");
-                            }
-                        } catch {
-                            if (isMounted) setStep("progress");
-                        }
-                    } else {
-                        setStep((prev) =>
-                            prev === "uploading" || prev === "progress" || prev === "completed"
-                                ? prev
-                                : "input",
-                        );
-                    }
-                })
-                .catch(() => {
-                    if (isMounted) {
-                        setStep((prev) =>
-                            prev === "uploading" || prev === "progress" || prev === "completed"
-                                ? prev
-                                : "input",
-                        );
-                    }
-                });
-        } else {
-            stopPolling();
-        }
-        return () => {
-            isMounted = false;
-        };
-    }, [isVisible, stopPolling, t]);
-
-    // Keep screen awake while watching progress
-    useEffect(() => {
-        if (step === "progress" && isVisible) {
-            activateKeepAwakeAsync("spotify-import").catch(() => {});
-        } else {
-            deactivateKeepAwake("spotify-import").catch(() => {});
-        }
-        return () => {
-            deactivateKeepAwake("spotify-import").catch(() => {});
-        };
-    }, [step, isVisible]);
-
-    // Animate progress bar fill
-    useEffect(() => {
-        if (progressData && progressData.totalItems > 0) {
-            const ratio = Math.min(1, progressData.processedItems / progressData.totalItems);
-            Animated.timing(animatedProgress, {
-                toValue: ratio,
-                duration: 400,
-                useNativeDriver: false,
-            }).start();
-        }
-    }, [animatedProgress, progressData]);
-
-    // Polling effect when on progress step
-    useEffect(() => {
-        if (step === "progress" && jobId && isVisible) {
-            startPolling(jobId);
-        } else {
-            stopPolling();
-        }
-        return () => stopPolling();
-    }, [step, jobId, isVisible, startPolling, stopPolling]);
+    const {
+        step,
+        setStep,
+        progressData,
+        error,
+        setError,
+        progressWidth,
+        percent,
+        startJob,
+        stopPolling,
+        cancelOrResetJob,
+    } = useImportJob<ModalStep>({
+        storageKey: ACTIVE_JOB_KEY,
+        keepAwakeTag: "spotify-import",
+        isVisible,
+        defaultStep: "input",
+        genericErrorMessage: t("settings.spotifyImport.genericError"),
+        onSuccessQueryKeys: [
+            ["profile"],
+            ["playlists"],
+            ["userPlaylists"],
+            ["tracks"],
+        ],
+        onSuccess,
+    });
 
     const handleAddUrl = () => {
         setError(null);
@@ -255,26 +123,9 @@ export default function ImportSpotifyModal({ isVisible, onClose, onSuccess }: Pr
 
             const job = await ImportService.importSpotifyPlaylists(currentUrls);
 
-            await AsyncStorage.setItem(ACTIVE_JOB_KEY, job.jobId);
-            setJobId(job.jobId);
-            setProgressData({
-                jobId: job.jobId,
-                userId: "",
-                status: "queued",
-                type: "spotify",
-                totalItems: currentUrls.length,
-                processedItems: 0,
-                successCount: 0,
-                failedCount: 0,
-                playlistsCount: 0,
-                tracksCount: 0,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            });
-
+            await startJob(job.jobId, currentUrls.length, "spotify");
             setPlaylistUrls([]);
             setUrlInput("");
-            setStep("progress");
         } catch (err: any) {
             setStep("input");
             const errorMsg =
@@ -293,12 +144,7 @@ export default function ImportSpotifyModal({ isVisible, onClose, onSuccess }: Pr
     };
 
     const handleCompletedClose = async () => {
-        stopPolling();
-        await AsyncStorage.removeItem(ACTIVE_JOB_KEY);
-        setStep("input");
-        setJobId(null);
-        setProgressData(null);
-        setError(null);
+        await cancelOrResetJob();
         onClose();
     };
 
