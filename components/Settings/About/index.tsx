@@ -7,6 +7,7 @@ import Constants from "expo-constants";
 import { ListGroup, ListGroupItem } from "@/components/ListGroup";
 import { Colors } from "@/constants/colors";
 import { LINKS } from "@/constants/links";
+import { logger } from "@/utils/logger";
 import { styles } from "./styles";
 
 export default function AboutView() {
@@ -16,7 +17,7 @@ export default function AboutView() {
 
     const handleOpenUrl = (url: string) => {
         Linking.openURL(url).catch((err) => {
-            console.error("Failed to open URL:", err);
+            logger.error("Failed to open URL", err, { url });
         });
     };
 

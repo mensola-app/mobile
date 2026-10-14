@@ -2,6 +2,7 @@ import { Alert, Share } from "react-native";
 import { t } from "i18next";
 import { getOrCreateShortLink } from "@/services/shortLink.service";
 import { LINKS } from "@/constants/links";
+import { logger } from "./logger";
 
 export interface IShareContentOptions {
     title?: string;
@@ -76,7 +77,7 @@ export const shareContent = async (options: IShareContentOptions): Promise<boole
         return result.action === Share.sharedAction;
     } catch (error) {
         if (!isUserCancellation(error)) {
-            console.error("Share error:", error);
+            logger.error("Share error:", error);
             if (options.showErrorAlert !== false) {
                 showShareErrorAlert();
             }

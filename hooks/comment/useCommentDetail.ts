@@ -11,6 +11,7 @@ import {
     InteractionItemResponse,
 } from "@/types/interaction.types";
 import { LocalCommentItem, ReplyTarget } from "@/components/CommentThread/types";
+import { logger } from "@/utils/logger";
 
 export interface UseCommentDetailOptions {
     limit?: number;
@@ -298,12 +299,9 @@ export const useCommentDetail = (
             }
         },
         onError: (err: any, cid, context) => {
-            console.error("[toggleLike mutation onError]:", {
+            logger.error("[toggleLike mutation onError]:", err, {
                 commentId: cid,
                 status: err?.status || err?.statusCode,
-                data: err?.data || err?.response,
-                message: err?.message,
-                err,
             });
             // Roll back optimistic state
             if (context?.previousOverrides) {
@@ -414,7 +412,7 @@ export const useCommentDetail = (
                 await queryClient.invalidateQueries({ queryKey });
                 return true;
             } catch (error) {
-                console.error("[useCommentDetail.addReply] Error:", error);
+                logger.error("[useCommentDetail.addReply] Error:", error);
                 Alert.alert(
                     t("common.error", "Hata"),
                     t(

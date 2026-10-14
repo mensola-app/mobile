@@ -4,6 +4,7 @@ import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useGlobalUser } from "@/context/AuthContext";
 import { signInWithGoogle } from "@/services/googleAuth.service";
+import { logger } from "@/utils/logger";
 
 const useGoogleLogin = () => {
     const { login } = useGlobalUser();
@@ -42,7 +43,7 @@ const useGoogleLogin = () => {
 
             router.replace("/home");
         } catch (error) {
-            console.error("Google login unexpected error:", error);
+            logger.error("Google login unexpected error:", error);
             Alert.alert(t("common.error"), t("auth.google.genericError"));
         } finally {
             setIsLoading(false);

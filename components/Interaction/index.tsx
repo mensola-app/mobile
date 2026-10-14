@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useGlobalUser } from "@/context/AuthContext";
 import { CommentService } from "@/services/comment.service";
 import { CommentId } from "@/types/common.types";
+import { logger } from "@/utils/logger";
 
 export default function InteractionView({ data, disabled = false, onLike }: IInteractionViewProps) {
     const { user, comment, ...interaction } = data;
@@ -129,7 +130,7 @@ export default function InteractionView({ data, disabled = false, onLike }: IInt
             if (typeof freshLiked === "boolean") setIsCommentLiked(freshLiked);
             if (typeof freshCount === "number") setCommentLikesCount(freshCount);
         } catch (error) {
-            console.error("[InteractionView.handleLikePress] Error:", error);
+            logger.error("[InteractionView.handleLikePress] Error", error);
             setIsCommentLiked(previousLiked);
             setCommentLikesCount(previousCount);
             Alert.alert(t("common.error", "Hata"), t("common.genericError", "Beğeni işlemi gerçekleştirilemedi."));

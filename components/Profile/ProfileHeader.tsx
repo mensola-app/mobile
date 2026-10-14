@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import Avatar from "../Avatar";
 import { Colors } from "@/constants/colors";
 import { notificationService } from "@/services/notification.service";
+import { logger } from "@/utils/logger";
 
 const TIER_BADGES: Record<string, { label: string }> = {
     pro: { label: "PRO" },
@@ -68,7 +69,7 @@ export default function ProfileHeader() {
             queryClient.invalidateQueries({ queryKey: ["homeData"] });
             await refetch();
         } catch (error) {
-            console.error("Failed to accept follow request", error);
+            logger.error("Failed to accept follow request", error);
         } finally {
             setIsHandlingRequest(false);
         }
@@ -83,7 +84,7 @@ export default function ProfileHeader() {
             queryClient.invalidateQueries({ queryKey: ["homeData"] });
             await refetch();
         } catch (error) {
-            console.error("Failed to decline follow request", error);
+            logger.error("Failed to decline follow request", error);
         } finally {
             setIsHandlingRequest(false);
         }

@@ -24,6 +24,7 @@ import { styles } from "./styles";
 import { IArtistDetailViewProps } from "./types";
 import { Colors } from "@/constants/colors";
 import { LINKS } from "@/constants/links";
+import { logger } from "@/utils/logger";
 
 const formatDuration = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
@@ -65,7 +66,7 @@ export default function ArtistDetailView({
     const handleOpenSpotify = () => {
         if (artistDetails?.spotifyId) {
             Linking.openURL(LINKS.spotify.artist(artistDetails.spotifyId)).catch((err) => {
-                console.error("Failed to open Spotify artist:", err);
+                logger.error("Failed to open Spotify artist:", err);
             });
         }
     };

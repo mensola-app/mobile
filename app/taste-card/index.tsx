@@ -9,6 +9,7 @@ import TasteCardView from "@/components/TasteCard";
 import { MovieSummaryViaInteraction } from "@/types/movie.types";
 import { ITrack } from "@/types/track.types";
 import { IUser } from "@/types/user.types";
+import { logger } from "@/utils/logger";
 
 export default function TasteCardModal() {
     const router = useRouter();
@@ -75,7 +76,7 @@ export default function TasteCardModal() {
                 );
             }
         } catch (error) {
-            console.error("Taste card capture error:", error);
+            logger.error("Taste card capture error", error);
             Alert.alert(
                 t("profile.tasteCard.title", { defaultValue: "Taste Card" }),
                 t("profile.tasteCard.shareError", {

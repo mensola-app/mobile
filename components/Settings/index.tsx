@@ -19,6 +19,7 @@ import { useGlobalUser } from "@/context/AuthContext";
 import { UserService } from "@/services/user.service";
 import { DeviceService } from "@/services/device.service";
 import { useTranslation } from "react-i18next";
+import { logger } from "@/utils/logger";
 
 const getSettingsConfig = (t: any): SettingSection[] => [
     {
@@ -303,7 +304,7 @@ export default function SettingsView() {
                         try {
                             await logout();
                         } catch (e) {
-                            console.error("Error signing out:", e);
+                            logger.error("Error signing out", e);
                         }
                     },
                 },

@@ -14,6 +14,7 @@ import { ITrackHeroProps } from "./types";
 import { useRouter } from "expo-router";
 import { Colors } from "@/constants/colors";
 import { LINKS } from "@/constants/links";
+import { logger } from "@/utils/logger";
 import DetailHero from "@/components/DetailHero";
 
 export default function TrackHero({
@@ -42,7 +43,7 @@ export default function TrackHero({
     const handleSpotifyPress = () => {
         if (spotifyId) {
             Linking.openURL(LINKS.spotify.track(spotifyId)).catch((err) => {
-                console.error("Failed to open Spotify track:", err);
+                logger.error("Failed to open Spotify track:", err);
             });
         } else if (onPlayPress) {
             onPlayPress();

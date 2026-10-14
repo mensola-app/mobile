@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage, StateStorage } from "zustand/middleware";
 import { createMMKV } from "react-native-mmkv";
+import { logger } from "@/utils/logger";
 
 let storage: any = null;
 let isMMKVAvailable = false;
@@ -9,7 +10,7 @@ try {
     storage = createMMKV();
     isMMKVAvailable = true;
 } catch (e) {
-    console.warn(
+    logger.warn(
         "MMKV native module is not available (e.g., app needs a native rebuild or running in Expo Go). Falling back to in-memory storage."
     );
 }

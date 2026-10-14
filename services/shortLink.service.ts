@@ -1,5 +1,6 @@
 import { client } from "@/api/client";
 import { LINKS } from "@/constants/links";
+import { logger } from "@/utils/logger";
 
 export type ShortLinkTargetType = "movie_list" | "playlist" | "user" | "artist";
 
@@ -26,7 +27,7 @@ export const getOrCreateShortLink = async (
             return LINKS.app.shortLink(code);
         }
     } catch (error) {
-        console.warn("Failed to generate short link, falling back to full URL:", error);
+        logger.warn("Failed to generate short link, falling back to full URL:", error);
     }
 
     const routeMap: Record<string, string> = {

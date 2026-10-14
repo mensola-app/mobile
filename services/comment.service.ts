@@ -5,6 +5,7 @@ import {
     ToggleCommentLikeResponse,
 } from "@/types/interaction.types";
 import { client } from "../api/client";
+import { logger } from "@/utils/logger";
 
 const CommentService = {
     /**
@@ -36,12 +37,10 @@ const CommentService = {
                 { auth: true },
             );
         } catch (error: any) {
-            console.error("[CommentService.toggleCommentLike] Request failed:", {
+            logger.error("[CommentService.toggleCommentLike] Request failed:", error, {
                 url,
                 commentId,
                 status: error?.status ?? error?.statusCode,
-                response: error?.data ?? error?.response ?? error,
-                message: error?.message,
             });
             throw error;
         }
