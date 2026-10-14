@@ -9,6 +9,7 @@ import { shouldRetryQuery, queryRetryDelay } from "../api/retry";
 import * as Notifications from "expo-notifications";
 import ErrorFallback from "../components/ErrorFallback";
 import { initMonitoring, wrapRootComponent } from "../utils/monitoring";
+import { sanitizeNotificationPath } from "../utils/navigation";
 import "../i18n";
 
 initMonitoring();
@@ -29,19 +30,17 @@ const queryClient = new QueryClient({
 
 function RootLayout() {
     useEffect(() => {
-        Notifications.getLastNotificationResponseAsync().then((response) => {
-            const data = response?.notification?.request?.content?.data;
-            if (data?.path) {
-                router.push(data.path as any);
+        const handleNotificationResponse = (response: Notifications.NotificationResponse | null | undefined) => {
+            const rawPath = response?.notification?.request?.content?.data?.path;
+            const safePath = sanitizeNotificationPath(rawPath);
+            if (safePath) {
+                router.push(safePath as any);
             }
-        });
+        };
 
-        const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-            const data = response.notification.request.content.data;
-            if (data?.path) {
-                router.push(data.path as any);
-            }
-        });
+        Notifications.getLastNotificationResponseAsync().then(handleNotificationResponse);
+
+        const subscription = Notifications.addNotificationResponseReceivedListener(handleNotificationResponse);
 
         return () => subscription.remove();
     }, []);
