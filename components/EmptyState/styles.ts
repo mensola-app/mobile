@@ -1,0 +1,65 @@
+import { StyleSheet } from "react-native";
+import { Colors } from "@/constants/colors";
+
+export const styles = StyleSheet.create({
+    container: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 32,
+        paddingVertical: 48,
+    },
+    iconOuterRing: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: "rgba(74, 158, 255, 0.05)",
+        borderWidth: 1,
+        borderColor: "rgba(74, 158, 255, 0.12)",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 16,
+    },
+    iconInnerContainer: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: Colors.surface,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    title: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: Colors.textPrimary,
+        textAlign: "center",
+        marginBottom: 6,
+        letterSpacing: -0.2,
+    },
+    subtitle: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: Colors.textSecondary,
+        textAlign: "center",
+        maxWidth: 300,
+    },
+    actionButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.surface,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        paddingVertical: 10,
+        paddingHorizontal: 18,
+        borderRadius: 20,
+        marginTop: 16,
+        gap: 6,
+    },
+    actionText: {
+        color: Colors.textPrimary,
+        fontSize: 14,
+        fontWeight: "600",
+    },
+});

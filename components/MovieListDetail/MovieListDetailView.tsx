@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import DynamicList from "@/components/DynamicList";
 import MovieCard from "@/components/MovieCard";
 import InteractionView, { InteractionSheet } from "@/components/Interaction";
+import EmptyState from "@/components/EmptyState";
 import MovieListHero from "./MovieListHero";
 import MovieListDetailSkeleton from "./MovieListDetailSkeleton";
 import { styles } from "./styles";
@@ -169,16 +170,15 @@ export default function MovieListDetailView({
                 refreshing={isRefetching}
                 ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                 ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Ionicons
-                            name={isMoviesTab ? "film-outline" : "chatbubble-ellipses-outline"}
-                            size={48}
-                            color="#444"
-                        />
-                        <Text style={styles.emptyText}>
-                            {isMoviesTab ? "Bu listede henüz film bulunmuyor." : "Bu listeye henüz yorum yapılmamış."}
-                        </Text>
-                    </View>
+                    <EmptyState
+                        icon={isMoviesTab ? "film-outline" : "chatbubble-ellipses-outline"}
+                        title={
+                            isMoviesTab
+                                ? t("lists.detail.emptyMovies", { defaultValue: "Bu listede henüz film bulunmuyor." })
+                                : t("lists.detail.emptyMovieReviews", { defaultValue: "Bu listeye henüz yorum yapılmamış." })
+                        }
+                        testID="movie-list-empty"
+                    />
                 }
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}

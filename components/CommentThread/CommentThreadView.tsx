@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
 import DynamicList from "@/components/DynamicList";
+import EmptyState from "@/components/EmptyState";
 import { Colors } from "@/constants/colors";
 import HeroHeader from "./HeroHeader";
 import ThreadCommentCard from "./ThreadCommentCard";
@@ -71,15 +72,12 @@ export default function CommentThreadView({
     const renderEmpty = useCallback(
         () =>
             !loading ? (
-                <View style={styles.emptyContainer}>
-                    <Ionicons name="chatbubbles-outline" size={44} color={Colors.textMuted} />
-                    <Text style={styles.emptyText}>
-                        {t("comments.emptyTitle", "Henüz yanıt yok")}
-                    </Text>
-                    <Text style={styles.emptySubtext}>
-                        {t("comments.emptySubtitle", "Bu tartışmaya ilk katkıyı sen yap.")}
-                    </Text>
-                </View>
+                <EmptyState
+                    icon="chatbubbles-outline"
+                    title={t("comments.emptyTitle", "Henüz yanıt yok")}
+                    subtitle={t("comments.emptySubtitle", "Bu tartışmaya ilk katkıyı sen yap.")}
+                    testID="comment-thread-empty"
+                />
             ) : null,
         [loading, t],
     );

@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import DynamicList from "@/components/DynamicList";
 import InteractionView from "@/components/Interaction";
+import EmptyState from "@/components/EmptyState";
 import { InteractionItemResponse } from "@/types/interaction.types";
 import { Colors } from "@/constants/colors";
 import { EntityInteractionsViewProps } from "./types";
@@ -45,20 +46,12 @@ export default function EntityInteractionsView({
     const renderEmpty = useCallback(() => {
         if (isLoading) return null;
         return (
-            <View style={styles.emptyContainer} testID="entity-interactions-empty">
-                <Ionicons
-                    name="chatbubble-ellipses-outline"
-                    size={48}
-                    color={Colors.textMuted}
-                    style={styles.emptyIcon}
-                />
-                <Text style={styles.emptyTitle}>
-                    {t("comments.emptyInteractionsTitle", "Henüz yorum yapılmamış")}
-                </Text>
-                <Text style={styles.emptySubtitle}>
-                    {t("comments.emptyInteractionsSubtitle", "İlk yorumu ve değerlendirmeyi sen yap!")}
-                </Text>
-            </View>
+            <EmptyState
+                icon="chatbubble-ellipses-outline"
+                title={t("comments.emptyInteractionsTitle", "Henüz yorum yapılmamış")}
+                subtitle={t("comments.emptyInteractionsSubtitle", "İlk yorumu ve değerlendirmeyi sen yap!")}
+                testID="entity-interactions-empty"
+            />
         );
     }, [isLoading, t]);
 

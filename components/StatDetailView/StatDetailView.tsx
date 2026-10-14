@@ -5,6 +5,7 @@ import StatDetailItem from "./StatDetailItem";
 import { View, Text, TouchableOpacity, Alert, ActivityIndicator, ScrollView, RefreshControl } from "react-native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
 import { useFollow } from "@/hooks/user/useFollow";
 import { useRouter } from "expo-router";
 import { UserId } from "@/types/common.types";
@@ -12,6 +13,7 @@ import { StatDetailsItemMap, StatType } from "@/types/stat.types";
 import { FollowUsersResponseDataItem } from "@/types/user.types";
 import { Colors } from "@/constants/colors";
 import { usePreferences } from "@/hooks/usePreferences";
+import EmptyState from "@/components/EmptyState";
 
 export default function StatDetailView<T extends StatType = StatType>({
     currentUserId,
@@ -70,6 +72,33 @@ export default function StatDetailView<T extends StatType = StatType>({
                 defaultValue: "Şu anda burada gösterilebilecek bir veri bulunamadı",
             });
 
+        const getStatIcon = (type?: string): keyof typeof Ionicons.glyphMap => {
+            switch (type) {
+                case "watchlist":
+                    return "bookmark-outline";
+                case "watched":
+                    return "eye-outline";
+                case "liked-movies":
+                case "liked-movie-lists":
+                    return "heart-outline";
+                case "playlists":
+                    return "musical-notes-outline";
+                case "liked-tracks":
+                    return "musical-note-outline";
+                case "liked-playlists":
+                    return "list-outline";
+                case "liked-albums":
+                    return "disc-outline";
+                case "movie-lists":
+                    return "film-outline";
+                case "followers":
+                case "following":
+                    return "people-outline";
+                default:
+                    return "folder-open-outline";
+            }
+        };
+
         return (
             <ScrollView
                 contentContainerStyle={styles.emptyContainer}
@@ -85,7 +114,11 @@ export default function StatDetailView<T extends StatType = StatType>({
                     ) : undefined
                 }
             >
-                <Text style={styles.emptyText}>{emptyMessage}</Text>
+                <EmptyState
+                    icon={getStatIcon(statType)}
+                    title={emptyMessage}
+                    testID="stat-detail-empty"
+                />
             </ScrollView>
         );
     }

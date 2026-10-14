@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import DynamicList from "@/components/DynamicList";
 import MusicCard from "@/components/MusicCard";
 import InteractionView, { InteractionSheet } from "@/components/Interaction";
+import EmptyState from "@/components/EmptyState";
 import PlaylistHero from "./PlaylistHero";
 import PlaylistDetailSkeleton from "./PlaylistDetailSkeleton";
 import { styles } from "./styles";
@@ -169,18 +170,15 @@ export default function PlaylistDetailView({
                 refreshing={isRefetching}
                 ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                 ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Ionicons
-                            name={isTracksTab ? "musical-note-outline" : "chatbubble-ellipses-outline"}
-                            size={48}
-                            color="#444"
-                        />
-                        <Text style={styles.emptyText}>
-                            {isTracksTab
-                                ? "Bu playlist'te henüz şarkı bulunmuyor."
-                                : "Bu playlist'e henüz yorum yapılmamış."}
-                        </Text>
-                    </View>
+                    <EmptyState
+                        icon={isTracksTab ? "musical-note-outline" : "chatbubble-ellipses-outline"}
+                        title={
+                            isTracksTab
+                                ? t("lists.detail.emptyTracks", { defaultValue: "Bu çalma listesinde henüz şarkı bulunmuyor." })
+                                : t("lists.detail.emptyPlaylistReviews", { defaultValue: "Bu çalma listesine henüz yorum yapılmamış." })
+                        }
+                        testID="playlist-empty"
+                    />
                 }
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}

@@ -2,6 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import InteractionView from "../Interaction";
+import EmptyState from "@/components/EmptyState";
 import { InteractionItemResponse } from "@/types/interaction.types";
 import { Colors } from "@/constants/colors";
 import { useTranslation } from "react-i18next";
@@ -32,22 +33,22 @@ export default function LatestComments({ targetId, movieTitle, interactions, onR
 
     if (commentInteractions.length === 0) {
         return (
-            <View style={styles.emptyContainer} testID="movies-empty-reviews">
-                <Ionicons name="chatbubble-ellipses-outline" size={32} color={Colors.textMuted} style={styles.emptyIcon} />
-                <Text style={styles.emptyText}>
-                    {t("movies.detail.emptyReviewsText")}
-                </Text>
-                {onRateReviewPress && (
-                    <TouchableOpacity
-                        style={styles.rateButton}
-                        onPress={onRateReviewPress}
-                        activeOpacity={0.8}
-                        testID="movies-rate-review-button">
-                        <Ionicons name="star" size={16} color="#FFCC00" />
-                        <Text style={styles.rateButtonText}>{t("movies.detail.rateAndReview")}</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
+            <EmptyState
+                icon="chatbubble-ellipses-outline"
+                title={t("movies.detail.emptyReviewsText")}
+                action={
+                    onRateReviewPress
+                        ? {
+                              label: t("movies.detail.rateAndReview"),
+                              icon: "star",
+                              iconColor: "#FFCC00",
+                              onPress: onRateReviewPress,
+                              testID: "movies-rate-review-button",
+                          }
+                        : undefined
+                }
+                testID="movies-empty-reviews"
+            />
         );
     }
 

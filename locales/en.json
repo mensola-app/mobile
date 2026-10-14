@@ -252,7 +252,11 @@
             "seeLess": "See Less",
             "seeMore": "See More",
             "unfollowTitle": "Unfollow",
-            "unfollowBody": "Are you sure you want to unfollow {{name}}?"
+            "unfollowBody": "Are you sure you want to unfollow {{name}}?",
+            "emptyMovies": "There are no movies in this list yet.",
+            "emptyTracks": "There are no tracks in this playlist yet.",
+            "emptyMovieReviews": "No reviews for this list yet.",
+            "emptyPlaylistReviews": "No reviews for this playlist yet."
         },
         "create": {
             "titleMovie": "Create New Movie List",

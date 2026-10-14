@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import DynamicList from "@/components/DynamicList";
 import MusicCard from "@/components/MusicCard";
 import InteractionView, { InteractionSheet } from "@/components/Interaction";
+import EmptyState from "@/components/EmptyState";
 import AlbumHero from "./AlbumHero";
 import AlbumDetailSkeleton from "./AlbumDetailSkeleton";
 import { styles } from "./styles";
@@ -163,28 +164,26 @@ export default function AlbumDetailView({
                 refreshing={isRefetching}
                 ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                 ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Ionicons
-                            name={isTracksTab ? "disc-outline" : "chatbubble-ellipses-outline"}
-                            size={isTracksTab ? 48 : 32}
-                            color="#444"
-                        />
-                        <Text style={styles.emptyText}>
-                            {isTracksTab
+                    <EmptyState
+                        icon={isTracksTab ? "disc-outline" : "chatbubble-ellipses-outline"}
+                        title={
+                            isTracksTab
                                 ? t("albums.detail.emptyTracksText", { defaultValue: "Bu albümde henüz şarkı bulunmuyor." })
-                                : t("albums.detail.emptyReviewsText", { defaultValue: "No reviews yet. Be the first to share your thoughts on this album!" })}
-                        </Text>
-                        {!isTracksTab && (
-                            <TouchableOpacity
-                                style={styles.rateButton}
-                                onPress={() => setIsInteractionSheetOpen(true)}
-                                activeOpacity={0.8}
-                                testID="albums-rate-review-button">
-                                <Ionicons name="star" size={16} color="#FFCC00" />
-                                <Text style={styles.rateButtonText}>{t("movies.detail.rateAndReview")}</Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
+                                : t("albums.detail.emptyReviewsText", { defaultValue: "No reviews yet. Be the first to share your thoughts on this album!" })
+                        }
+                        action={
+                            !isTracksTab
+                                ? {
+                                      label: t("movies.detail.rateAndReview"),
+                                      icon: "star",
+                                      iconColor: "#FFCC00",
+                                      onPress: () => setIsInteractionSheetOpen(true),
+                                      testID: "albums-rate-review-button",
+                                  }
+                                : undefined
+                        }
+                        testID="album-empty"
+                    />
                 }
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
