@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 import DynamicList from "@/components/DynamicList";
 import MovieCard from "@/components/MovieCard";
@@ -34,6 +35,7 @@ export default function MovieListDetailView({
     ...props
 }: IMovieListDetailViewProps & { refetch?: () => void }) {
     const router = useRouter();
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<"movies" | "comments">("movies");
     const [isInteractionSheetOpen, setIsInteractionSheetOpen] = useState<boolean>(false);
 
@@ -106,7 +108,7 @@ export default function MovieListDetailView({
             <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{error}</Text>
                 <TouchableOpacity style={styles.retryButton} onPress={refetchAll}>
-                    <Text style={styles.retryText}>Tekrar Deneyin</Text>
+                    <Text style={styles.retryText}>{t("common.retry", { defaultValue: "Tekrar Deneyin" })}</Text>
                 </TouchableOpacity>
             </View>
         );

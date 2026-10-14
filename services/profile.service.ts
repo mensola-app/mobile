@@ -5,7 +5,8 @@ import * as SecureStore from "expo-secure-store";
 import { uploadAsync, FileSystemUploadType } from "expo-file-system/legacy";
 import { ApiResponse } from "@/types/api";
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://api.mensola.app";
+import { API_BASE_URL as BASE_URL } from "@/constants/env";
+import i18n from "i18next";
 
 const ProfileService = {
     getProfile: async (data: GetProfileRequest): Promise<GetProfileResponse> => {
@@ -36,7 +37,13 @@ const ProfileService = {
         const parsedData = JSON.parse(uploadResult.body);
 
         if (uploadResult.status >= 400 || !parsedData.success) {
-            throw parsedData || new Error("Görsel yüklenemedi");
+            const fallbackMessage =
+                (typeof i18n.t === "function" &&
+                    i18n.t("common.imageUploadError", {
+                        defaultValue: "Görsel yüklenemedi",
+                    })) ||
+                "Görsel yüklenemedi";
+            throw parsedData || new Error(fallbackMessage);
         }
 
         return parsedData;

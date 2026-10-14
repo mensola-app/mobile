@@ -101,6 +101,40 @@ describe("ImportService", () => {
                 "Invalid zip file",
             );
         });
+
+        it("should throw invalid server response error if response is not valid JSON", async () => {
+            const validFile = {
+                uri: "file:///path/to/export.zip",
+                name: "export.zip",
+            };
+
+            (uploadAsync as jest.Mock).mockResolvedValueOnce({
+                status: 502,
+                body: "Bad Gateway",
+            });
+
+            await expect(ImportService.uploadLetterboxdZip(validFile)).rejects.toThrow(
+                "Sunucudan geçersiz yanıt alındı.",
+            );
+        });
+
+        it("should throw fallback upload failed error if response has no message", async () => {
+            const validFile = {
+                uri: "file:///path/to/export.zip",
+                name: "export.zip",
+            };
+
+            (uploadAsync as jest.Mock).mockResolvedValueOnce({
+                status: 400,
+                body: JSON.stringify({
+                    success: false,
+                }),
+            });
+
+            await expect(ImportService.uploadLetterboxdZip(validFile)).rejects.toThrow(
+                "Dosya yüklenemedi.",
+            );
+        });
     });
 
     describe("getImportProgress", () => {

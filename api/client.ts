@@ -251,7 +251,14 @@ async function httpClient<T = any>(url: string, options: RequestOptions = {}): P
                     throw (
                         responseData || {
                             success: false,
-                            error: { message: "Oturum süresi doldu." },
+                            error: {
+                                message:
+                                    (typeof i18n.t === "function" &&
+                                        i18n.t("auth.sessionExpired", {
+                                            defaultValue: "Oturum süresi doldu.",
+                                        })) ||
+                                    "Oturum süresi doldu.",
+                            },
                         }
                     );
                 }

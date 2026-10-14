@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 import DynamicList from "@/components/DynamicList";
 import MusicCard from "@/components/MusicCard";
@@ -35,6 +36,7 @@ export default function PlaylistDetailView({
     ...props
 }: IPlaylistDetailViewProps & { refetch?: () => void }) {
     const router = useRouter();
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<"tracks" | "comments">("tracks");
     const [isInteractionSheetOpen, setIsInteractionSheetOpen] = useState<boolean>(false);
 
@@ -102,7 +104,7 @@ export default function PlaylistDetailView({
             <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{error}</Text>
                 <TouchableOpacity style={styles.retryButton} onPress={refetchAll}>
-                    <Text style={styles.retryText}>Tekrar Deneyin</Text>
+                    <Text style={styles.retryText}>{t("common.retry", { defaultValue: "Tekrar Deneyin" })}</Text>
                 </TouchableOpacity>
             </View>
         );

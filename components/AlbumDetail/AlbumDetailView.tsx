@@ -105,7 +105,7 @@ export default function AlbumDetailView({
             <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{error}</Text>
                 <TouchableOpacity style={styles.retryButton} onPress={refetchAll}>
-                    <Text style={styles.retryText}>Tekrar Deneyin</Text>
+                    <Text style={styles.retryText}>{t("common.retry", { defaultValue: "Tekrar Deneyin" })}</Text>
                 </TouchableOpacity>
             </View>
         );

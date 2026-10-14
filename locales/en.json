@@ -57,7 +57,8 @@
             "or": "or",
             "playServicesError": "Google Play Services is not available or outdated on this device.",
             "genericError": "Could not sign in with Google. Please try again."
-        }
+        },
+        "sessionExpired": "Session expired."
     },
     "tabs": {
         "home": "Home",
@@ -466,6 +467,8 @@
             "errorTitle": "Error",
             "invalidZip": "Only .zip archive files are supported.",
             "fileTooLarge": "File size cannot exceed 50MB.",
+            "invalidServerResponse": "Invalid response received from server.",
+            "uploadFailed": "Failed to upload file.",
             "genericError": "An error occurred during import.",
             "retryText": "Try Again"
         },
@@ -537,6 +540,8 @@
         "loginRequiredMessage": "Please sign in to like this comment.",
         "login": "Sign In",
         "genericError": "An error occurred. Please try again.",
+        "dataLoadError": "Failed to load data.",
+        "imageUploadError": "Failed to upload image",
         "delete": "Delete"
     },
     "home": {

@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { uploadAsync, FileSystemUploadType } from "expo-file-system/legacy";
+import i18n from "i18next";
 import { client, getActiveLanguage } from "@/api/client";
 import { ApiResponse } from "@/types/api";
 import { ImportJobProgress, ImportResponseDto } from "@/types/import.types";
@@ -45,14 +46,26 @@ export const ImportService = {
         try {
             parsedData = JSON.parse(uploadResult.body);
         } catch {
-            throw new Error("Sunucudan geçersiz yanıt alındı.");
+            throw new Error(
+                (typeof i18n.t === "function" &&
+                    i18n.t("letterboxdImport.invalidServerResponse", {
+                        defaultValue: "Sunucudan geçersiz yanıt alındı.",
+                    })) ||
+                    "Sunucudan geçersiz yanıt alındı."
+            );
         }
 
         if (uploadResult.status >= 400 || !parsedData.success || !parsedData.data) {
+            const fallbackMessage =
+                (typeof i18n.t === "function" &&
+                    i18n.t("letterboxdImport.uploadFailed", {
+                        defaultValue: "Dosya yüklenemedi.",
+                    })) ||
+                "Dosya yüklenemedi.";
             const errorMessage =
                 parsedData?.message ||
                 parsedData?.error?.message ||
-                "Dosya yüklenemedi.";
+                fallbackMessage;
             const error = new Error(errorMessage);
             (error as any).error = parsedData?.error || { message: errorMessage };
             throw error;

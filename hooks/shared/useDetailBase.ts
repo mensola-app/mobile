@@ -1,6 +1,7 @@
 import { ApiResponse } from "@/types/api";
 import { MovieLikeActionsResponse } from "@/types/movie.types";
 import { useState, useCallback, useEffect } from "react";
+import i18n from "i18next";
 
 interface UseDetailBaseOptions<T, ID> {
     id?: ID;
@@ -34,9 +35,22 @@ export const useDetailBase = <T extends object, ID>({
             try {
                 const res = await fetcher(id);
                 if (res.data) setDetails(res.data);
-                else setError("Veri yüklenemedi.");
+                else
+                    setError(
+                        (typeof i18n.t === "function" &&
+                            i18n.t("common.dataLoadError", {
+                                defaultValue: "Veri yüklenemedi.",
+                            })) ||
+                            "Veri yüklenemedi."
+                    );
             } catch (err: any) {
-                setError(err?.message ?? "Bir hata oluştu.");
+                const genericError =
+                    (typeof i18n.t === "function" &&
+                        i18n.t("common.genericError", {
+                            defaultValue: "Bir hata oluştu.",
+                        })) ||
+                    "Bir hata oluştu.";
+                setError(err?.message ?? genericError);
             } finally {
                 setIsLoading(false);
                 setIsRefetching(false);

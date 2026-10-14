@@ -57,7 +57,8 @@
             "or": "veya",
             "playServicesError": "Google Play Hizmetleri bu cihazda mevcut değil veya güncel değil.",
             "genericError": "Google ile giriş yapılamadı. Lütfen tekrar deneyin."
-        }
+        },
+        "sessionExpired": "Oturum süresi doldu."
     },
     "tabs": {
         "home": "Ana Sayfa",
@@ -466,6 +467,8 @@
             "errorTitle": "Hata",
             "invalidZip": "Yalnızca .zip uzantılı arşiv dosyaları desteklenir.",
             "fileTooLarge": "Dosya boyutu 50MB'dan büyük olamaz.",
+            "invalidServerResponse": "Sunucudan geçersiz yanıt alındı.",
+            "uploadFailed": "Dosya yüklenemedi.",
             "genericError": "İçe aktarma sırasında bir hata oluştu.",
             "retryText": "Yeniden Dene"
         },
@@ -537,6 +540,8 @@
         "loginRequiredMessage": "Beğeni yapmak için lütfen giriş yapın.",
         "login": "Giriş Yap",
         "genericError": "Bir hata oluştu. Lütfen tekrar deneyin.",
+        "dataLoadError": "Veri yüklenemedi.",
+        "imageUploadError": "Görsel yüklenemedi",
         "delete": "Sil"
     },
     "home": {
