@@ -1,4 +1,4 @@
-import { Share } from "react-native";
+import { Alert, Share } from "react-native";
 import { t } from "i18next";
 import { getOrCreateShortLink } from "@/services/shortLink.service";
 
@@ -6,6 +6,7 @@ export interface IShareContentOptions {
     title?: string;
     message?: string;
     url?: string;
+    showErrorAlert?: boolean;
 }
 
 export interface IShareMovieListOptions {
@@ -33,6 +34,34 @@ export interface IShareUserOptions {
     username: string;
 }
 
+export interface IShareArtistOptions {
+    id: string;
+    name: string;
+}
+
+/**
+ * Checks if an error thrown during share represents an intentional user dismissal or cancellation.
+ */
+export const isUserCancellation = (error: unknown): boolean => {
+    if (!error || typeof error !== "object") return false;
+    const message = ((error as any).message || "").toLowerCase();
+    return (
+        message.includes("cancel") ||
+        message.includes("dismiss") ||
+        message.includes("user did not share")
+    );
+};
+
+/**
+ * Displays a localized alert when sharing encounters an unexpected system error.
+ */
+export const showShareErrorAlert = () => {
+    Alert.alert(
+        t("common.error", { defaultValue: "Hata" }),
+        t("share.error", { defaultValue: "Paylaşım yapılırken bir hata oluştu. Lütfen tekrar deneyiniz." })
+    );
+};
+
 /**
  * Generic content share utility using native device share sheet.
  */
@@ -45,7 +74,12 @@ export const shareContent = async (options: IShareContentOptions): Promise<boole
         });
         return result.action === Share.sharedAction;
     } catch (error) {
-        console.error("Share error:", error);
+        if (!isUserCancellation(error)) {
+            console.error("Share error:", error);
+            if (options.showErrorAlert !== false) {
+                showShareErrorAlert();
+            }
+        }
         return false;
     }
 };
@@ -91,9 +125,15 @@ export const sharePlaylist = async (list: ISharePlaylistOptions): Promise<boolea
  */
 export const shareAlbum = async (album: IShareAlbumOptions): Promise<boolean> => {
     const shareUrl = `https://mensola.app/albums/${album.id}`;
+    const message = t("share.albumMessage", {
+        title: album.title,
+        url: shareUrl,
+        defaultValue: `"${album.title}" albümüne Mensola'da göz atın!\n${shareUrl}`,
+    });
+
     return shareContent({
         title: album.title,
-        message: `"${album.title}" albümüne Mensola'da göz atın!\n${shareUrl}`,
+        message,
         url: shareUrl,
     });
 };
@@ -103,9 +143,15 @@ export const shareAlbum = async (album: IShareAlbumOptions): Promise<boolean> =>
  */
 export const shareMovie = async (movie: IShareMovieOptions): Promise<boolean> => {
     const shareUrl = `https://mensola.app/movies/${movie.id}`;
+    const message = t("share.movieMessage", {
+        title: movie.title,
+        url: shareUrl,
+        defaultValue: `"${movie.title}" filmine Mensola'da göz atın!\n${shareUrl}`,
+    });
+
     return shareContent({
         title: movie.title,
-        message: `"${movie.title}" filmine Mensola'da göz atın!\n${shareUrl}`,
+        message,
         url: shareUrl,
     });
 };
@@ -127,11 +173,6 @@ export const shareUserProfile = async (user: IShareUserOptions): Promise<boolean
         url: shareUrl,
     });
 };
-
-export interface IShareArtistOptions {
-    id: string;
-    name: string;
-}
 
 export const shareArtist = async (artist: IShareArtistOptions): Promise<boolean> => {
     const shareUrl = await getOrCreateShortLink("artist", artist.id);

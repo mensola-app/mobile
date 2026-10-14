@@ -647,8 +647,13 @@
         "emptyInteractionsSubtitle": "İlk yorumu ve değerlendirmeyi sen yap!"
     },
     "share": {
+        "title": "Paylaş",
+        "error": "Paylaşım yapılırken bir hata oluştu. Lütfen tekrar deneyiniz.",
         "movieListMessage": "\"{{title}}\" film listesine Mensola'da göz atın!\n{{url}}",
         "playlistMessage": "\"{{title}}\" çalma listesine Mensola'da göz atın!\n{{url}}",
-        "userMessage": "@{{username}} profilini Mensola'da inceleyin!\n{{url}}"
+        "userMessage": "@{{username}} profilini Mensola'da inceleyin!\n{{url}}",
+        "albumMessage": "\"{{title}}\" albümüne Mensola'da göz atın!\n{{url}}",
+        "movieMessage": "\"{{title}}\" filmine Mensola'da göz atın!\n{{url}}",
+        "artistMessage": "\"{{name}}\" sanatçısına Mensola'da göz atın!\n{{url}}"
     }
 }
