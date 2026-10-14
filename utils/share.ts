@@ -1,6 +1,7 @@
 import { Alert, Share } from "react-native";
 import { t } from "i18next";
 import { getOrCreateShortLink } from "@/services/shortLink.service";
+import { LINKS } from "@/constants/links";
 
 export interface IShareContentOptions {
     title?: string;
@@ -124,7 +125,7 @@ export const sharePlaylist = async (list: ISharePlaylistOptions): Promise<boolea
  * Shares an Album with formatted title and web link.
  */
 export const shareAlbum = async (album: IShareAlbumOptions): Promise<boolean> => {
-    const shareUrl = `https://mensola.app/albums/${album.id}`;
+    const shareUrl = LINKS.app.album(album.id);
     const message = t("share.albumMessage", {
         title: album.title,
         url: shareUrl,
@@ -142,7 +143,7 @@ export const shareAlbum = async (album: IShareAlbumOptions): Promise<boolean> =>
  * Shares a Movie with formatted title and web link.
  */
 export const shareMovie = async (movie: IShareMovieOptions): Promise<boolean> => {
-    const shareUrl = `https://mensola.app/movies/${movie.id}`;
+    const shareUrl = LINKS.app.movie(movie.id);
     const message = t("share.movieMessage", {
         title: movie.title,
         url: shareUrl,

@@ -23,6 +23,7 @@ import GoogleSignInButton from "../../components/GoogleSignInButton";
 import { useRegister } from "../../hooks/auth/useRegister";
 import { useGoogleLogin } from "../../hooks/auth/useGoogleLogin";
 import { Colors } from "@/constants/colors";
+import { LINKS } from "@/constants/links";
 
 export default function SignupScreen() {
     const router = useRouter();
@@ -136,14 +137,14 @@ export default function SignupScreen() {
                                 {t("auth.signup.consentPrefix")}{" "}
                                 <Text
                                     style={styles.consentLink}
-                                    onPress={() => Linking.openURL("https://mensola.app/terms")}
+                                    onPress={() => Linking.openURL(LINKS.TERMS)}
                                     testID="signup-terms-link">
                                     {t("auth.signup.termsOfService")}
                                 </Text>{" "}
                                 {t("auth.signup.consentAnd")}{" "}
                                 <Text
                                     style={styles.consentLink}
-                                    onPress={() => Linking.openURL("https://mensola.app/privacy-policy")}
+                                    onPress={() => Linking.openURL(LINKS.PRIVACY_POLICY)}
                                     testID="signup-privacy-link">
                                     {t("auth.signup.privacyPolicy")}
                                 </Text>

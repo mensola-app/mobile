@@ -14,6 +14,7 @@ import { IAlbumHeroProps } from "./types";
 import { useRouter } from "expo-router";
 import { shareAlbum } from "@/utils/share";
 import { Colors } from "@/constants/colors";
+import { LINKS } from "@/constants/links";
 import DetailHero from "@/components/DetailHero";
 
 export default function AlbumHero({
@@ -41,7 +42,7 @@ export default function AlbumHero({
     const spotifyId = albumDetails.spotifyId;
     const handleSpotifyPress = () => {
         if (spotifyId) {
-            Linking.openURL(`https://open.spotify.com/album/${spotifyId}`).catch((err) => {
+            Linking.openURL(LINKS.spotify.album(spotifyId)).catch((err) => {
                 console.error("Failed to open Spotify album:", err);
             });
         } else if (onPlayPress) {

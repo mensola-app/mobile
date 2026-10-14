@@ -1,4 +1,5 @@
 import { client } from "@/api/client";
+import { LINKS } from "@/constants/links";
 
 export type ShortLinkTargetType = "movie_list" | "playlist" | "user" | "artist";
 
@@ -22,7 +23,7 @@ export const getOrCreateShortLink = async (
 
         const code = (response as any)?.data?.code || (response as any)?.code;
         if (code) {
-            return `https://mensola.app/${code}`;
+            return LINKS.app.shortLink(code);
         }
     } catch (error) {
         console.warn("Failed to generate short link, falling back to full URL:", error);
@@ -37,5 +38,5 @@ export const getOrCreateShortLink = async (
     
     const route = routeMap[targetType] || "playlists";
 
-    return `https://mensola.app/${route}/${targetId}`;
+    return LINKS.app.entity(route, targetId);
 };

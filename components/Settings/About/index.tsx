@@ -6,11 +6,8 @@ import Constants from "expo-constants";
 
 import { ListGroup, ListGroupItem } from "@/components/ListGroup";
 import { Colors } from "@/constants/colors";
+import { LINKS } from "@/constants/links";
 import { styles } from "./styles";
-
-const MENSOLA_X_URL = "https://x.com/mensolaapp";
-const MENSOLA_INSTAGRAM_URL = "https://instagram.com/mensola.app";
-const DEVELOPER_PROFILE_URL = "https://x.com/enescxx";
 
 export default function AboutView() {
     const { t } = useTranslation();
@@ -42,7 +39,7 @@ export default function AboutView() {
             <ListGroup title={t("settings.about.legalTitle")}>
                 <ListGroupItem
                     isFirst
-                    onPress={() => handleOpenUrl("https://mensola.app/privacy-policy")}
+                    onPress={() => handleOpenUrl(LINKS.PRIVACY_POLICY)}
                     testID="about-privacy-policy">
                     <View style={styles.itemLeft}>
                         <Text style={styles.itemTitle}>{t("settings.about.privacyPolicy")}</Text>
@@ -52,7 +49,7 @@ export default function AboutView() {
 
                 <ListGroupItem
                     isLast
-                    onPress={() => handleOpenUrl("https://mensola.app/terms")}
+                    onPress={() => handleOpenUrl(LINKS.TERMS)}
                     testID="about-terms-of-service">
                     <View style={styles.itemLeft}>
                         <Text style={styles.itemTitle}>{t("settings.about.termsOfService")}</Text>
@@ -65,7 +62,7 @@ export default function AboutView() {
             <ListGroup title={t("settings.about.attributionsTitle")}>
                 <ListGroupItem
                     isFirst
-                    onPress={() => handleOpenUrl("https://www.themoviedb.org")}
+                    onPress={() => handleOpenUrl(LINKS.TMDB)}
                     testID="about-tmdb">
                     <View style={styles.itemLeft}>
                         <Text style={styles.itemTitle}>{t("settings.about.tmdbTitle")}</Text>
@@ -76,7 +73,7 @@ export default function AboutView() {
 
                 <ListGroupItem
                     isLast
-                    onPress={() => handleOpenUrl("https://www.spotify.com")}
+                    onPress={() => handleOpenUrl(LINKS.SPOTIFY_WEB)}
                     testID="about-spotify">
                     <View style={styles.itemLeft}>
                         <Text style={styles.itemTitle}>{t("settings.about.spotifyTitle")}</Text>
@@ -89,7 +86,7 @@ export default function AboutView() {
             <ListGroup title={t("settings.about.communityTitle")}>
                 <ListGroupItem
                     isFirst
-                    onPress={() => handleOpenUrl(MENSOLA_X_URL)}
+                    onPress={() => handleOpenUrl(LINKS.SOCIAL_X)}
                     testID="about-social-x">
                     <View style={styles.itemWithIconLeft}>
                         <FontAwesome6 name="x-twitter" size={17} color={Colors.textPrimary} style={styles.socialIcon} />
@@ -100,7 +97,7 @@ export default function AboutView() {
 
                 <ListGroupItem
                     isLast
-                    onPress={() => handleOpenUrl(MENSOLA_INSTAGRAM_URL)}
+                    onPress={() => handleOpenUrl(LINKS.SOCIAL_INSTAGRAM)}
                     testID="about-social-instagram">
                     <View style={styles.itemWithIconLeft}>
                         <Ionicons name="logo-instagram" size={18} color={Colors.textPrimary} style={styles.socialIcon} />
@@ -116,7 +113,7 @@ export default function AboutView() {
                     {t("settings.about.craftedBy")}{" "}
                     <Text
                         style={styles.developerLink}
-                        onPress={() => handleOpenUrl(DEVELOPER_PROFILE_URL)}
+                        onPress={() => handleOpenUrl(LINKS.DEVELOPER_PROFILE)}
                         testID="about-developer-link">
                         Enes Can
                     </Text>
