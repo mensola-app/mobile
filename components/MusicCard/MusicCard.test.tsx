@@ -1,23 +1,24 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 import MusicCard from "./index";
-import { IMusicCardProps } from "./types";
+import { Image } from "expo-image";
+import { MusicCardTrackData, MusicCardAlbumData, MusicCardPlaylistData } from "./types";
 
-const mockSongProps: Omit<IMusicCardProps, "type"> = {
+const mockSongProps: MusicCardTrackData = {
     title: "Music Title",
     artists: [{ name: "Artist 1" }, { name: "Artist 2" }],
     image: "https://example.com/cover.jpg",
     duration: 197000,
 };
 
-const mockAlbumProps: Omit<IMusicCardProps, "type"> = {
+const mockAlbumProps: MusicCardAlbumData = {
     title: "Album Title",
     artists: [{ name: "Artist 1" }, { name: "Artist 2" }],
     image: "https://example.com/cover.jpg",
     releaseYear: 2026,
 };
 
-const mockPlaylistProps: Omit<IMusicCardProps, "type"> = {
+const mockPlaylistProps: MusicCardPlaylistData = {
     title: "Playlist Title",
     creator: { username: "enescxx" },
     image: "https://example.com/cover.jpg",
@@ -69,7 +70,7 @@ describe("MusicCard Component", () => {
     it("should render the cover image with correct uri", () => {
         const { UNSAFE_getByType } = render(<MusicCard type="track" data={mockSongProps} />);
 
-        const imageComponent = UNSAFE_getByType("Image");
+        const imageComponent = UNSAFE_getByType(Image);
         expect(imageComponent.props.source).toEqual({
             uri: mockSongProps.image,
         });
@@ -111,7 +112,7 @@ describe("MusicCard Component", () => {
 
             expect(getByText("Empty Playlist")).toBeTruthy();
             expect(getByText("0 common.track")).toBeTruthy();
-            expect(UNSAFE_queryByType("Image")).toBeNull();
+            expect(UNSAFE_queryByType(Image)).toBeNull();
         });
 
         it("should render first track image when playlist has no cover and 1-3 tracks", () => {
@@ -126,7 +127,7 @@ describe("MusicCard Component", () => {
             );
 
             expect(getByText("Few Tracks")).toBeTruthy();
-            const images = UNSAFE_getAllByType("Image");
+            const images = UNSAFE_getAllByType(Image);
             expect(images.length).toBe(1);
             expect(images[0].props.source).toEqual({ uri: "https://example.com/track1.jpg" });
         });
@@ -149,7 +150,7 @@ describe("MusicCard Component", () => {
             );
 
             expect(getByText("Many Tracks")).toBeTruthy();
-            const images = UNSAFE_getAllByType("Image");
+            const images = UNSAFE_getAllByType(Image);
             expect(images.length).toBe(4);
             expect(images[0].props.source).toEqual({ uri: "https://example.com/t1.jpg" });
             expect(images[3].props.source).toEqual({ uri: "https://example.com/t4.jpg" });

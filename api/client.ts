@@ -5,7 +5,8 @@ import i18n from "i18next";
 import { usePreferences } from "@/hooks/usePreferences";
 import { API_BASE_URL as BASE_URL } from "@/constants/env";
 
-export interface RequestOptions extends RequestInit {
+export interface RequestOptions extends Omit<RequestInit, "body"> {
+    body?: unknown;
     auth?: boolean;
     params?: Record<string, string | number | boolean | undefined>;
     timeout?: number;
@@ -68,11 +69,31 @@ export const notifyNetworkError = (message?: string) => {
     }
 };
 
-export const isNetworkFailure = (error: any): boolean => {
-    if (!error) return false;
-    if (error.name === "AbortError" || error.name === "TimeoutError") return true;
+export interface ApiError {
+    success: false;
+    error: {
+        code?: string;
+        message: string;
+    };
+    status?: number;
+    retryAfterMs?: number;
+}
+
+export const isApiError = (error: unknown): error is ApiError => {
+    return (
+        typeof error === "object" &&
+        error !== null &&
+        "success" in error &&
+        (error as { success: unknown }).success === false
+    );
+};
+
+export const isNetworkFailure = (error: unknown): boolean => {
+    if (!error || typeof error !== "object") return false;
+    const err = error as { name?: string; message?: string };
+    if (err.name === "AbortError" || err.name === "TimeoutError") return true;
     if (error instanceof TypeError) return true;
-    const msg = String(error.message || "").toLowerCase();
+    const msg = String(err.message || "").toLowerCase();
     return (
         msg.includes("network") ||
         msg.includes("fetch") ||
@@ -158,14 +179,14 @@ const refreshAccessToken = (activeLang: string): Promise<string> => {
             REFRESH_TIMEOUT_MS,
         );
 
-        let refreshData: any = null;
+        let refreshData: { success?: boolean; data?: { accessToken?: string } } | null = null;
         try {
             refreshData = await refreshResponse.json();
         } catch {
             // non-JSON body; handled by status below
         }
 
-        if (refreshResponse.ok && refreshData?.success) {
+        if (refreshResponse.ok && refreshData?.success && refreshData.data?.accessToken) {
             const newToken: string = refreshData.data.accessToken;
             await SecureStore.setItemAsync("token", newToken);
             return newToken;
@@ -189,7 +210,7 @@ const refreshAccessToken = (activeLang: string): Promise<string> => {
 };
 
 
-async function httpClient<T = any>(url: string, options: RequestOptions = {}): Promise<T> {
+async function httpClient<T = unknown>(url: string, options: RequestOptions = {}): Promise<T> {
     const activeLang = getActiveLanguage();
     const config: RequestInit = {
         method: options.method || "GET",
@@ -330,14 +351,14 @@ async function httpClient<T = any>(url: string, options: RequestOptions = {}): P
 }
 
 export const client = {
-    get: <T = any>(url: string, options?: Omit<RequestOptions, "method" | "body">) =>
+    get: <T = unknown>(url: string, options?: Omit<RequestOptions, "method" | "body">) =>
         httpClient<T>(url, { ...options, method: "GET" }),
-    post: <T = any>(url: string, body?: any, options?: Omit<RequestOptions, "method" | "body">) =>
+    post: <T = unknown>(url: string, body?: unknown, options?: Omit<RequestOptions, "method" | "body">) =>
         httpClient<T>(url, { ...options, method: "POST", body }),
-    put: <T = any>(url: string, body?: any, options?: Omit<RequestOptions, "method" | "body">) =>
+    put: <T = unknown>(url: string, body?: unknown, options?: Omit<RequestOptions, "method" | "body">) =>
         httpClient<T>(url, { ...options, method: "PUT", body }),
-    patch: <T = any>(url: string, body?: any, options?: Omit<RequestOptions, "method" | "body">) =>
+    patch: <T = unknown>(url: string, body?: unknown, options?: Omit<RequestOptions, "method" | "body">) =>
         httpClient<T>(url, { ...options, method: "PATCH", body }),
-    delete: <T = any>(url: string, options?: Omit<RequestOptions, "method" | "body">) =>
+    delete: <T = unknown>(url: string, options?: Omit<RequestOptions, "method" | "body">) =>
         httpClient<T>(url, { ...options, method: "DELETE" }),
 };

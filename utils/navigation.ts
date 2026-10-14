@@ -6,6 +6,8 @@
  * path traversal attacks, and application crashes caused by invalid routes.
  */
 
+import type { Href } from "expo-router";
+
 // Whitelist of valid application route patterns (regex matching pathnames)
 const ALLOWED_ROUTE_PATTERNS: RegExp[] = [
     // Root & Tabs
@@ -49,7 +51,7 @@ export function isValidNotificationPath(rawPath: unknown): boolean {
  * @param rawPath - Candidate path to be sanitized
  * @returns Normalized safe path string starting with `/`, or `null` if invalid/disallowed
  */
-export function sanitizeNotificationPath(rawPath: unknown): string | null {
+export function sanitizeNotificationPath(rawPath: unknown): Href | null {
     if (typeof rawPath !== "string") {
         return null;
     }
@@ -121,8 +123,8 @@ export function sanitizeNotificationPath(rawPath: unknown): string | null {
         if (!SAFE_QUERY_REGEX.test(queryString)) {
             return null;
         }
-        return `${canonicalPathname}?${queryString}`;
+        return `${canonicalPathname}?${queryString}` as Href;
     }
 
-    return canonicalPathname;
+    return canonicalPathname as Href;
 }

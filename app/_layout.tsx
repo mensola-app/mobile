@@ -34,7 +34,7 @@ function RootLayout() {
             const rawPath = response?.notification?.request?.content?.data?.path;
             const safePath = sanitizeNotificationPath(rawPath);
             if (safePath) {
-                router.push(safePath as any);
+                router.push(safePath);
             }
         };
 

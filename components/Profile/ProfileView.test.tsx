@@ -17,8 +17,8 @@ describe("ProfileView Component", () => {
     it("should render all child components successfully", () => {
         const { UNSAFE_getByType } = render(<ProfileView />);
 
-        expect(UNSAFE_getByType("ProfileHeader")).toBeTruthy();
-        expect(UNSAFE_getByType("ProfileBody")).toBeTruthy();
-        expect(UNSAFE_getByType("ProfileFooter")).toBeTruthy();
+        expect(UNSAFE_getByType("ProfileHeader" as any)).toBeTruthy();
+        expect(UNSAFE_getByType("ProfileBody" as any)).toBeTruthy();
+        expect(UNSAFE_getByType("ProfileFooter" as any)).toBeTruthy();
     });
 });

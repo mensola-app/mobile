@@ -1,4 +1,4 @@
-export type Brand<K, T extends string> = K & { readonly __brand: T };
+export type Brand<K, T extends string> = K & { readonly __brand?: T };
 
 export type UserId = Brand<string, "UserId">;
 export type SessionId = Brand<string, "SessionId">;

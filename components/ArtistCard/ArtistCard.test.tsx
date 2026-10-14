@@ -1,11 +1,12 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 import ArtistCard from "./index";
+import { Image } from "expo-image";
 import { IArtistCardProps } from "./types";
 
 const mockArtistProps: IArtistCardProps = {
     artist: {
-        id: "artist-1" as any,
+        id: "artist-1",
         name: "Artist Name",
         avatar: "https://example.com/artist.jpg",
         followerCount: 1552,
@@ -42,7 +43,7 @@ describe("ArtistCard Component", () => {
     it("should render the avatar image with correct uri", () => {
         const { UNSAFE_getByType } = render(<ArtistCard {...mockArtistProps} />);
 
-        const imageComponent = UNSAFE_getByType("Image");
+        const imageComponent = UNSAFE_getByType(Image);
         expect(imageComponent.props.source).toEqual({
             uri: mockArtistProps.artist.avatar?.toString(),
         });

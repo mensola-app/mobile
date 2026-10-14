@@ -39,7 +39,7 @@ describe("PageHeader Component", () => {
     });
 
     test("does NOT render back button when 'options.headerBackVisible' is false even if 'back' prop exists", () => {
-        const mockBack = { href: "previous-route" };
+        const mockBack = { href: "previous-route", title: undefined };
         const propsWithHiddenBack = {
             ...defaultProps,
             options: {
@@ -56,7 +56,7 @@ describe("PageHeader Component", () => {
     });
 
     test("renders back button and calls navigation.goBack when pressed", () => {
-        const mockBack = { href: "previous-route" };
+        const mockBack = { href: "previous-route", title: undefined };
         
         const { getByTestId } = render(
             <PageHeader {...defaultProps} back={mockBack} />

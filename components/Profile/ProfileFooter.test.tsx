@@ -22,7 +22,7 @@ describe("ProfileFooter Component", () => {
         });
 
         const { root } = render(<ProfileFooter />);
-        const footerItems = root.findAllByType("FooterItem");
+        const footerItems = root.findAllByType("FooterItem" as any);
 
         expect(footerItems.length).toBe(2);
     });

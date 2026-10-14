@@ -12,6 +12,7 @@ import { Colors } from "@/constants/colors";
 import { MovieService } from "@/services/movie.service";
 import { TrackService } from "@/services/track.service";
 import { TmdbId, SpotifyId } from "@/types/common.types";
+import { IUser } from "@/types/user.types";
 import { useTranslation } from "react-i18next";
 import SearchNoResults from "./SearchNoResults";
 import SearchSkeleton from "./SearchSkeleton";
@@ -69,7 +70,7 @@ export default function SearchResultList({
         }
     };
 
-    const handleSelectUser = (user: any) => {
+    const handleSelectUser = (user: IUser) => {
         addSearch({
             type: "user",
             data: { id: user.id, username: user.username, fullname: user.fullname, avatar: user.avatar },
@@ -77,7 +78,7 @@ export default function SearchResultList({
         router.push(`/users/${user.id}`);
     };
 
-    const renderSearchResults = ({ item }: { item: any }) => {
+    const renderSearchResults = ({ item }: { item: TmdbMovieItem | SpotifyTrackItem | IUser }) => {
         switch (activeTab) {
             case "movie":
                 const movie = item as TmdbMovieItem;
@@ -103,7 +104,7 @@ export default function SearchResultList({
                     />
                 );
             case "user":
-                const user = item as any;
+                const user = item as IUser;
                 return (
                     <SearchUserRow
                         user={{

@@ -3,10 +3,37 @@ import { IPlaylist } from "@/types/playlist.types";
 import { ITrack } from "@/types/track.types";
 import { StyleProp, ViewStyle } from "react-native";
 
+export type MusicCardTrackData = Omit<Partial<ITrack>, "artists"> & {
+    title?: string;
+    image?: string | URL | null;
+    artists?: ({ name?: string } | string)[];
+    artistName?: string;
+    duration?: number;
+    previewImages?: string[];
+    album?: { title?: string };
+};
+
+export type MusicCardAlbumData = Omit<Partial<IAlbum>, "artists"> & {
+    title?: string;
+    image?: string | URL | null;
+    artists?: ({ name?: string } | string)[];
+    artistName?: string;
+    releaseYear?: number;
+    previewImages?: string[];
+};
+
+export type MusicCardPlaylistData = Omit<Partial<IPlaylist>, "creator"> & {
+    title?: string;
+    image?: string | URL | null;
+    creator?: { username?: string };
+    songCount?: number;
+    previewImages?: string[];
+};
+
 type IMusicCardProps<
-    TTrack extends Omit<ITrack, "id"> = Omit<ITrack, "id">,
-    TAlbum extends Omit<IAlbum, "id"> = Omit<IAlbum, "id">,
-    TPlaylist extends Omit<IPlaylist, "id"> = Omit<IPlaylist, "id">,
+    TTrack extends MusicCardTrackData = MusicCardTrackData,
+    TAlbum extends MusicCardAlbumData = MusicCardAlbumData,
+    TPlaylist extends MusicCardPlaylistData = MusicCardPlaylistData,
 > = { layout?: "horizontal" | "vertical"; compact?: boolean } & (
     | {
           type: "track";

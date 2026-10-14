@@ -1,5 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react-native";
+import { Image } from "expo-image";
 import MovieCard from "./index";
 
 describe("MovieCard Bileşeni Bütünsel Testleri", () => {
@@ -66,7 +67,7 @@ describe("MovieCard Bileşeni Bütünsel Testleri", () => {
             poster: "https://example.com/poster.jpg",
             interactions: {
                 rating: "5.0",
-                totalReviews: 0,
+                totalLikes: 0,
                 totalReviews: 0
             }
         };
@@ -154,7 +155,7 @@ describe("MovieCard Bileşeni Bütünsel Testleri", () => {
             );
 
             expect(getByText("Action Movies")).toBeTruthy();
-            const images = UNSAFE_getAllByType("Image");
+            const images = UNSAFE_getAllByType(Image);
             expect(images.length).toBe(4);
             expect(images[0].props.source).toEqual({ uri: "https://example.com/p1.jpg" });
             expect(images[3].props.source).toEqual({ uri: "https://example.com/p4.jpg" });
@@ -179,7 +180,7 @@ describe("MovieCard Bileşeni Bütünsel Testleri", () => {
 
             expect(getByText("Sci-Fi Favorites")).toBeTruthy();
             expect(getByText("4 common.movie")).toBeTruthy();
-            const images = UNSAFE_getAllByType("Image");
+            const images = UNSAFE_getAllByType(Image);
             expect(images.length).toBe(4);
             expect(images[0].props.source).toEqual({ uri: "https://example.com/sci1.jpg" });
             expect(images[3].props.source).toEqual({ uri: "https://example.com/sci4.jpg" });
@@ -199,7 +200,7 @@ describe("MovieCard Bileşeni Bütünsel Testleri", () => {
 
             expect(getByText("Empty Movie List")).toBeTruthy();
             expect(getByText("0 common.movie")).toBeTruthy();
-            expect(UNSAFE_queryByType("Image")).toBeNull();
+            expect(UNSAFE_queryByType(Image)).toBeNull();
         });
 
         it("should render movie data object when type is 'movie'", () => {

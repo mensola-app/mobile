@@ -94,9 +94,9 @@ export default function MovieListDetailView({
 
     const handleLoadMore = () => {
         if (activeTab === "movies") {
-            if (!isFetchingNextMoviePage && hasNextMoviePage) loadMoreMovies();
+            if (!isFetchingNextMoviePage && hasNextMoviePage) loadMoreMovies?.();
         } else if (activeTab === "comments") {
-            if (!isFetchingNextInteractionPage && hasNextInteractionsPage) loadMoreInteractions();
+            if (!isFetchingNextInteractionPage && hasNextInteractionsPage) loadMoreInteractions?.();
         }
     };
 

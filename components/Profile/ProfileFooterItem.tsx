@@ -28,11 +28,11 @@ const STAT_CONFIG: Record<StatTypeKey, StatConfig> = {
 };
 
 interface GroupedFooterItemProps extends IFooterItemProps {
-    isFirst: boolean;
-    isLast: boolean;
+    isFirst?: boolean;
+    isLast?: boolean;
 }
 
-export default function ProfileFooterItem({ statType, statValue, onPress, isFirst, isLast }: GroupedFooterItemProps) {
+export default function ProfileFooterItem({ statType, statValue, onPress, isFirst = false, isLast = false }: GroupedFooterItemProps) {
     const { t } = useTranslation();
     const cfg = STAT_CONFIG[statType] ?? { icon: "stats-chart-outline" as const, color: Colors.textMuted };
 

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { TouchableOpacity, View, Text } from "react-native";
 import { Image } from "expo-image";
 import { styles } from "./styles";
-import { IMovieCardProps } from "./types";
+import { IMovieCardProps, MovieCardListData, MovieCardMovieData } from "./types";
 import MovieCardFooter from "./MovieCardFooter";
 import Badge from "../Badge";
 import { Ionicons, Entypo } from "@expo/vector-icons";
@@ -44,11 +44,11 @@ function MovieCardComponent<
     } = useMemo(() => {
         if (type === "movie-list") {
             const listProps = props as Extract<IMovieCardProps, { type: "movie-list" }>;
-            const listData = (listProps.data || {}) as any;
+            const listData = (listProps.data || {}) as MovieCardListData;
 
             const dispTitle = listData.listTitle || listData.title || listProps.title || "";
             const rawCover =
-                (typeof listData.image === "string" ? listData.image : listData.image?.toString()) ||
+                (listData.image ? String(listData.image) : null) ||
                 listProps.poster ||
                 null;
 
@@ -56,10 +56,10 @@ function MovieCardComponent<
                 (Array.isArray(listData.previewImages) && listData.previewImages.length > 0
                     ? listData.previewImages
                     : null) ||
-                listData.previewMovies?.map((m: any) => m.poster).filter(Boolean) ||
-                listData.movies?.map((m: any) => m.poster).filter(Boolean) ||
+                listData.previewMovies?.map((m) => m.poster).filter(Boolean) ||
+                listData.movies?.map((m) => m.poster).filter(Boolean) ||
                 []
-            ).filter(Boolean);
+            ).filter(Boolean) as string[];
 
             const creatorUsername = listData.creator?.username || listData.owners?.[0]?.username;
             const sub = listProps.hideCreator || !creatorUsername ? null : `@${creatorUsername}`;
@@ -84,13 +84,13 @@ function MovieCardComponent<
             };
         } else {
             const movieProps = props as Extract<IMovieCardProps, { type?: "movie" }>;
-            const movieData = (movieProps.data || {}) as any;
+            const movieData = (movieProps.data || {}) as MovieCardMovieData;
 
             const rawTitle = movieData.title || movieProps.title || "";
             const releaseDate = movieData.releaseDate || movieProps.releaseDate;
             const genres = movieData.genres || movieProps.genres;
             const avgRating = movieData.ratingAverage ?? movieProps.ratingAverage;
-            const wCount = movieData.watchCount ?? (movieProps as any).watchCount;
+            const wCount = movieData.watchCount ?? movieProps.watchCount;
 
             const dispTitle = [rawTitle, formatReleaseYear(releaseDate)].filter(Boolean).join(" • ");
             const postUri = movieData.poster || movieProps.poster || null;
@@ -271,7 +271,7 @@ function MovieCardComponent<
                         {hasLikes && (
                             <Badge
                                 icon={<Ionicons name="heart" size={10} color="#FF8000" />}
-                                value={!isProfile ? interactions.totalLikes : undefined}
+                                value={!isProfile ? interactions?.totalLikes : undefined}
                                 style={styles.badgeItem}
                                 textStyle={styles.badgeText}
                             />
@@ -279,7 +279,7 @@ function MovieCardComponent<
                         {hasReviews && (
                             <Badge
                                 icon={<Entypo name="text" size={10} color="#FF8000" />}
-                                value={!isProfile ? interactions.totalReviews : undefined}
+                                value={!isProfile ? interactions?.totalReviews : undefined}
                                 style={styles.badgeItem}
                                 textStyle={styles.badgeText}
                             />

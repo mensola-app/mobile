@@ -1,4 +1,4 @@
-import { client } from "./client";
+import { client, ApiError } from "./client";
 import * as SecureStore from "expo-secure-store";
 
 jest.mock("expo-secure-store", () => ({
@@ -66,7 +66,7 @@ describe("HttpClient Infrastructure Tests", () => {
                 ok: false,
                 status: 401,
                 headers: {
-                    get: h => (h === "content-type" ? "application/json" : null)
+                    get: (h: string) => (h === "content-type" ? "application/json" : null)
                 },
                 json: async () => ({ success: false, message: "Unauthorized" })
             })
@@ -75,7 +75,7 @@ describe("HttpClient Infrastructure Tests", () => {
                 ok: true,
                 status: 200,
                 headers: {
-                    get: h => (h === "content-type" ? "application/json" : null)
+                    get: (h: string) => (h === "content-type" ? "application/json" : null)
                 },
                 json: async () => ({
                     success: true,
@@ -86,7 +86,7 @@ describe("HttpClient Infrastructure Tests", () => {
                 ok: true,
                 status: 200,
                 headers: {
-                    get: h => (h === "content-type" ? "application/json" : null)
+                    get: (h: string) => (h === "content-type" ? "application/json" : null)
                 },
                 json: async () => ({ success: true, data: "profile" })
             });
@@ -137,12 +137,12 @@ describe("HttpClient Infrastructure Tests", () => {
             }
         });
 
-        const error = await client.get("/search").catch(e => e);
+        const error = (await client.get("/search").catch(e => e)) as ApiError;
 
         expect(error.status).toBe(429);
         expect(error.retryAfterMs).toBe(7000);
-        expect(error.error.code).toBe("RATE_LIMITED");
-        expect(typeof error.error.message).toBe("string");
+        expect(error.error?.code).toBe("RATE_LIMITED");
+        expect(typeof error.error?.message).toBe("string");
         expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 
@@ -156,7 +156,7 @@ describe("HttpClient Infrastructure Tests", () => {
             json: async () => ({ success: false, message: "Slow down" })
         });
 
-        const error = await client.get("/search").catch(e => e);
+        const error = (await client.get("/search").catch(e => e)) as ApiError & { message?: string };
 
         expect(error.status).toBe(429);
         expect(error.message).toBe("Slow down");
@@ -173,7 +173,7 @@ describe("HttpClient Infrastructure Tests", () => {
                 ok: false,
                 status: 401,
                 headers: {
-                    get: h => (h === "content-type" ? "application/json" : null)
+                    get: (h: string) => (h === "content-type" ? "application/json" : null)
                 },
                 json: async () => ({ success: false })
             })
@@ -181,7 +181,7 @@ describe("HttpClient Infrastructure Tests", () => {
                 ok: false,
                 status: 400,
                 headers: {
-                    get: h => (h === "content-type" ? "application/json" : null)
+                    get: (h: string) => (h === "content-type" ? "application/json" : null)
                 },
                 json: async () => ({ success: false })
             });

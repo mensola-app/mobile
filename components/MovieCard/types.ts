@@ -1,8 +1,30 @@
 import { StyleProp, ViewStyle } from "react-native";
 import { IMovie, IMovieList, GetListsResponseDataItem, MovieSummaryViaInteraction } from "@/types/movie.types";
 
+export type MovieCardListData = Partial<IMovieList> & Partial<GetListsResponseDataItem> & {
+    listTitle?: string;
+    title?: string;
+    image?: URL | string | null;
+    previewImages?: string[];
+    previewMovies?: (MovieSummaryViaInteraction | { poster?: string })[];
+    movies?: { poster?: string }[];
+    creator?: { username?: string; avatar?: string; id?: string };
+    owners?: { username?: string }[];
+    movieCount?: number;
+};
+
+export type MovieCardMovieData = Partial<IMovie> & Partial<MovieSummaryViaInteraction> & {
+    title?: string;
+    poster?: string;
+    releaseDate?: string;
+    genres?: string[];
+    ratingAverage?: number;
+    watchCount?: number;
+    interactions?: IMovieCardInteractions;
+};
+
 export interface IMovieCardInteractions {
-    rating?: number;
+    rating?: number | string;
     isLiked?: boolean;
     hasReview?: boolean;
     totalLikes?: number;
@@ -37,6 +59,7 @@ export type IMovieCardProps<
           releaseDate?: string;
           genres?: string[];
           ratingAverage?: number;
+          watchCount?: number;
       }
     | {
           type: "movie-list";

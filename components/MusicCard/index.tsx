@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 
-import { IMusicCardProps } from "./types";
+import { IMusicCardProps, MusicCardTrackData, MusicCardAlbumData, MusicCardPlaylistData } from "./types";
 import { styles } from "./styles";
 import { ITrack } from "@/types/track.types";
 import { IAlbum } from "@/types/album.types";
@@ -23,9 +23,9 @@ function formatDuration(ms: number) {
 }
 
 function MusicCardComponent<
-    TTrack extends Omit<ITrack, "id"> = Omit<ITrack, "id">,
-    TAlbum extends Omit<IAlbum, "id"> = Omit<IAlbum, "id">,
-    TPlaylist extends Omit<IPlaylist, "id"> = Omit<IPlaylist, "id">,
+    TTrack extends MusicCardTrackData = MusicCardTrackData,
+    TAlbum extends MusicCardAlbumData = MusicCardAlbumData,
+    TPlaylist extends MusicCardPlaylistData = MusicCardPlaylistData,
 >({ layout = "vertical", compact = false, ...props }: IMusicCardProps<TTrack, TAlbum, TPlaylist>) {
     const { t } = useTranslation();
     const { type, data, onPress, style } = props;

@@ -215,9 +215,10 @@ describe("EditListBottomSheet Component", () => {
         );
 
         // Simulate confirming delete (press index 1 button)
-        const confirmButton = alertSpy.mock.calls[0][2][1];
+        const buttons = alertSpy.mock.calls[0][2] as { onPress?: () => void }[] | undefined;
+        const confirmButton = buttons?.[1];
         await act(async () => {
-            await confirmButton.onPress();
+            await confirmButton?.onPress?.();
         });
 
         await waitFor(() => {
@@ -245,9 +246,10 @@ describe("EditListBottomSheet Component", () => {
         fireEvent.press(getByTestId("edit-list-delete-button"));
 
         expect(alertSpy).toHaveBeenCalled();
-        const confirmButton = alertSpy.mock.calls[0][2][1];
+        const playlistButtons = alertSpy.mock.calls[0][2] as { onPress?: () => void }[] | undefined;
+        const confirmButton = playlistButtons?.[1];
         await act(async () => {
-            await confirmButton.onPress();
+            await confirmButton?.onPress?.();
         });
 
 
