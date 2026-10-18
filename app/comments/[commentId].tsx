@@ -7,6 +7,7 @@ import { CommentThreadView, CommentDetailParams, threadStyles as styles } from "
 import { useCommentDetail } from "@/hooks/comment/useCommentDetail";
 import { CommentId } from "@/types/common.types";
 import { InteractionItemResponse } from "@/types/interaction.types";
+import { logger } from "@/utils/logger";
 
 export default function CommentDetailScreen() {
     const { t } = useTranslation();
@@ -17,7 +18,8 @@ export default function CommentDetailScreen() {
     const interactionData: InteractionItemResponse | null = useMemo(() => {
         try {
             return params.interactionData ? JSON.parse(params.interactionData) : null;
-        } catch {
+        } catch (err) {
+            logger.warn("Failed to parse interactionData in CommentDetailScreen", err);
             return null;
         }
     }, [params.interactionData]);

@@ -11,6 +11,7 @@ import { MovieService } from "@/services/movie.service";
 import { PlaylistService } from "@/services/playlist.service";
 import { StorageService } from "@/services/storage.service";
 import { useTranslation } from "react-i18next";
+import { logger } from "@/utils/logger";
 import { styles } from "./styles";
 
 interface Props {
@@ -84,7 +85,8 @@ export default function CreateListBottomSheet({ isVisible, onClose, type, onSucc
                 try {
                     const uploadRes = await StorageService.uploadCover(selectedImageUri);
                     uploadedImageUrl = uploadRes.data?.imageUrl;
-                } catch {
+                } catch (uploadErr) {
+                    logger.warn("Failed to upload cover image in CreateListBottomSheet", uploadErr);
                     setError(t("lists.create.photoUploadError"));
                     setIsLoading(false);
                     return;

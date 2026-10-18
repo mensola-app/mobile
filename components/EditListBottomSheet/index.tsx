@@ -12,6 +12,7 @@ import { MovieService } from "@/services/movie.service";
 import { PlaylistService } from "@/services/playlist.service";
 import { StorageService } from "@/services/storage.service";
 import { useTranslation } from "react-i18next";
+import { logger } from "@/utils/logger";
 import { styles } from "./styles";
 import { MovieListId, PlaylistId } from "@/types/common.types";
 
@@ -112,7 +113,8 @@ export default function EditListBottomSheet({
                     try {
                         const uploadRes = await StorageService.uploadCover(selectedImageUri);
                         finalImageUrl = uploadRes.data?.imageUrl;
-                    } catch {
+                    } catch (uploadErr) {
+                        logger.warn("Failed to upload cover image in EditListBottomSheet", uploadErr);
                         setError(t("lists.create.photoUploadError"));
                         setIsLoading(false);
                         return;

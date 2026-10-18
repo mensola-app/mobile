@@ -269,8 +269,8 @@ export default function SettingsView() {
                 const deviceDbId = await AsyncStorage.getItem("device_db_id");
                 if (!deviceDbId) return;
                 await DeviceService.updateDeviceLocale(deviceDbId, langToSet);
-            } catch {
-                // Silently ignore backend sync error on language change
+            } catch (err) {
+                logger.warn("Failed to sync updated language to device record", err);
             }
         }
     };

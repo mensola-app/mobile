@@ -11,6 +11,7 @@ import { DeviceService } from "@/services/device.service";
 import { AuthService } from "@/services/auth.service";
 import { useQueryClient } from "@tanstack/react-query";
 import { setMonitoringUser } from "@/utils/monitoring";
+import { logger } from "@/utils/logger";
 
 interface AuthContextType {
     user?: IUser;
@@ -37,13 +38,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const storedToken = await SecureStore.getItemAsync("token");
                 const storedUser = await SecureStore.getItemAsync("user_data");
                 if (storedToken && storedUser) {
-                    const parsedUser = JSON.parse(storedUser);
-                    setToken(storedToken);
-                    setUserState(parsedUser);
-                    setMonitoringUser(parsedUser.id);
+                    try {
+                        const parsedUser = JSON.parse(storedUser);
+                        setToken(storedToken);
+                        setUserState(parsedUser);
+                        setMonitoringUser(parsedUser.id);
+                    } catch (parseError) {
+                        logger.error(
+                            "Failed to parse stored user profile from storage, corrupted payload",
+                            parseError,
+                        );
+                        await SecureStore.deleteItemAsync("user_data").catch((delErr) => {
+                            logger.warn("Failed to delete corrupted user_data", delErr);
+                        });
+                    }
                 }
-            } catch {
-                // Ignore storage read error
+            } catch (storageError) {
+                logger.error("Failed to read auth credentials from SecureStore", storageError);
             } finally {
                 setIsLoading(false);
             }
@@ -53,30 +64,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         let isMounted = true;
-        if (token && user) {
-            registerForPushNotificationsAsync().then(async (tokenData) => {
-                if (tokenData && isMounted) {
-                    setPushToken(tokenData);
-                    await SecureStore.setItemAsync("push_token", tokenData).catch(() => {});
+        let retryTimeoutId: ReturnType<typeof setTimeout> | null = null;
+        let attempt = 0;
+        const maxAttempts = 3;
+
+        async function syncPushToken() {
+            if (!token || !user) return;
+
+            try {
+                const tokenData = await registerForPushNotificationsAsync();
+                if (!tokenData || !isMounted) return;
+
+                setPushToken(tokenData);
+                await SecureStore.setItemAsync("push_token", tokenData).catch((err) => {
+                    logger.warn("Failed to persist push_token in SecureStore", err);
+                });
+
+                const deviceLanguage = getLocales()[0]?.languageCode ?? "tr";
+                const locale = i18n.language || deviceLanguage;
+
+                const attemptRegisterDevice = async (): Promise<boolean> => {
                     try {
-                        const deviceLanguage = getLocales()[0]?.languageCode ?? "tr";
-                        const locale = i18n.language || deviceLanguage;
                         const deviceRes = await DeviceService.registerDevice({
                             pushToken: tokenData,
                             locale,
                             platform: Platform.OS,
                         });
                         if (deviceRes?.id) {
-                            await AsyncStorage.setItem("device_db_id", deviceRes.id);
+                            await AsyncStorage.setItem("device_db_id", deviceRes.id).catch((err) => {
+                                logger.warn("Failed to persist device_db_id in AsyncStorage", err);
+                            });
                         }
-                    } catch {
-                        // Silently handle backend sync error
+                        return true;
+                    } catch (deviceErr) {
+                        attempt += 1;
+                        logger.warn(
+                            `Device registration attempt ${attempt}/${maxAttempts} failed`,
+                            deviceErr,
+                        );
+
+                        if (attempt < maxAttempts && isMounted) {
+                            const delayMs = attempt * 3000;
+                            retryTimeoutId = setTimeout(() => {
+                                if (isMounted) {
+                                    attemptRegisterDevice();
+                                }
+                            }, delayMs);
+                        } else if (attempt >= maxAttempts) {
+                            logger.error(
+                                "Device push registration failed after maximum retries",
+                                deviceErr,
+                                {
+                                    platform: Platform.OS,
+                                    hasToken: Boolean(tokenData),
+                                    attempts: attempt,
+                                },
+                            );
+                        }
+                        return false;
                     }
-                }
-            });
+                };
+
+                await attemptRegisterDevice();
+            } catch (err) {
+                logger.error("Failed to complete push notification registration flow", err);
+            }
         }
+
+        if (token && user) {
+            syncPushToken();
+        }
+
         return () => {
             isMounted = false;
+            if (retryTimeoutId) {
+                clearTimeout(retryTimeoutId);
+            }
         };
     }, [token, user]);
 
@@ -84,9 +147,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserState(u);
         setMonitoringUser(u?.id);
         if (u) {
-            SecureStore.setItemAsync("user_data", JSON.stringify(u)).catch(() => {});
+            SecureStore.setItemAsync("user_data", JSON.stringify(u)).catch((err) => {
+                logger.warn("Failed to persist user_data in SecureStore", err);
+            });
         } else {
-            SecureStore.deleteItemAsync("user_data").catch(() => {});
+            SecureStore.deleteItemAsync("user_data").catch((err) => {
+                logger.warn("Failed to delete user_data from SecureStore", err);
+            });
         }
     };
 
@@ -97,12 +164,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await SecureStore.setItemAsync("refreshToken", tokens.refreshToken);
             }
             await SecureStore.setItemAsync("user_data", JSON.stringify(userData));
-            setToken(tokens.accessToken);
-            setUserState(userData);
-            setMonitoringUser(userData.id);
-        } catch {
-            // Silently handle save error
+        } catch (err) {
+            logger.error("Failed to persist auth credentials during login", err);
         }
+        setToken(tokens.accessToken);
+        setUserState(userData);
+        setMonitoringUser(userData.id);
     };
 
     const logout = async (pushTokenOverride?: string) => {
@@ -111,9 +178,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             queryClient.clear();
             setMonitoringUser(undefined);
 
-            const storedPushToken = await SecureStore.getItemAsync("push_token");
+            const storedPushToken = await SecureStore.getItemAsync("push_token").catch((err) => {
+                logger.warn("Failed to read push_token from SecureStore during logout", err);
+                return null;
+            });
             const activePushToken = pushTokenOverride || pushToken || storedPushToken || undefined;
-            const refreshToken = await SecureStore.getItemAsync("refreshToken");
+            const refreshToken = await SecureStore.getItemAsync("refreshToken").catch((err) => {
+                logger.warn("Failed to read refreshToken from SecureStore during logout", err);
+                return null;
+            });
 
             // Delete device from backend if registered
             try {
@@ -122,8 +195,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     await DeviceService.deleteDevice(deviceDbId);
                     await AsyncStorage.removeItem("device_db_id");
                 }
-            } catch {
-                // Ignore device deletion error on logout
+            } catch (err) {
+                logger.warn("Failed to unregister device from backend on logout", err);
             }
 
             try {
@@ -131,22 +204,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     refreshToken: refreshToken || undefined,
                     pushToken: activePushToken,
                 });
-            } catch {
-                // Ignore network or authentication errors on logout
+            } catch (err) {
+                logger.warn("AuthService.logout request failed or server unreachable", err);
             }
 
-            await SecureStore.deleteItemAsync("token");
-            await SecureStore.deleteItemAsync("refreshToken");
-            await SecureStore.deleteItemAsync("user_data");
-            await SecureStore.deleteItemAsync("push_token");
-            await AsyncStorage.removeItem("device_db_id");
+            await SecureStore.deleteItemAsync("token").catch((err) => {
+                logger.warn("Failed to delete token on logout", err);
+            });
+            await SecureStore.deleteItemAsync("refreshToken").catch((err) => {
+                logger.warn("Failed to delete refreshToken on logout", err);
+            });
+            await SecureStore.deleteItemAsync("user_data").catch((err) => {
+                logger.warn("Failed to delete user_data on logout", err);
+            });
+            await SecureStore.deleteItemAsync("push_token").catch((err) => {
+                logger.warn("Failed to delete push_token on logout", err);
+            });
+            await AsyncStorage.removeItem("device_db_id").catch((err) => {
+                logger.warn("Failed to delete device_db_id on logout", err);
+            });
 
             setToken(null);
             setUserState(undefined);
             setPushToken(null);
             router.replace("/login");
-        } catch {
-            // Silently handle cleanup error
+        } catch (err) {
+            logger.error("Unexpected error during logout flow", err);
+            setToken(null);
+            setUserState(undefined);
+            setPushToken(null);
+            router.replace("/login");
         }
     };
 
