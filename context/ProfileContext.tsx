@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo, useCallback } from "react";
 import { Text, StyleSheet, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Href, useRouter } from "expo-router";
@@ -40,6 +40,87 @@ export function ProfileProvider({ children, userId = "me" }: { children: React.R
     const { profile, fetchProfile, isLoading, error } = useProfile(userId);
     const router = useRouter();
 
+    const isOwnProfile = userId === "me" || userId === user?.id;
+
+    const handleStatPress = useCallback(
+        (statType: StatTypeKey) => {
+            const basePath = isOwnProfile ? "/me" : `/users/${userId}`;
+            const fullPath = `${basePath}/${STAT_ROUTE_MAP[statType]}`;
+
+            router.push(fullPath as Href);
+        },
+        [isOwnProfile, userId, router],
+    );
+
+    const contextValue = useMemo<ProfileContextType | null>(() => {
+        if (!profile) return null;
+
+        const {
+            id,
+            username,
+            fullname,
+            bio,
+            avatar,
+            favoriteMovies,
+            favoriteTracks,
+            mutualFollowers,
+            isFollowingByMe,
+            isPendingByMe,
+            hasPendingRequestFromUser,
+            hasAccess = true,
+            isPrivate = false,
+            subscriptionTier,
+            ...stats
+        } = profile;
+
+        const activeHeaderStats = ["watchedMoviesCount", "followersCount", "followingCount"] as const;
+
+        const headerStats = stats
+            ? Object.fromEntries(activeHeaderStats.map((key) => [key as StatTypeKey, stats[key] ?? 0]))
+            : {};
+
+        const headerData = {
+            id,
+            username,
+            fullname,
+            bio,
+            avatar,
+            stats: headerStats,
+            isOwnProfile,
+            isFollowingByMe,
+            isPendingByMe,
+            hasPendingRequestFromUser,
+            subscriptionTier,
+            isPrivate,
+        };
+
+        const bodyData = {
+            favoriteMovies: favoriteMovies?.slice(0, 3),
+            favoriteTracks: favoriteTracks?.slice(0, 3),
+        };
+
+        const footerData = { stats };
+
+        const favorites = {
+            favoriteMovies,
+            favoriteTracks,
+        };
+
+        return {
+            userId,
+            refetch: fetchProfile,
+            isLoading,
+            headerData,
+            bodyData,
+            footerData,
+            isOwnProfile,
+            handleStatPress,
+            favorites,
+            hasAccess,
+            isPrivate,
+        };
+    }, [profile, isOwnProfile, userId, fetchProfile, isLoading, handleStatPress]);
+
     // Error state takes priority
     if (error) {
         return (
@@ -57,7 +138,7 @@ export function ProfileProvider({ children, userId = "me" }: { children: React.R
     // Show skeleton while loading OR on first render before useEffect fires
     // (useProfile initialises isLoading=false, so there's a one-frame gap before
     //  isLoading flips to true — guarding on !profile covers that gap too)
-    if (isLoading || !profile) {
+    if (isLoading || !profile || !contextValue) {
         return (
             <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
                 <ProfileSkeleton />
@@ -65,79 +146,8 @@ export function ProfileProvider({ children, userId = "me" }: { children: React.R
         );
     }
 
-    const isOwnProfile = userId === "me" || userId === user?.id;
-
-    const handleStatPress = (statType: StatTypeKey) => {
-        const basePath = isOwnProfile ? "/me" : `/users/${userId}`;
-        const fullPath = `${basePath}/${STAT_ROUTE_MAP[statType]}`;
-
-        router.push(fullPath as Href);
-    };
-
-    const {
-        id,
-        username,
-        fullname,
-        bio,
-        avatar,
-        favoriteMovies,
-        favoriteTracks,
-        mutualFollowers,
-        isFollowingByMe,
-        isPendingByMe,
-        hasPendingRequestFromUser,
-        hasAccess = true,
-        isPrivate = false,
-        subscriptionTier,
-        ...stats
-    } = profile;
-
-    const activeHeaderStats = ["watchedMoviesCount", "followersCount", "followingCount"] as const;
-
-    const headerStats = stats
-        ? Object.fromEntries(activeHeaderStats.map((key) => [key as StatTypeKey, stats[key] ?? 0]))
-        : {};
-
-    const headerData = {
-        id,
-        username,
-        fullname,
-        bio,
-        avatar,
-        stats: headerStats,
-        isOwnProfile,
-        isFollowingByMe,
-        isPendingByMe,
-        hasPendingRequestFromUser,
-        subscriptionTier,
-        isPrivate,
-    };
-    const bodyData = {
-        favoriteMovies: favoriteMovies?.slice(0, 3),
-        favoriteTracks: favoriteTracks?.slice(0, 3),
-    };
-    const footerData = { stats };
-
-    const favorites = {
-        favoriteMovies,
-        favoriteTracks,
-    };
-
     return (
-        <ProfileContext.Provider
-            value={{
-                userId,
-                refetch: fetchProfile,
-                isLoading,
-                headerData,
-                bodyData,
-                footerData,
-                isOwnProfile,
-                handleStatPress,
-                favorites,
-                hasAccess,
-                isPrivate,
-            }}>
+        <ProfileContext.Provider value={contextValue}>
             {children}
         </ProfileContext.Provider>
     );
