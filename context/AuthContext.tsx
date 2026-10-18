@@ -36,7 +36,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         async function loadStoredAuth() {
             try {
                 const storedToken = await SecureStore.getItemAsync("token");
-                const storedUser = await SecureStore.getItemAsync("user_data");
+                let storedUser = await AsyncStorage.getItem("user_data").catch((err) => {
+                    logger.warn("Failed to read user_data from AsyncStorage", err);
+                    return null;
+                });
+
+                // Migration fallback: If not in AsyncStorage, check legacy SecureStore location
+                if (!storedUser) {
+                    const legacyUser = await SecureStore.getItemAsync("user_data").catch(() => null);
+                    if (legacyUser) {
+                        storedUser = legacyUser;
+                        // Migrate to AsyncStorage and delete from SecureStore to stay under 2KB limit
+                        await AsyncStorage.setItem("user_data", legacyUser).catch(() => {});
+                        await SecureStore.deleteItemAsync("user_data").catch(() => {});
+                    }
+                }
+
                 if (storedToken && storedUser) {
                     try {
                         const parsedUser = JSON.parse(storedUser);
@@ -48,9 +63,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             "Failed to parse stored user profile from storage, corrupted payload",
                             parseError,
                         );
-                        await SecureStore.deleteItemAsync("user_data").catch((delErr) => {
-                            logger.warn("Failed to delete corrupted user_data", delErr);
+                        await AsyncStorage.removeItem("user_data").catch((delErr) => {
+                            logger.warn("Failed to delete corrupted user_data from AsyncStorage", delErr);
                         });
+                        await SecureStore.deleteItemAsync("user_data").catch(() => {});
                     }
                 }
             } catch (storageError) {
@@ -147,13 +163,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserState(u);
         setMonitoringUser(u?.id);
         if (u) {
-            SecureStore.setItemAsync("user_data", JSON.stringify(u)).catch((err) => {
-                logger.warn("Failed to persist user_data in SecureStore", err);
+            AsyncStorage.setItem("user_data", JSON.stringify(u)).catch((err) => {
+                logger.warn("Failed to persist user_data in AsyncStorage", err);
             });
         } else {
-            SecureStore.deleteItemAsync("user_data").catch((err) => {
-                logger.warn("Failed to delete user_data from SecureStore", err);
+            AsyncStorage.removeItem("user_data").catch((err) => {
+                logger.warn("Failed to delete user_data from AsyncStorage", err);
             });
+            SecureStore.deleteItemAsync("user_data").catch(() => {});
         }
     };
 
@@ -163,7 +180,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (tokens.refreshToken) {
                 await SecureStore.setItemAsync("refreshToken", tokens.refreshToken);
             }
-            await SecureStore.setItemAsync("user_data", JSON.stringify(userData));
+            await AsyncStorage.setItem("user_data", JSON.stringify(userData));
+            await SecureStore.deleteItemAsync("user_data").catch(() => {});
         } catch (err) {
             logger.error("Failed to persist auth credentials during login", err);
         }
@@ -214,9 +232,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await SecureStore.deleteItemAsync("refreshToken").catch((err) => {
                 logger.warn("Failed to delete refreshToken on logout", err);
             });
-            await SecureStore.deleteItemAsync("user_data").catch((err) => {
-                logger.warn("Failed to delete user_data on logout", err);
+            await AsyncStorage.removeItem("user_data").catch((err) => {
+                logger.warn("Failed to delete user_data from AsyncStorage on logout", err);
             });
+            await SecureStore.deleteItemAsync("user_data").catch(() => {});
             await SecureStore.deleteItemAsync("push_token").catch((err) => {
                 logger.warn("Failed to delete push_token on logout", err);
             });

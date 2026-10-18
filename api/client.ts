@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { Alert } from "react-native";
 import i18n from "i18next";
@@ -156,9 +157,18 @@ const fetchWithTimeout = async (
 };
 
 const clearSession = async () => {
-    await SecureStore.deleteItemAsync("token");
-    await SecureStore.deleteItemAsync("refreshToken");
-    await SecureStore.deleteItemAsync("user_data");
+    try {
+        await SecureStore.deleteItemAsync("token");
+    } catch {}
+    try {
+        await SecureStore.deleteItemAsync("refreshToken");
+    } catch {}
+    try {
+        await AsyncStorage.removeItem("user_data");
+    } catch {}
+    try {
+        await SecureStore.deleteItemAsync("user_data");
+    } catch {}
     router.replace("/login");
 };
 

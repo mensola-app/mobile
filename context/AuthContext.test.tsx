@@ -114,9 +114,12 @@ describe("AuthContext", () => {
         spy.mockRestore();
     });
 
-    it("loads stored credentials on startup and binds monitoring user", async () => {
+    it("loads stored credentials on startup from AsyncStorage and binds monitoring user", async () => {
         (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
             if (key === "token") return Promise.resolve("initial-token-123");
+            return Promise.resolve(null);
+        });
+        (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
             if (key === "user_data") return Promise.resolve(JSON.stringify(mockUser));
             return Promise.resolve(null);
         });
@@ -133,6 +136,28 @@ describe("AuthContext", () => {
         expect(result.current.user).toEqual(mockUser);
         expect(setMonitoringUser).toHaveBeenCalledWith("user-123");
         expect(logger.error).not.toHaveBeenCalled();
+    });
+
+    it("migrates legacy user_data from SecureStore to AsyncStorage on startup", async () => {
+        (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
+            if (key === "token") return Promise.resolve("legacy-token");
+            if (key === "user_data") return Promise.resolve(JSON.stringify(mockUser));
+            return Promise.resolve(null);
+        });
+        (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+
+        const { result } = renderHook(() => useGlobalUser(), {
+            wrapper: createWrapper(),
+        });
+
+        await waitFor(() => {
+            expect(result.current.isLoading).toBe(false);
+        });
+
+        expect(result.current.token).toBe("legacy-token");
+        expect(result.current.user).toEqual(mockUser);
+        expect(AsyncStorage.setItem).toHaveBeenCalledWith("user_data", JSON.stringify(mockUser));
+        expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("user_data");
     });
 
     it("handles SecureStore read failure gracefully without crashing and logs to telemetry", async () => {
@@ -158,6 +183,9 @@ describe("AuthContext", () => {
     it("detects corrupted JSON in user_data, cleans storage, and reports error", async () => {
         (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
             if (key === "token") return Promise.resolve("valid-token");
+            return Promise.resolve(null);
+        });
+        (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
             if (key === "user_data") return Promise.resolve("{ invalid json string");
             return Promise.resolve(null);
         });
@@ -176,12 +204,15 @@ describe("AuthContext", () => {
             "Failed to parse stored user profile from storage, corrupted payload",
             expect.any(SyntaxError),
         );
-        expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("user_data");
+        expect(AsyncStorage.removeItem).toHaveBeenCalledWith("user_data");
     });
 
     it("registers push notifications and saves device id when token and user are present", async () => {
         (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
             if (key === "token") return Promise.resolve("auth-token");
+            return Promise.resolve(null);
+        });
+        (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
             if (key === "user_data") return Promise.resolve(JSON.stringify(mockUser));
             return Promise.resolve(null);
         });
@@ -208,6 +239,9 @@ describe("AuthContext", () => {
     it("retries device registration on failure and logs telemetry when retries are exhausted", async () => {
         (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
             if (key === "token") return Promise.resolve("auth-token");
+            return Promise.resolve(null);
+        });
+        (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
             if (key === "user_data") return Promise.resolve(JSON.stringify(mockUser));
             return Promise.resolve(null);
         });
@@ -252,7 +286,7 @@ describe("AuthContext", () => {
         });
     });
 
-    it("updates user with setUser and saves to SecureStore", async () => {
+    it("updates user with setUser and saves to AsyncStorage", async () => {
         const { result } = renderHook(() => useGlobalUser(), {
             wrapper: createWrapper(),
         });
@@ -267,7 +301,7 @@ describe("AuthContext", () => {
         });
 
         expect(result.current.user).toEqual(updatedUser);
-        expect(SecureStore.setItemAsync).toHaveBeenCalledWith("user_data", JSON.stringify(updatedUser));
+        expect(AsyncStorage.setItem).toHaveBeenCalledWith("user_data", JSON.stringify(updatedUser));
         expect(setMonitoringUser).toHaveBeenCalledWith("user-123");
 
         // Pass undefined to clear user
@@ -276,7 +310,7 @@ describe("AuthContext", () => {
         });
 
         expect(result.current.user).toBeUndefined();
-        expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("user_data");
+        expect(AsyncStorage.removeItem).toHaveBeenCalledWith("user_data");
         expect(setMonitoringUser).toHaveBeenCalledWith(undefined);
     });
 
@@ -298,7 +332,7 @@ describe("AuthContext", () => {
 
         expect(SecureStore.setItemAsync).toHaveBeenCalledWith("token", "new-access-token");
         expect(SecureStore.setItemAsync).toHaveBeenCalledWith("refreshToken", "new-refresh-token");
-        expect(SecureStore.setItemAsync).toHaveBeenCalledWith("user_data", JSON.stringify(mockUser));
+        expect(AsyncStorage.setItem).toHaveBeenCalledWith("user_data", JSON.stringify(mockUser));
 
         expect(result.current.token).toBe("new-access-token");
         expect(result.current.user).toEqual(mockUser);
@@ -334,10 +368,10 @@ describe("AuthContext", () => {
             if (key === "token") return Promise.resolve("active-token");
             if (key === "refreshToken") return Promise.resolve("active-refresh-token");
             if (key === "push_token") return Promise.resolve("stored-push-token");
-            if (key === "user_data") return Promise.resolve(JSON.stringify(mockUser));
             return Promise.resolve(null);
         });
         (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
+            if (key === "user_data") return Promise.resolve(JSON.stringify(mockUser));
             if (key === "device_db_id") return Promise.resolve("device-to-remove-123");
             return Promise.resolve(null);
         });
@@ -360,6 +394,7 @@ describe("AuthContext", () => {
         expect(setMonitoringUser).toHaveBeenCalledWith(undefined);
         expect(DeviceService.deleteDevice).toHaveBeenCalledWith("device-to-remove-123");
         expect(AsyncStorage.removeItem).toHaveBeenCalledWith("device_db_id");
+        expect(AsyncStorage.removeItem).toHaveBeenCalledWith("user_data");
         expect(AuthService.logout).toHaveBeenCalledWith({
             refreshToken: "active-refresh-token",
             pushToken: "stored-push-token",
@@ -367,7 +402,6 @@ describe("AuthContext", () => {
 
         expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("token");
         expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("refreshToken");
-        expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("user_data");
         expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("push_token");
 
         expect(result.current.token).toBeNull();
