@@ -58,3 +58,7 @@ jest.mock("@react-native-google-signin/google-signin", () => ({
     },
     isErrorWithCode: jest.fn(() => false),
 }));
+
+jest.mock("@react-native-community/netinfo", () =>
+    require("@react-native-community/netinfo/jest/netinfo-mock.js")
+);

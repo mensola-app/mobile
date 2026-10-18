@@ -541,6 +541,8 @@
         "discussion": "Tartışma",
         "networkErrorTitle": "Bağlantı Hatası",
         "networkErrorMessage": "Lütfen internet bağlantınızı kontrol edin.",
+        "offlineBanner": "İnternet bağlantısı yok",
+        "onlineBanner": "Yeniden bağlandı",
         "rateLimitedMessage": "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
         "errorBoundaryTitle": "Bir şeyler ters gitti",
         "errorBoundaryMessage": "Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.",

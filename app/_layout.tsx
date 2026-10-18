@@ -10,9 +10,12 @@ import * as Notifications from "expo-notifications";
 import ErrorFallback from "../components/ErrorFallback";
 import { initMonitoring, wrapRootComponent } from "../utils/monitoring";
 import { sanitizeNotificationPath } from "../utils/navigation";
+import { setupNetworkListener } from "../utils/network";
+import OfflineBanner from "../components/OfflineBanner";
 import "../i18n";
 
 initMonitoring();
+setupNetworkListener();
 
 // expo-router renders this instead of the app when a render error bubbles up to the root.
 export { ErrorFallback as ErrorBoundary };
@@ -53,6 +56,7 @@ function RootLayout() {
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 <StatusBar style="light" />
+                <OfflineBanner />
                 <Stack
                     screenOptions={{
                         headerShown: false,

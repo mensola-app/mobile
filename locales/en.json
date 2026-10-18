@@ -541,6 +541,8 @@
         "discussion": "Discussion",
         "networkErrorTitle": "Connection Error",
         "networkErrorMessage": "Please check your internet connection.",
+        "offlineBanner": "No internet connection",
+        "onlineBanner": "Back online",
         "rateLimitedMessage": "Too many requests. Please wait a moment and try again.",
         "errorBoundaryTitle": "Something went wrong",
         "errorBoundaryMessage": "An unexpected error occurred. Please try again.",

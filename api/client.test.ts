@@ -411,5 +411,32 @@ describe("HttpClient Infrastructure Tests", () => {
             },
         });
     });
+
+    it("should narrow TypeError checks so generic runtime errors are not classified as network failures", () => {
+        const { isNetworkFailure } = require("./client");
+
+        const genericTypeError = new TypeError("Cannot read properties of undefined (reading 'title')");
+        expect(isNetworkFailure(genericTypeError)).toBe(false);
+
+        const fetchTypeError = new TypeError("Network request failed");
+        expect(isNetworkFailure(fetchTypeError)).toBe(true);
+    });
+
+    it("should suppress modal alerts when onlineManager reports device is offline", () => {
+        const { Alert } = require("react-native");
+        const alertSpy = jest.spyOn(Alert, "alert");
+        alertSpy.mockClear();
+
+        const { onlineManager } = require("@tanstack/react-query");
+        const { notifyNetworkError } = require("./client");
+
+        const isOnlineSpy = jest.spyOn(onlineManager, "isOnline").mockReturnValue(false);
+
+        notifyNetworkError("Offline message");
+
+        expect(alertSpy).not.toHaveBeenCalled();
+
+        isOnlineSpy.mockRestore();
+    });
 });
 

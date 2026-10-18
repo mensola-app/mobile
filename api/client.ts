@@ -4,6 +4,7 @@ import { Alert } from "react-native";
 import i18n from "i18next";
 import { usePreferences } from "@/hooks/usePreferences";
 import { API_BASE_URL as BASE_URL } from "@/constants/env";
+import { onlineManager } from "@tanstack/react-query";
 
 export interface RequestOptions extends Omit<RequestInit, "body"> {
     body?: unknown;
@@ -52,6 +53,11 @@ export const resetNetworkAlertThrottle = () => {
 };
 
 export const notifyNetworkError = (message?: string) => {
+    // When offline, the persistent OfflineBanner informs the user, so suppress blocking modal alert spam.
+    if (!onlineManager.isOnline()) {
+        return;
+    }
+
     const now = Date.now();
     if (now - lastNetworkAlertTimestamp > ALERT_THROTTLE_MS) {
         lastNetworkAlertTimestamp = now;
@@ -92,17 +98,21 @@ export const isNetworkFailure = (error: unknown): boolean => {
     if (!error || typeof error !== "object") return false;
     const err = error as { name?: string; message?: string };
     if (err.name === "AbortError" || err.name === "TimeoutError") return true;
-    if (error instanceof TypeError) return true;
     const msg = String(err.message || "").toLowerCase();
-    return (
+    const isNetworkMsg =
         msg.includes("network") ||
         msg.includes("fetch") ||
         msg.includes("failed to fetch") ||
         msg.includes("connection") ||
         msg.includes("offline") ||
         msg.includes("timeout") ||
-        msg.includes("aborted")
-    );
+        msg.includes("aborted") ||
+        msg.includes("load failed");
+
+    if (error instanceof TypeError) {
+        return isNetworkMsg;
+    }
+    return isNetworkMsg;
 };
 
 const REFRESH_TIMEOUT_MS = 10000;
