@@ -1,4 +1,4 @@
-import { client } from "@/api/client";
+import { client } from "@/lib/http/client";
 import { SearchMovieRequest, TmdbhMoviesResponse } from "@/types/tmdb.types";
 
 const tmdbService = {

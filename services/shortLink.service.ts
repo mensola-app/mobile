@@ -1,4 +1,4 @@
-import { client } from "@/api/client";
+import { client } from "@/lib/http/client";
 import { LINKS } from "@/constants/links";
 import { logger } from "@/utils/logger";
 

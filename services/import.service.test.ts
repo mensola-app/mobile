@@ -1,9 +1,9 @@
 import { ImportService, ImportUploadError } from "./import.service";
-import { client } from "@/api/client";
+import { client } from "@/lib/http/client";
 import { uploadAsync, getInfoAsync, FileSystemUploadType } from "expo-file-system/legacy";
 import * as SecureStore from "expo-secure-store";
 
-jest.mock("@/api/client", () => ({
+jest.mock("@/lib/http/client", () => ({
     client: {
         post: jest.fn(),
         get: jest.fn(),

@@ -4,7 +4,7 @@ import {
     UpsertInteractionRequest,
     UpsertInteractionResponse,
 } from "@/types/interaction.types";
-import { client } from "../api/client";
+import { client } from "@/lib/http/client";
 import { PlaylistId, TrackId } from "@/types/common.types";
 import {
     AddToPlaylistResponse,

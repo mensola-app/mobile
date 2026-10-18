@@ -4,7 +4,7 @@ import {
     CreateReplyResponse,
     ToggleCommentLikeResponse,
 } from "@/types/interaction.types";
-import { client } from "../api/client";
+import { client } from "@/lib/http/client";
 import { logger } from "@/utils/logger";
 
 const CommentService = {

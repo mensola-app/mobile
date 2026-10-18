@@ -1,7 +1,7 @@
 import { getOrCreateShortLink } from "./shortLink.service";
-import { client } from "@/api/client";
+import { client } from "@/lib/http/client";
 
-jest.mock("@/api/client", () => ({
+jest.mock("@/lib/http/client", () => ({
     client: {
         post: jest.fn(),
     },

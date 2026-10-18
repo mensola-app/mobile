@@ -5,7 +5,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Colors } from "../constants/colors";
 import { configureGoogleSignIn } from "../services/googleAuth.service";
-import { shouldRetryQuery, queryRetryDelay } from "../api/retry";
+import { shouldRetryQuery, queryRetryDelay } from "../lib/http/retry";
 import * as Notifications from "expo-notifications";
 import ErrorFallback from "../components/ErrorFallback";
 import { initMonitoring, wrapRootComponent } from "../utils/monitoring";

@@ -1,5 +1,5 @@
 import { FollowActionResponse, UpdateUsernameResponse } from "@/types/user.types";
-import { client } from "../api/client";
+import { client } from "@/lib/http/client";
 import { UserId } from "@/types/common.types";
 
 const UserService = {

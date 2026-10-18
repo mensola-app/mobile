@@ -1,5 +1,5 @@
 import { GetProfileRequest, GetProfileResponse, IUser, UpdateProfileResponse } from "@/types/user.types";
-import { client } from "../api/client";
+import { client } from "@/lib/http/client";
 import { GetStatDetailsRequest, STAT_ENDPOINT_MAP, StatDetailsResponse, StatType } from "@/types/stat.types";
 import * as SecureStore from "expo-secure-store";
 import { uploadAsync, FileSystemUploadType } from "expo-file-system/legacy";

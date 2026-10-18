@@ -4,7 +4,7 @@ import {
     UserBookmarksRequest,
     UserBookmarksResponse,
 } from "@/types/bookmark.types";
-import { client } from "../api/client";
+import { client } from "@/lib/http/client";
 
 export const BookmarkService = {
     toggleBookmark: async (data: ToggleBookmarkRequest): Promise<ToggleBookmarkResponse> => {

@@ -1,7 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { uploadAsync, getInfoAsync, FileSystemUploadType } from "expo-file-system/legacy";
 import i18n from "i18next";
-import { client, getActiveLanguage } from "@/api/client";
+import { client, getActiveLanguage } from "@/lib/http/client";
 import { ApiResponse } from "@/types/api";
 import { ImportJobProgress, ImportResponseDto } from "@/types/import.types";
 import { API_BASE_URL as BASE_URL } from "@/constants/env";
@@ -178,16 +178,9 @@ export const ImportService = {
                         defaultValue: "Dosya yüklenemedi.",
                     })) ||
                 "Dosya yüklenemedi.";
-            const errorMessage =
-                parsedData?.message ||
-                parsedData?.error?.message ||
-                fallbackMessage;
+            const errorMessage = parsedData?.message || parsedData?.error?.message || fallbackMessage;
 
-            throw new ImportUploadError(
-                errorMessage,
-                parsedData?.error?.code || "UPLOAD_FAILED",
-                uploadResult.status,
-            );
+            throw new ImportUploadError(errorMessage, parsedData?.error?.code || "UPLOAD_FAILED", uploadResult.status);
         }
 
         return parsedData.data;
@@ -197,12 +190,9 @@ export const ImportService = {
      * Fetches current progress of an import job.
      */
     getImportProgress: async (jobId: string): Promise<ImportJobProgress> => {
-        const response = await client.get<ApiResponse<ImportJobProgress>>(
-            `/v1/imports/${jobId}`,
-            {
-                auth: true,
-            },
-        );
+        const response = await client.get<ApiResponse<ImportJobProgress>>(`/v1/imports/${jobId}`, {
+            auth: true,
+        });
 
         if (!response.success || !response.data) {
             throw response || new Error("Failed to fetch progress");

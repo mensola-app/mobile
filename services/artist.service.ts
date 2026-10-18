@@ -1,4 +1,4 @@
-import { client } from "../api/client";
+import { client } from "@/lib/http/client";
 import {
     ArtistDetailResponse,
     ToggleArtistFollowResponse,

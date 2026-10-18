@@ -6,7 +6,7 @@ import {
     LikedAlbumsRequest,
     LikedAlbumsResponse,
 } from "@/types/album.types";
-import { client } from "../api/client";
+import { client } from "@/lib/http/client";
 import {
     InteractionsRequest,
     InteractionsResponse,

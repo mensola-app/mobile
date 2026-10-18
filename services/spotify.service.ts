@@ -1,4 +1,4 @@
-import { client } from "@/api/client";
+import { client } from "@/lib/http/client";
 import { PaginationQueries } from "@/types/common.types";
 import { GetAlbumsResponse, SearchTrackRequest, SearchTrackResponse } from "@/types/spotify.types";
 
