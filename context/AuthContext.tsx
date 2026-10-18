@@ -10,6 +10,7 @@ import { registerForPushNotificationsAsync } from "@/utils/notification.utils";
 import { DeviceService } from "@/services/device.service";
 import { AuthService } from "@/services/auth.service";
 import { useQueryClient } from "@tanstack/react-query";
+import { clearPersistedQueryCache } from "@/lib/queryClient";
 import { setMonitoringUser } from "@/utils/monitoring";
 import { logger } from "@/utils/logger";
 
@@ -194,6 +195,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             // Clear React Query cache immediately so no stale user data persists
             queryClient.clear();
+            await clearPersistedQueryCache().catch((err) => {
+                logger.warn("Failed to clear persisted query cache during logout", err);
+            });
             setMonitoringUser(undefined);
 
             const storedPushToken = await SecureStore.getItemAsync("push_token").catch((err) => {

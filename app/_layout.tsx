@@ -2,10 +2,10 @@ import { useEffect } from "react";
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { AuthProvider } from "../context/AuthContext";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { queryClient, queryPersistOptions } from "../lib/queryClient";
 import { Colors } from "../constants/colors";
 import { configureGoogleSignIn } from "../services/googleAuth.service";
-import { shouldRetryQuery, queryRetryDelay } from "../lib/http/retry";
 import * as Notifications from "expo-notifications";
 import ErrorFallback from "../components/ErrorFallback";
 import { initMonitoring, wrapRootComponent } from "../utils/monitoring";
@@ -19,17 +19,6 @@ setupNetworkListener();
 
 // expo-router renders this instead of the app when a render error bubbles up to the root.
 export { ErrorFallback as ErrorBoundary };
-
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            staleTime: 1000 * 60 * 5,
-            gcTime: 1000 * 60 * 10,
-            retry: shouldRetryQuery,
-            retryDelay: queryRetryDelay,
-        },
-    },
-});
 
 function RootLayout() {
     useEffect(() => {
@@ -53,7 +42,7 @@ function RootLayout() {
     }, []);
 
     return (
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider client={queryClient} persistOptions={queryPersistOptions}>
             <AuthProvider>
                 <StatusBar style="light" />
                 <OfflineBanner />
@@ -76,7 +65,7 @@ function RootLayout() {
                     />
                 </Stack>
             </AuthProvider>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
     );
 }
 
